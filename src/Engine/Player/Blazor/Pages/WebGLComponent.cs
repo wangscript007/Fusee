@@ -1,37 +1,22 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Blazor.Extensions;
-using Blazor.Extensions.Canvas.WebGL;
+using Fusee.Engine.Imp.Graphics.WebAsm;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
 
-namespace Fusee.Engine.Player.Wasm.Pages
+namespace Fusee.Engine.Player.Blazor.Pages
 {
-
-
-    public class WebGLComponent : ComponentBase
+    public class WebGLComponent : FusCanvas
     {
-
-        private IJSRuntime _js;
-
         [Inject]
-        public IJSRuntime JS { get => _js;
-            set {
-                _js = value;
-                
-            }
-        }
+        public IJSRuntime JS { get; private set; }
          
-
         public int Width { get; set; }
 
         public int Height { get; set; }
 
         private WebGLContext _context;
 
-        protected BECanvasComponent _canvasReference;
 
         private const string VS_SOURCE = "attribute vec3 aPos;" +
                                          "attribute vec3 aColor;" +
@@ -54,7 +39,7 @@ namespace Fusee.Engine.Player.Wasm.Pages
         {
             Console.WriteLine("Render called");
            
-            _context = await _canvasReference.CreateWebGLAsync(new WebGLContextAttributes
+            _context = await this.CreateWebGLAsync(new WebGLContextAttributes
             {
                 PowerPreference = WebGLContextAttributes.POWER_PREFERENCE_HIGH_PERFORMANCE
             });
@@ -82,11 +67,6 @@ namespace Fusee.Engine.Player.Wasm.Pages
 
             await _context.UseProgramAsync(program);
             await _context.DrawArraysAsync(Primitive.TRIANGLES, 0, 3);
-        }
-
-        private void Loop()
-        {
-
         }
 
         private async Task<WebGLProgram> InitProgramAsync(WebGLContext gl, string vsSource, string fsSource)

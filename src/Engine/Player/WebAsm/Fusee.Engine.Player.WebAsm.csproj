@@ -1,4 +1,4 @@
-﻿<Project Sdk="Mono.WebAssembly.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>Fusee.Engine.Player.Desktop</RootNamespace>
         <PackageId>Fusee.Engine.Player.Desktop</PackageId>
@@ -35,11 +35,7 @@
         </Reference>
         <PackageReference Include="protobuf-net" Version="3.0.0-alpha.133" />
         <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
-
-        <PackageReference Include="WebAssembly.Bindings" Version="0.2.2" />
-        <PackageReference Include="WebAssembly.Net.Http" Version="0.2.2" />
-        <PackageReference Include="WebAssembly.Net.WebSockets" Version="0.2.2" />
-        <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+       <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
 
 
     </ItemGroup>

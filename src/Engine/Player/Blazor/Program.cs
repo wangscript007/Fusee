@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 
-namespace Fusee.Engine.Player.Wasm
+namespace Fusee.Engine.Player.Blazor
 {
     public static class Program
     {
