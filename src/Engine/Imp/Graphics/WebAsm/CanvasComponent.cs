@@ -25,5 +25,11 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         [Inject]
         internal IJSRuntime JSRuntime { get; set; }
+
+        public void SetDims(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
     }
 }
