@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Fusee.Engine.Imp.Graphics.WebAsm
 {
-    public static class CanvasComponentExtensions
+    public static class FusCanvasExtensions
     {
         public static WebGLContext CreateWebGL(this FusCanvas canvas)
         {

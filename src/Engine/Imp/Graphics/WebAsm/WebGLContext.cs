@@ -1,4 +1,10 @@
-﻿using System;
+﻿///
+/// Copyright (c) 2018 Blazor Extensions Contributors
+/// https://github.com/BlazorExtensions/Canvas
+///
+
+
+using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 

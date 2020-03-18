@@ -11,6 +11,15 @@
 <body>
     <app>Loading...</app>
 
-    <script src="_framework/blazor.webassembly.js"></script>    
+    <script src="_framework/blazor.webassembly.js"></script>
+   <script>
+       document.addEventListener('keydown', function (e) {
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnKeyDown', e)
+       });
+       document.addEventListener('mousedown', function (e) {
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnMouseDown', e)
+       });
+      
+   </script>
 </body>
 </html>

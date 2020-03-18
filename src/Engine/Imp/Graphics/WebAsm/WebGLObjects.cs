@@ -1,5 +1,12 @@
-﻿namespace Fusee.Engine.Imp.Graphics.WebAsm
+﻿///
+/// Copyright (c) 2018 Blazor Extensions Contributors
+/// https://github.com/BlazorExtensions/Canvas
+///
+
+
+namespace Fusee.Engine.Imp.Graphics.WebAsm
 {
+    
     public class WebGLContextAttributes
     {
         public bool Alpha { get; set; } = true;

@@ -8,15 +8,6 @@ namespace Fusee.Engine.Player.Blazor.Pages
 {
     public class WebGLComponent : FusCanvas
     {
-        [Inject]
-        public IJSRuntime JS { get; private set; }
-         
-        public int Width { get; set; }
-
-        public int Height { get; set; }
-
-        private WebGLContext _context;
-
 
         private const string VS_SOURCE = "attribute vec3 aPos;" +
                                          "attribute vec3 aColor;" +
