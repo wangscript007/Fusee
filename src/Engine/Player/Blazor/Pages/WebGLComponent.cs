@@ -18,8 +18,10 @@ namespace Fusee.Engine.Player.Blazor.Pages
     {
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            Console.WriteLine("OnAfterRenderAsync called");
             // This method takes care of everything
-            WebAsmProgram.Start(new Main());
+
+            Base.Imp.WebAsm.WebAsmProgram.Start(new Main(this));
         }
     }
 
@@ -28,9 +30,19 @@ namespace Fusee.Engine.Player.Blazor.Pages
         private RenderCanvasImp _canvasImp;
         private Core.Player _app;
 
-        public override void Run()
+        public Main(FusCanvas canvas)
         {
+            Canvas = canvas;
+        }
+
+        public async override void Run()
+        {
+            gl = await Canvas.CreateWebGLAsync();
+            Console.WriteLine($"Init Canvas gl is {gl}");
+
             base.Run();
+
+            Console.WriteLine("Main Run() called");
 
             // disable the debug output as the console output and debug output are the same for web
             // this prevents that every message is printed twice!
@@ -140,6 +152,9 @@ namespace Fusee.Engine.Player.Blazor.Pages
 
             AssetStorage.RegisterProvider(fap);
 
+            Console.WriteLine("_app created()");
+
+
             _app = new Core.Player();
 
             // Inject Fusee.Engine InjectMe dependencies (hard coded)
@@ -147,6 +162,8 @@ namespace Fusee.Engine.Player.Blazor.Pages
             _app.CanvasImplementor = _canvasImp;
             _app.ContextImplementor = new RenderContextImp(_app.CanvasImplementor);
             Input.AddDriverImp(new RenderCanvasInputDriverImp(_app.CanvasImplementor));
+
+            Console.WriteLine("App run");
 
             // Start the app
             _app.Run();

@@ -19,13 +19,6 @@ namespace Fusee.Base.Imp.WebAsm
 
         public static void Start(WebAsmBase webAsm)
         {
-            // Let's first check if we can continue with WebGL2 instead of crashing.
-            //if (!isBrowserSupportsWebGL2())
-            //{
-            //    HtmlHelper.AddParagraph("We are sorry, but your browser does not seem to support WebGL2.");
-            //    return;
-            //}
-
             mainExecutable = webAsm;
 
             mainExecutable.Init(webAsm.Canvas, CanvasColor);
@@ -87,9 +80,10 @@ namespace Fusee.Base.Imp.WebAsm
             canvasObject.SetDims(newWidth, newHeight);
         }
 
-        [JSInvokable]
+        [JSInvokableAttribute("Loop")]
         public static void Loop(double milliseconds)
         {
+            Console.WriteLine($"Loop called {milliseconds} ms");
             var elapsedMilliseconds = milliseconds - previousMilliseconds;
             previousMilliseconds = milliseconds;
 
@@ -101,6 +95,7 @@ namespace Fusee.Base.Imp.WebAsm
 
         private static void RequestAnimationFrame()
         {
+            Console.WriteLine("Request Animation frame called");
             mainExecutable.Canvas.JSRuntime.InvokeVoidAsync("requestLoop");        
         }
     }

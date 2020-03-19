@@ -1304,6 +1304,8 @@ namespace Fusee.Engine.Core
         /// elaborate <see cref="SetRenderStateSet(RenderStateSet, bool)"/> method.</remarks>
         public void SetRenderState(RenderState renderState, uint value, bool doLockState = false)
         {
+            Console.WriteLine($"Setting renderstate: {renderState}, {value}");
+            Console.WriteLine($"_rci is {_rci}");
             if (LockedStates.TryGetValue(renderState, out var lockedState))
             {
                 if (lockedState.Key)

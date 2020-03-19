@@ -152,13 +152,20 @@ namespace Fusee.Engine.Core
             // InitImplementors();
             CanvasImplementor.Caption = GetAppName();
 
+            Console.WriteLine($"CanvasImplementor found {CanvasImplementor.Caption}");
+
             var windowWidth = GetWindowWidth();
             var windowHeight = GetWindowHeight();
 
             if (windowWidth != -1 && windowHeight != -1)
                 SetWindowSize(windowWidth, windowHeight);
 
+            Console.WriteLine($"Context Implementor found {ContextImplementor}");
+
             RC = new RenderContext(ContextImplementor);
+
+            Console.WriteLine($"RC {RC}");
+
             RC.Viewport(0, 0, Width, Height);
             RC.SetRenderStateSet(RenderStateSet.Default);
 
@@ -194,6 +201,8 @@ namespace Fusee.Engine.Core
                 RC.DefaultState.CanvasHeight = Height;
                 Resize(new ResizeEventArgs(Width, Height));
             };
+
+            Console.WriteLine($"All set in RenderCanvas");
         }
 
         /// <summary>

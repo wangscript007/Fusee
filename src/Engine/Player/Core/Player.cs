@@ -56,6 +56,8 @@ namespace Fusee.Engine.Player.Core
         // Init is called on startup. 
         public override async Task<bool> Init()
         {
+            Console.WriteLine("Player init called");
+
             _initCanvasWidth = Width / 100f;
             _initCanvasHeight = Height / 100f;
 
@@ -78,46 +80,48 @@ namespace Fusee.Engine.Player.Core
             //_scene = await AssetStorage.GetAsync<SceneContainer>(ModelFile);
             _scene = await Rocket.Build();
 
-            _gui = await CreateGui();
+            //_gui = await CreateGui();
             // Create the interaction handler
-            _sih = new SceneInteractionHandler(_gui);
+            //_sih = new SceneInteractionHandler(_gui);
 
             // Register the input devices that are not already given.
-            _gamePad = GetDevice<GamePadDevice>(0);
+            //_gamePad = GetDevice<GamePadDevice>(0);
 
-            AABBCalculator aabbc = new AABBCalculator(_scene);
-            var bbox = aabbc.GetBox();
-            if (bbox != null)
-            {
-                // If the model origin is more than one third away from its bounding box, 
-                // recenter it to the bounding box. Do this check individually per dimension.
-                // This way, small deviations will keep the model's original center, while big deviations 
-                // will make the model rotate around its geometric center.
-                float3 bbCenter = bbox.Value.Center;
-                float3 bbSize = bbox.Value.Size;
-                float3 center = float3.Zero;
-                if (System.Math.Abs(bbCenter.x) > bbSize.x * 0.3)
-                    center.x = bbCenter.x;
-                if (System.Math.Abs(bbCenter.y) > bbSize.y * 0.3)
-                    center.y = bbCenter.y;
-                if (System.Math.Abs(bbCenter.z) > bbSize.z * 0.3)
-                    center.z = bbCenter.z;
-                _sceneCenter = float4x4.CreateTranslation(-center);
+            //AABBCalculator aabbc = new AABBCalculator(_scene);
+            //var bbox = aabbc.GetBox();
+            //if (bbox != null)
+            //{
+            //    // If the model origin is more than one third away from its bounding box, 
+            //    // recenter it to the bounding box. Do this check individually per dimension.
+            //    // This way, small deviations will keep the model's original center, while big deviations 
+            //    // will make the model rotate around its geometric center.
+            //    float3 bbCenter = bbox.Value.Center;
+            //    float3 bbSize = bbox.Value.Size;
+            //    float3 center = float3.Zero;
+            //    if (System.Math.Abs(bbCenter.x) > bbSize.x * 0.3)
+            //        center.x = bbCenter.x;
+            //    if (System.Math.Abs(bbCenter.y) > bbSize.y * 0.3)
+            //        center.y = bbCenter.y;
+            //    if (System.Math.Abs(bbCenter.z) > bbSize.z * 0.3)
+            //        center.z = bbCenter.z;
+            //    _sceneCenter = float4x4.CreateTranslation(-center);
 
-                // Adjust the model size
-                float maxScale = System.Math.Max(bbSize.x, System.Math.Max(bbSize.y, bbSize.z));
-                if (maxScale != 0)
-                    _sceneScale = float4x4.CreateScale(200.0f / maxScale);
-                else
-                    _sceneScale = float4x4.Identity;
-            }
+            //    // Adjust the model size
+            //    float maxScale = System.Math.Max(bbSize.x, System.Math.Max(bbSize.y, bbSize.z));
+            //    if (maxScale != 0)
+            //        _sceneScale = float4x4.CreateScale(200.0f / maxScale);
+            //    else
+            //        _sceneScale = float4x4.Identity;
+            //}
 
-            foreach (var comp in _scene.Children[1].Components)
-                Diagnostics.Info(comp);
+            //foreach (var comp in _scene.Children[1].Components)
+            //    Diagnostics.Info(comp);
             
             // Wrap a SceneRenderer around the model.
             _sceneRenderer = new SceneRendererForward(_scene);
-            _guiRenderer = new SceneRendererForward(_gui);
+            //_guiRenderer = new SceneRendererForward(_gui);
+
+            Console.WriteLine("Init ready");
 
             return true;
         }
@@ -126,6 +130,8 @@ namespace Fusee.Engine.Player.Core
         // RenderAFrame is called once a frame
         public override void RenderAFrame()
         {
+            Console.WriteLine("RAF called");
+
             //if (_gamePad != null)
             //    Diagnostics.Log(_gamePad.LSX);
 
@@ -227,12 +233,12 @@ namespace Fusee.Engine.Player.Core
             RC.View = view;
             RC.Projection = orthographic;
             // Constantly check for interactive objects.
-            _sih.CheckForInteractiveObjects(RC, Mouse.Position, Width, Height);
+            //_sih.CheckForInteractiveObjects(RC, Mouse.Position, Width, Height);
 
-            if (Touch.GetTouchActive(TouchPoints.Touchpoint_0) && !Touch.TwoPoint)
-            {
-                _sih.CheckForInteractiveObjects(RC, Touch.GetPosition(TouchPoints.Touchpoint_0), Width, Height);
-            }
+            //if (Touch.GetTouchActive(TouchPoints.Touchpoint_0) && !Touch.TwoPoint)
+            //{
+            //    _sih.CheckForInteractiveObjects(RC, Touch.GetPosition(TouchPoints.Touchpoint_0), Width, Height);
+            //}
             // Tick any animations and Render the scene loaded in Init()
             RC.View = view;
             RC.Projection = perspective;
@@ -241,7 +247,7 @@ namespace Fusee.Engine.Player.Core
 
             RC.View = view;
             RC.Projection = orthographic;
-            _guiRenderer.Render(RC);            
+           // _guiRenderer.Render(RC);            
 
             // Swap buffers: Show the contents of the backbuffer (containing the currently rendered frame) on the front buffer.
             Present();

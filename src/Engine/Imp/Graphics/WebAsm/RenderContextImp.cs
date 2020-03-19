@@ -916,7 +916,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             get
             {
-                var retArr = gl2.GetParameter<float[]>(Parameter.COLOR_CLEAR_VALUE);
+                var retArr = GetClearColor();
                 //var ret = new float[4];
                 //ret[0] = (c & 0xff000000) >> 32;
                 //ret[1] = (c & 0x00ff0000) >> 16;
@@ -924,8 +924,11 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 //ret[3] = (c & 0x000000ff) >> 0;
                 return new float4(retArr[0], retArr[1], retArr[2], retArr[3]);
             }
-            set { gl2.ClearColor(value.x, value.y, value.z, value.w); }
+            set => SetClearColor(value);
         }
+
+        private float[] GetClearColor() => gl2.GetParameterAsync<float[]>(Parameter.COLOR_CLEAR_VALUE).GetAwaiter().GetResult();
+        private async void SetClearColor(float4 value) => await gl2.ClearColorAsync(value.x, value.y, value.z, value.w);
 
         /// <summary>
         /// Gets and sets the clear depth value which is used to clear the depth buffer.
@@ -1723,9 +1726,11 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// or
         /// renderState
         /// </exception>
-        public void SetRenderState(RenderState renderState, uint value)
+        public async void SetRenderState(RenderState renderState, uint value)
         {
-            gl2.Enable(EnableCap.SCISSOR_TEST);
+            Console.WriteLine($"gl2 is " + (gl2 == null ? "<null>" : "something"));
+
+            await gl2.EnableAsync(EnableCap.SCISSOR_TEST);
 
             switch (renderState)
             {
@@ -1741,32 +1746,32 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                         {
                             case Cull.None:
                                 //gl2.FrontFace(FrontFaceDirection.NONE);
-                                gl2.Disable(EnableCap.CULL_FACE);
+                                await gl2.DisableAsync(EnableCap.CULL_FACE);
                                 if (_isCullEnabled)
                                 {
                                     _isCullEnabled = false;
-                                    gl2.Disable(EnableCap.CULL_FACE);
+                                    await gl2.DisableAsync(EnableCap.CULL_FACE);
                                 }
                                 //gl2.FrontFace(NONE);
                                 break;
                             case Cull.Clockwise:
-                                gl2.FrontFace(FrontFaceDirection.CW);
+                                await gl2.FrontFaceAsync(FrontFaceDirection.CW);
                                 if (!_isCullEnabled)
                                 {
                                     _isCullEnabled = true;
-                                    gl2.Enable(EnableCap.CULL_FACE);
+                                    await gl2.EnableAsync(EnableCap.CULL_FACE);
                                 }
-                                gl2.FrontFace(FrontFaceDirection.CW);
+                                await gl2.FrontFaceAsync(FrontFaceDirection.CW);
                                 break;
                             case Cull.Counterclockwise:
-                                gl2.Enable(EnableCap.CULL_FACE);
-                                gl2.FrontFace(FrontFaceDirection.CCW);
+                                await gl2.EnableAsync(EnableCap.CULL_FACE);
+                                await gl2.FrontFaceAsync(FrontFaceDirection.CCW);
                                 if (!_isCullEnabled)
                                 {
                                     _isCullEnabled = true;
-                                    gl2.Enable(EnableCap.CULL_FACE);
+                                    await gl2.EnableAsync(EnableCap.CULL_FACE);
                                 }
-                                gl2.FrontFace(FrontFaceDirection.CCW);
+                                await gl2.FrontFaceAsync(FrontFaceDirection.CCW);
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException("value");
@@ -1779,59 +1784,59 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 case RenderState.ZFunc:
                     {
                         uint df = GetDepthCompareFunc((Compare)value);
-                        gl2.DepthFunc((CompareFunction)df);
+                        await gl2.DepthFuncAsync((CompareFunction)df);
                     }
                     break;
                 case RenderState.ZEnable:
                     if (value == 0)
-                        gl2.Disable(EnableCap.DEPTH_TEST);
+                        await gl2.DisableAsync(EnableCap.DEPTH_TEST);
                     else
-                        gl2.Enable(EnableCap.DEPTH_TEST);
+                        await gl2.EnableAsync(EnableCap.DEPTH_TEST);
                     break;
                 case RenderState.ZWriteEnable:
-                    gl2.DepthMask(value != 0);
+                    await gl2.DepthMaskAsync(value != 0);
                     break;
                 case RenderState.AlphaBlendEnable:
                     if (value == 0)
-                        gl2.Disable(EnableCap.BLEND);
+                        await gl2.DisableAsync(EnableCap.BLEND);
                     else
-                        gl2.Enable(EnableCap.BLEND);
+                        await gl2.EnableAsync(EnableCap.BLEND);
                     break;
                 case RenderState.BlendOperation:
                     _blendEquationRgb = BlendOperationToOgl((BlendOperation)value);
-                    gl2.BlendEquationSeparate((BlendingEquation) _blendEquationRgb, (BlendingEquation) _blendEquationAlpha);
+                    await gl2.BlendEquationAsync((BlendingEquation) _blendEquationRgb);
                     break;
                 case RenderState.BlendOperationAlpha:
                     _blendEquationAlpha = BlendOperationToOgl((BlendOperation)value);
-                    gl2.BlendEquationSeparate((BlendingEquation)_blendEquationRgb, (BlendingEquation)_blendEquationAlpha);
+                    await gl2.BlendEquationSeparateAsync((BlendingEquation)_blendEquationRgb, (BlendingEquation) _blendEquationAlpha);
                     break;
                 case RenderState.SourceBlend:
                     {
                         _blendSrcRgb = BlendToOgl((Blend)value);
-                        gl2.BlendFuncSeparate((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
+                        await gl2.BlendFuncSeparateAsync((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
                     }
                     break;
                 case RenderState.DestinationBlend:
                     {
                         _blendDstRgb = BlendToOgl((Blend)value);
-                        gl2.BlendFuncSeparate((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
+                        await gl2.BlendFuncSeparateAsync((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
                     }
                     break;
                 case RenderState.SourceBlendAlpha:
                     {
                         _blendSrcAlpha = BlendToOgl((Blend)value);
-                        gl2.BlendFuncSeparate((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
+                        await gl2.BlendFuncSeparateAsync((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
                     }
                     break;
                 case RenderState.DestinationBlendAlpha:
                     {
                         _blendDstAlpha = BlendToOgl((Blend)value);
-                        gl2.BlendFuncSeparate((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
+                        await gl2.BlendFuncSeparateAsync((BlendingMode)_blendSrcRgb, (BlendingMode)_blendDstRgb, (BlendingMode)_blendSrcAlpha, (BlendingMode)_blendDstAlpha);
                     }
                     break;
                 case RenderState.BlendFactor:
                     var blendcolor = ColorUint.Tofloat4((ColorUint)value);
-                    gl2.BlendColor(blendcolor.r, blendcolor.g, blendcolor.b, blendcolor.a);
+                    await gl2.BlendColorAsync(blendcolor.r, blendcolor.g, blendcolor.b, blendcolor.a);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("renderState");

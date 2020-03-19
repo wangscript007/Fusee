@@ -11,7 +11,7 @@ namespace Fusee.Base.Imp.WebAsm
 {
     public abstract class WebAsmBase
     {
-        public FusCanvas Canvas { get; private set; }
+        public FusCanvas Canvas { get; protected set; }
 
         protected WebGLContext gl;
         protected float4 clearColor;
@@ -20,15 +20,16 @@ namespace Fusee.Base.Imp.WebAsm
 
         public virtual bool EnableFullScreen => true;
 
-        public virtual void Init(FusCanvas canvas, float4 clearColor)
+        public virtual async void Init(FusCanvas canvas, float4 clearColor)
         {
+            Console.WriteLine("Base init called");
             this.clearColor = clearColor;
             Canvas = canvas;
 
             canvasWidth = (int)canvas.Width;
             canvasHeight = (int)canvas.Height;           
 
-            gl = canvas.CreateWebGL(new WebGLContextAttributes { Alpha = true, Antialias = true });
+            gl = await canvas.CreateWebGLAsync(new WebGLContextAttributes { Alpha = true, Antialias = true });
         }
 
         public virtual void Run()
@@ -39,20 +40,22 @@ namespace Fusee.Base.Imp.WebAsm
         {
         }
 
-        public virtual void Draw()
+        public async virtual void Draw()
         {
-            gl.Enable(EnableCap.DEPTH_TEST);
+            Console.WriteLine("Draw() called");
 
-            gl.Viewport(0, 0, canvasWidth, canvasHeight);
+            await gl.EnableAsync(EnableCap.DEPTH_TEST);
+
+            await gl.ViewportAsync(0, 0, canvasWidth, canvasHeight);
             Resize(canvasWidth, canvasHeight);
 
-            gl.ClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-            gl.Clear(BufferBits.COLOR_BUFFER_BIT | BufferBits.DEPTH_BUFFER_BIT);
+            await gl.ClearColorAsync(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+            await gl.ClearAsync(BufferBits.COLOR_BUFFER_BIT | BufferBits.DEPTH_BUFFER_BIT);
         }
 
-        public virtual void Resize(int width, int height)
+        public async virtual void Resize(int width, int height)
         {
-            gl.Viewport(0, 0, width, height);
+            await gl.ViewportAsync(0, 0, width, height);
             canvasWidth = width;
             canvasHeight = height;
         }      
