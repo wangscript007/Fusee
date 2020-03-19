@@ -1,6 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Fusee.Base.Common;
+using Fusee.Base.Core;
+using Fusee.Base.Imp.WebAsm;
+using Fusee.Engine.Core;
 using Fusee.Engine.Imp.Graphics.WebAsm;
+using Fusee.Math.Core;
+using Fusee.Serialization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -8,94 +16,157 @@ namespace Fusee.Engine.Player.Blazor.Pages
 {
     public class WebGLComponent : FusCanvas
     {
-
-        private const string VS_SOURCE = "attribute vec3 aPos;" +
-                                         "attribute vec3 aColor;" +
-                                         "varying vec3 vColor;" +
-
-                                         "void main() {" +
-                                            "gl_Position = vec4(aPos, 1.0);" +
-                                            "vColor = aColor;" +
-                                         "}";
-
-        private const string FS_SOURCE = "precision mediump float;" +
-                                         "varying vec3 vColor;" +
-
-                                         "void main() {" +
-                                            "gl_FragColor = vec4(vColor, 1.0);" +
-                                         "}";
-
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            Console.WriteLine("Render called");
-           
-            _context = await this.CreateWebGLAsync(new WebGLContextAttributes
+            // This method takes care of everything
+            WebAsmProgram.Start(new Main());
+        }
+    }
+
+    public class Main : WebAsmBase
+    {
+        private RenderCanvasImp _canvasImp;
+        private Core.Player _app;
+
+        public override void Run()
+        {
+            base.Run();
+
+            // disable the debug output as the console output and debug output are the same for web
+            // this prevents that every message is printed twice!
+            //Diagnostics.SetMinDebugOutputLoggingSeverityLevel(Diagnostics.SeverityLevel.NONE);
+
+            // Inject Fusee.Engine.Base InjectMe dependencies
+            IO.IOImp = new Fusee.Base.Imp.WebAsm.IOImp();
+
+
+            var fap = new Fusee.Base.Imp.WebAsm.AssetProvider();
+            fap.RegisterTypeHandler(
+                new AssetHandler
+                {
+                    ReturnedType = typeof(Font),
+                    DecoderAsync = async (string id, object storage) =>
+                    {
+                        if (System.IO.Path.GetExtension(id).IndexOf("ttf", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            var font = new Font
+                            {
+                                _fontImp = await Task.Factory.StartNew(() => new FontImp((Stream)storage)).ConfigureAwait(false)
+                            };
+
+                            return font;
+                        }
+
+                        return null;
+                    },
+                    Checker = (string id) =>
+                    {
+                        return System.IO.Path.GetExtension(id).IndexOf("ttf", System.StringComparison.OrdinalIgnoreCase) >= 0;
+                    }
+                });
+
+            fap.RegisterTypeHandler(
+                new AssetHandler
+                {
+                    ReturnedType = typeof(SceneContainer),
+                    DecoderAsync = async (string id, object storage) =>
+                    {
+                        if (System.IO.Path.GetExtension(id).IndexOf("fus", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            //var storageStream = (Stream)storage;
+                            //return await Task.Factory.StartNew(() => Serializer.DeserializeSceneContainer((Stream)storage)).ConfigureAwait(false);
+                        }
+                        // always return something
+                        return new ConvertSceneGraph().Convert(new SceneContainer
+                        {
+                            Children = new List<SceneNodeContainer>
+                            {
+                                new SceneNodeContainer
+                                {
+                                    Components = new List<SceneComponentContainer>
+                                    {
+                                        new TransformComponent
+                                        {
+                                            Scale = float3.One * 50
+                                        },
+                                        new MaterialComponent() // TODO: MaterialComponent is broken, shader is missing, figure out why!
+                                        {
+                                            Diffuse = new MatChannelContainer
+                                            {
+                                                Color = new float4(0.5f, 0.3f, 0.8f, 1)
+                                            }
+                                        },
+                                        new Cube()
+                                    }
+                                }
+                            }
+                        });
+                    },
+                    Checker = (string id) =>
+                    {
+                        return System.IO.Path.GetExtension(id).IndexOf("fus", System.StringComparison.OrdinalIgnoreCase) >= 0;
+                    }
+                });
+
+            // Image handler
+            fap.RegisterTypeHandler(new AssetHandler
             {
-                PowerPreference = WebGLContextAttributes.POWER_PREFERENCE_HIGH_PERFORMANCE
+                ReturnedType = typeof(Base.Core.ImageData),
+                DecoderAsync = async (string id, object storage) =>
+                {
+                    var ext = System.IO.Path.GetExtension(id).ToLower();
+                    switch (ext)
+                    {
+                        //case ".jpg": // not possible YET!
+                        // case ".jpeg":
+                        case ".png":
+                        case ".bmp":
+                            return null;
+                    }
+                    return null;
+                },
+                Checker = (string id) =>
+                {
+                    var ext = System.IO.Path.GetExtension(id).ToLower();
+                    switch (ext)
+                    {
+                        case ".png":
+                        case ".bmp":
+                            return true;
+                    }
+                    return false;
+                }
             });
 
-            await _context.ClearColorAsync(0, 0, 0, 1);
-            await _context.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
+            AssetStorage.RegisterProvider(fap);
 
-            var program = await InitProgramAsync(_context, VS_SOURCE, FS_SOURCE);
+            _app = new Core.Player();
 
-            var vertexBuffer = await _context.CreateBufferAsync();
-            await _context.BindBufferAsync(BufferType.ARRAY_BUFFER, vertexBuffer);
+            // Inject Fusee.Engine InjectMe dependencies (hard coded)
+            _canvasImp = new RenderCanvasImp(Canvas, gl, canvasWidth, canvasHeight);
+            _app.CanvasImplementor = _canvasImp;
+            _app.ContextImplementor = new RenderContextImp(_app.CanvasImplementor);
+            Input.AddDriverImp(new RenderCanvasInputDriverImp(_app.CanvasImplementor));
 
-            var vertices = new[]
-            {
-                -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-                0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-                0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
-            };
-            await _context.BufferDataAsync(BufferType.ARRAY_BUFFER, vertices, BufferUsageHint.STATIC_DRAW);
-
-            await _context.VertexAttribPointerAsync(0, 3, DataType.FLOAT, false, 6 * sizeof(float), 0);
-            await _context.VertexAttribPointerAsync(1, 3, DataType.FLOAT, false, 6 * sizeof(float), 3 * sizeof(float));
-            await _context.EnableVertexAttribArrayAsync(0);
-            await _context.EnableVertexAttribArrayAsync(1);
-
-            await _context.UseProgramAsync(program);
-            await _context.DrawArraysAsync(Primitive.TRIANGLES, 0, 3);
+            // Start the app
+            _app.Run();
         }
 
-        private async Task<WebGLProgram> InitProgramAsync(WebGLContext gl, string vsSource, string fsSource)
+        public override void Update(double elapsedMilliseconds)
         {
-            var vertexShader = await LoadShaderAsync(gl, ShaderType.VERTEX_SHADER, vsSource);
-            var fragmentShader = await LoadShaderAsync(gl, ShaderType.FRAGMENT_SHADER, fsSource);
-
-            var program = await gl.CreateProgramAsync();
-            await gl.AttachShaderAsync(program, vertexShader);
-            await gl.AttachShaderAsync(program, fragmentShader);
-            await gl.LinkProgramAsync(program);
-
-            await gl.DeleteShaderAsync(vertexShader);
-            await gl.DeleteShaderAsync(fragmentShader);
-
-            if (!await gl.GetProgramParameterAsync<bool>(program, ProgramParameter.LINK_STATUS))
-            {
-                string info = await gl.GetProgramInfoLogAsync(program);
-                throw new Exception("An error occured while linking the program: " + info);
-            }
-
-            return program;
+            if (_canvasImp != null)
+                _canvasImp.DeltaTime = (float)(elapsedMilliseconds / 1000.0);
         }
 
-        private async Task<WebGLShader> LoadShaderAsync(WebGLContext gl, ShaderType type, string source)
+        public override void Draw()
         {
-            var shader = await gl.CreateShaderAsync(type);
+            _canvasImp?.DoRender();
+        }
 
-            await gl.ShaderSourceAsync(shader, source);
-            await gl.CompileShaderAsync(shader);
-
-            if (!await gl.GetShaderParameterAsync<bool>(shader, ShaderParameter.COMPILE_STATUS))
-            {
-                string info = await gl.GetShaderInfoLogAsync(shader);
-                await gl.DeleteShaderAsync(shader);
-                throw new Exception("An error occured while compiling the shader: " + info);
-            }
-            return shader;
+        public override void Resize(int width, int height)
+        {
+            base.Resize(width, height);
+            _canvasImp.DoResize(width, height);
         }
     }
 }

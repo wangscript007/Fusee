@@ -12,14 +12,41 @@
     <app>Loading...</app>
 
     <script src="_framework/blazor.webassembly.js"></script>
-   <script>
+   <script>       
+       window.requestAnimationFrame((time) => {
+           // this is calling loop() which is calling this request animation frame method again
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'Loop', time)
+       });     
        document.addEventListener('keydown', function (e) {
            DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnKeyDown', e)
+       });
+       document.addEventListener('keyup', function (e) {
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnKeyUp', e)
        });
        document.addEventListener('mousedown', function (e) {
            DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnMouseDown', e)
        });
-      
+       document.addEventListener('mouseup', function (e) {
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnMouseUp', e)
+       });
+       document.addEventListener('mousemove', function (e) {
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnMouseMove', e)
+       });
+       document.addEventListener('wheel', function (e) {
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnMouseWheel', e)
+       });
+       document.addEventListener('touchstart', function (e) {
+           e.preventDefault();
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnTouchStart', e)
+       });
+       document.addEventListener('touchend', function (e) {
+           e.preventDefault();
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OnTouchEnd', e)
+       });
+       document.addEventListener('touchcancel', function (e) {
+           e.preventDefault();
+           DotNet.invokeMethod('Fusee.Engine.Imp.Graphics.WebAsm', 'OntouchCancel', e)
+       });      
    </script>
 </body>
 </html>

@@ -40,10 +40,10 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <summary>
         /// This is the context which is generated via _canvas.GetContext(3D)
         /// </summary>
-        protected WebGLContext _context;
+        //protected WebGLContext _context;
 
         [Inject]
-        internal IJSRuntime JSRuntime { get; set; }
+        public IJSRuntime JSRuntime { get; set; }
 
         /// <summary>
         /// This method sets the dimensions of the currently used canvas
@@ -55,30 +55,5 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             Width = width;
             Height = height;         
         }
-
-        /// <summary>
-        /// This method is invoked via javascript inside the index.html
-        /// </summary>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        [JSInvokable]
-        public static async Task OnKeyDown(KeyboardEventArgs e)
-        {
-            Console.WriteLine("OnKeyDown");
-            Console.WriteLine(e.Code);
-        }
-
-        /// <summary>
-        /// This method is invoked via javascript inside the index.html
-        /// </summary>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        [JSInvokable]
-        public static async Task OnMouseDown(MouseEventArgs e)
-        {
-            Console.WriteLine("OnMouseDown");
-            Console.WriteLine(e.Button);
-        }
-
     }
 }
