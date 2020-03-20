@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Fusee.Serialization;
 
 namespace Fusee.Xene
@@ -242,9 +243,7 @@ namespace Fusee.Xene
         /// Most visitors will simply perform pop on the <see cref="State" /> and will thus NOT need to override this method. Make sure to call the base
         /// implementation in overridden versions.
         /// </summary>
-        protected override void PopState()
-        {
-            State.Pop();
-        }
+        protected override Task PopState() => Task.Run(() => State.Pop());
+      
     }
 }

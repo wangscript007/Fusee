@@ -18,11 +18,14 @@ namespace Fusee.Engine.Player.Blazor.Pages
     {
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            Console.WriteLine("OnAfterRenderAsync called");
-            // This method takes care of everything
+            await Task.Run(() =>
+            {
+                Console.WriteLine("OnAfterRenderAsync called");
+                // This method takes care of everything
 
-            Base.Imp.WebAsm.WebAsmProgram.Start(new Main(this));
-        }
+                WebAsmProgram.Start(new Main(this));
+            }).ConfigureAwait(false);
+        }        
     }
 
     public class Main : WebAsmBase
@@ -37,13 +40,10 @@ namespace Fusee.Engine.Player.Blazor.Pages
 
         public async override void Run()
         {
-            gl = await Canvas.CreateWebGLAsync();
-            Console.WriteLine($"Init Canvas gl is {gl}");
-
+            gl = await Canvas.CreateWebGLAsync().ConfigureAwait(false);
+           
             base.Run();
-
-            Console.WriteLine("Main Run() called");
-
+                        
             // disable the debug output as the console output and debug output are the same for web
             // this prevents that every message is printed twice!
             //Diagnostics.SetMinDebugOutputLoggingSeverityLevel(Diagnostics.SeverityLevel.NONE);
@@ -123,7 +123,7 @@ namespace Fusee.Engine.Player.Blazor.Pages
             // Image handler
             fap.RegisterTypeHandler(new AssetHandler
             {
-                ReturnedType = typeof(Base.Core.ImageData),
+                ReturnedType = typeof(Fusee.Base.Core.ImageData),
                 DecoderAsync = async (string id, object storage) =>
                 {
                     var ext = System.IO.Path.GetExtension(id).ToLower();
@@ -152,9 +152,6 @@ namespace Fusee.Engine.Player.Blazor.Pages
 
             AssetStorage.RegisterProvider(fap);
 
-            Console.WriteLine("_app created()");
-
-
             _app = new Core.Player();
 
             // Inject Fusee.Engine InjectMe dependencies (hard coded)
@@ -162,8 +159,6 @@ namespace Fusee.Engine.Player.Blazor.Pages
             _app.CanvasImplementor = _canvasImp;
             _app.ContextImplementor = new RenderContextImp(_app.CanvasImplementor);
             Input.AddDriverImp(new RenderCanvasInputDriverImp(_app.CanvasImplementor));
-
-            Console.WriteLine("App run");
 
             // Start the app
             _app.Run();

@@ -463,23 +463,17 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 }
 
                 var vertexObject = await gl2.CreateShaderAsync(ShaderType.VERTEX_SHADER);
-                var fragmentObject = await gl2.CreateShaderAsync(ShaderType.FRAGMENT_SHADER);
-
-                Console.WriteLine($"Got Vertex Object {vertexObject.Id}");
-                Console.WriteLine($"Got fragment Object {fragmentObject.Id}");
+                var fragmentObject = await gl2.CreateShaderAsync(ShaderType.FRAGMENT_SHADER);          
 
                 // Compile vertex shader
                 await gl2.ShaderSourceAsync(vertexObject, vs);
-
-                var test = await gl2.GetShaderSourceAsync(vertexObject);
 
                 await gl2.CompileShaderAsync(vertexObject);
 
                 if (!await gl2.GetShaderParameterAsync<bool>(vertexObject, ShaderParameter.COMPILE_STATUS))
                 {
                     var info = await gl2.GetShaderInfoLogAsync(vertexObject);
-                    var error = await gl2.GetErrorAsync();
-                    Diagnostics.Error("ERROR " + error);
+                    var error = await gl2.GetErrorAsync();                   
                     await gl2.DeleteShaderAsync(vertexObject);
                     Diagnostics.Error("An error occured while compiling the vertex shader " + info);
                     throw new ArgumentException("An error occured while compiling the vertex shader " + info);
@@ -515,8 +509,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
                 await gl2.LinkProgramAsync(program);
 
-                await gl2.DeleteShaderAsync(vertexObject);
-                await gl2.DeleteShaderAsync(fragmentObject);
+               // await gl2.DeleteShaderAsync(vertexObject);
+               // await gl2.DeleteShaderAsync(fragmentObject);
 
 
                 if (!await gl2.GetProgramParameterAsync<bool>(program, ProgramParameter.LINK_STATUS))
@@ -526,7 +520,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     throw new ArgumentException("An error occured while linking the program: " + info);
                 }
 
-                await gl2.DeleteProgramAsync(program);
+                // await gl2.DeleteProgramAsync(program);
+
+                Console.WriteLine("Shader created");
 
                 return new ShaderHandleImp { Handle = program };
         }
@@ -642,9 +638,13 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             int nParams;
             nParams = await gl2.GetProgramParameterAsync<int>(sProg.Handle, ProgramParameter.ACTIVE_UNIFORMS);
 
+           // Console.WriteLine($"Found program active uniforms: {nParams}");
+
             for (uint i = 0; i < nParams; i++)
             {
-                WebGLActiveInfo activeInfo = await gl2.GetActiveUniformAsync(sProg.Handle, i);
+                var activeInfo = await gl2.GetActiveUniformAsync(sProg.Handle, i);
+
+               // Console.WriteLine($"Found active info {activeInfo.Name} {activeInfo.Size}, {activeInfo.Type.ToString()}");
 
                 var paramInfo = new ShaderParamInfo
                 {
@@ -653,6 +653,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 };
 
                 paramInfo.Handle = await GetShaderParamAsync(sProg, paramInfo.Name);
+
+               // Console.WriteLine($"Found paramInfohandle: {(paramInfo.Handle == null ? "<null>" : paramInfo.Handle.ToString())}");
 
                 switch (activeInfo.Type)
                 {
@@ -971,7 +973,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             throw new NotImplementedException();
             // var out int is not possible with async!
-            await SetActiveAndBindTexture(param, texId, texTarget);
+            //SetActiveAndBindTexture(param, texId, texTarget);
             //await gl2.UniformAsync(((ShaderParam)param).handle, unit);
         }
 
@@ -1576,6 +1578,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <param name="mr">The <see cref="IMeshImp" /> instance.</param>
         public async Task Render(IMeshImp mr)
         {
+            Console.WriteLine("Render mesh called");
+            Console.Out.Flush();
+
             if (((MeshImp)mr).VertexBufferObject != null)
             {
                 await gl2.EnableVertexAttribArrayAsync((uint)AttributeLocations.VertexAttribLocation);
@@ -1857,7 +1862,6 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// </exception>
         public async Task SetRenderState(RenderState renderState, uint value)
         {
-            Console.WriteLine($"gl2 is " + (gl2 == null ? "<null>" : "something"));
 
             await gl2.EnableAsync(EnableCap.SCISSOR_TEST);
 
@@ -2408,7 +2412,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             var itemSize = 3;
             var numItems = 2;
-            var posBuffer = gl2.CreateBuffer();
+            var posBuffer = await gl2.CreateBufferAsync();
 
             await gl2.EnableVertexAttribArrayAsync((uint)AttributeLocations.VertexAttribLocation);
             await gl2.BindBufferAsync(BufferType.ARRAY_BUFFER, posBuffer);
@@ -2474,6 +2478,45 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         }
 
 
+    
+
+        public Task SetShaderParamTexture(IShaderParam param, ITextureHandle texId, Common.TextureType texTarget)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetShaderParamTextureArray(IShaderParam param, ITextureHandle[] texIds, Common.TextureType texTarget)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetShaderParam(IShaderParam param, float2[] val)
+        {
+            throw new NotImplementedException();
+        }
+                
+
+        public void SetActiveAndBindTexture(IShaderParam param, ITextureHandle texId, Common.TextureType texTarget, out int texUnit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetActiveAndBindTexture(IShaderParam param, ITextureHandle texId, Common.TextureType texTarget)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void SetActiveAndBindTextureArray(IShaderParam param, ITextureHandle[] texIds, Common.TextureType texTarget, out int[] texUnitArray)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetActiveAndBindTextureArray(IShaderParam param, ITextureHandle[] texIds, Common.TextureType texTarget)
+        {
+            throw new NotImplementedException();
+        }
+
         Task IRenderContextImp.EnableDepthClamp()
         {
             throw new NotImplementedException();
@@ -2515,16 +2558,6 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         }
 
         Task IRenderContextImp.SetActiveAndBindTextureArray(IShaderParam param, ITextureHandle[] texIds, Common.TextureType texTarget)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetShaderParamTexture(IShaderParam param, ITextureHandle texId, Common.TextureType texTarget)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetShaderParamTextureArray(IShaderParam param, ITextureHandle[] texIds, Common.TextureType texTarget)
         {
             throw new NotImplementedException();
         }

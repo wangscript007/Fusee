@@ -2,7 +2,7 @@
 using Fusee.Serialization;
 using Fusee.Xene;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 
 namespace Fusee.Engine.Core
 {
@@ -130,10 +130,8 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Method is called when going up one hierarchy level while traversing.
         /// </summary>
-        protected override void PopState()
-        {
-            _state.Pop();
-        }
+        protected override Task PopState() => Task.Run(() => _state.Pop());
+     
 
         #endregion
     }
@@ -272,10 +270,7 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Method is called when going up one hierarchy level while traversing.
         /// </summary>
-        protected override void PopState()
-        {
-            _state.Pop();
-        }
+        protected override Task PopState() => Task.Run(() => _state.Pop());
 
         #endregion
     }

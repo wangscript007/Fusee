@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using WebAssembly;
 
 namespace Fusee.Base.Imp.WebAsm
@@ -93,10 +95,10 @@ namespace Fusee.Base.Imp.WebAsm
             //RequestAnimationFrame(); we just want to render 1 frame
         }
 
-        private static void RequestAnimationFrame()
+        private async static void RequestAnimationFrame()
         {
             Console.WriteLine("Request Animation frame called");
-            mainExecutable.Canvas.JSRuntime.InvokeVoidAsync("requestLoop");        
+            await mainExecutable.Canvas.JSRuntime.InvokeAsync<bool>("requestLoop");        
         }
     }
 

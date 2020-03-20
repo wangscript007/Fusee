@@ -56,13 +56,11 @@ namespace Fusee.Engine.Player.Core
         // Init is called on startup. 
         public override async Task<bool> Init()
         {
-            Console.WriteLine("Player init called");
-
             _initCanvasWidth = Width / 100f;
             _initCanvasHeight = Height / 100f;
 
             _canvasHeight = _initCanvasHeight;
-            _canvasWidth = _initCanvasWidth;            
+            _canvasWidth = _initCanvasWidth;
 
             // Initial "Zoom" value (it's rather the distance in view direction, not the camera's focal distance/opening angle)
             _zoom = 400;
@@ -142,20 +140,15 @@ namespace Fusee.Engine.Player.Core
 
             // Wrap a SceneRenderer around the model.
 
-            Console.WriteLine($"Scene content");
-            _scene.Children[0].Components.ForEach(comp => Console.WriteLine(comp.Name));
-
             _sceneRenderer = new SceneRendererForward(_scene);
             //_guiRenderer = new SceneRendererForward(_gui);
-
-            Console.WriteLine("Init ready");
 
             return true;
         }
 
-        
+
         // RenderAFrame is called once a frame
-        public override void RenderAFrame()
+        public override async void RenderAFrame()
         {
             Console.WriteLine("RAF called");
 
@@ -163,10 +156,8 @@ namespace Fusee.Engine.Player.Core
             //    Diagnostics.Log(_gamePad.LSX);
 
             // Clear the backbuffer
-            RC.Clear(ClearFlags.Color | ClearFlags.Depth);
-            Console.WriteLine("RAF after Clear");
-            RC.Viewport(0, 0, Width, Height);
-            Console.WriteLine("RAF after viewport");
+            await RC.Clear(ClearFlags.Color | ClearFlags.Depth);
+            await RC.Viewport(0, 0, Width, Height);
             //// Mouse and keyboard movement
             //if (Keyboard.LeftRightAxis != 0 || Keyboard.UpDownAxis != 0)
             //{
@@ -250,8 +241,8 @@ namespace Fusee.Engine.Player.Core
 
             // Create the camera matrix and set it as the current View transformation
             var mtxRot = /*float4x4.CreateRotationZ(_angleRoll) **/ float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
-            var mtxCam = float4x4.LookAt(0, 20, -_zoom, 0, 0, 0, 0, 1, 0);            
-            var mtxOffset = float4x4.CreateTranslation(2f * _offset.x / Width, -2f * _offset.y / Height, 0);            
+            var mtxCam = float4x4.LookAt(0, 20, -_zoom, 0, 0, 0, 0, 1, 0);
+            var mtxOffset = float4x4.CreateTranslation(2f * _offset.x / Width, -2f * _offset.y / Height, 0);
 
             var view = mtxCam * mtxRot * _sceneScale * _sceneCenter; ;
             var perspective = float4x4.CreatePerspectiveFieldOfView(_fovy, (float)Width / Height, ZNear, ZFar) * mtxOffset;
@@ -270,16 +261,14 @@ namespace Fusee.Engine.Player.Core
             RC.View = view;
             RC.Projection = perspective;
 
-            Console.WriteLine("RAF before render");
+            Console.WriteLine("~~~~~~~~~~~~~~~~~~~ RAF before render");
 
             //_sceneRenderer.Animate();
-            _sceneRenderer.Render(RC);
-
-            Console.WriteLine("RAF after render");
+            await _sceneRenderer.Render(RC);
 
             RC.View = view;
             RC.Projection = orthographic;
-           // _guiRenderer.Render(RC);            
+            // _guiRenderer.Render(RC);            
 
             // Swap buffers: Show the contents of the backbuffer (containing the currently rendered frame) on the front buffer.
             Present();
@@ -293,7 +282,7 @@ namespace Fusee.Engine.Player.Core
         // Is called when the window was resized
         public override void Resize(ResizeEventArgs e)
         {
-   
+
         }
 
         private async Task<SceneContainer> CreateGui()
@@ -361,8 +350,8 @@ namespace Fusee.Engine.Player.Core
                     Max = new float2(_canvasWidth / 2, _canvasHeight / 2f)
                 });
             canvas.Children.Add(fuseeLogo);
-            canvas.Children.Add(text);           
-            
+            canvas.Children.Add(text);
+
             return new SceneContainer
             {
                 Children = new List<SceneNodeContainer>
@@ -375,12 +364,12 @@ namespace Fusee.Engine.Player.Core
 
         public void BtnLogoEnter(CodeComponent sender)
         {
-           // _gui.Children.FindNodes(node => node.Name == "fuseeLogo").First().GetComponent<ShaderEffectComponent>().Effect.SetEffectParam("DiffuseColor", new float4(0.8f, 0.8f, 0.8f, 1f));
+            // _gui.Children.FindNodes(node => node.Name == "fuseeLogo").First().GetComponent<ShaderEffectComponent>().Effect.SetEffectParam("DiffuseColor", new float4(0.8f, 0.8f, 0.8f, 1f));
         }
 
         public void BtnLogoExit(CodeComponent sender)
         {
-           // _gui.Children.FindNodes(node => node.Name == "fuseeLogo").First().GetComponent<ShaderEffectComponent>().Effect.SetEffectParam("DiffuseColor", float4.One);
+            // _gui.Children.FindNodes(node => node.Name == "fuseeLogo").First().GetComponent<ShaderEffectComponent>().Effect.SetEffectParam("DiffuseColor", float4.One);
         }
 
         public void BtnLogoDown(CodeComponent sender)

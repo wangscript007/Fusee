@@ -30,14 +30,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public int Precision { get; set; }
     }
 
-    public class WebGLActiveInfo
+    public class WebGLActiveInfo : WebGLObject
     {
         public string Name { get; set; } //todo: make readonly
         public int Size { get; set; }
         public UniformType Type { get; set; }
     }
 
-    public class WebGLObject
+    public class WebGLObject 
     {
         public string WebGLType { get; set; }
         public int Id { get; set; }

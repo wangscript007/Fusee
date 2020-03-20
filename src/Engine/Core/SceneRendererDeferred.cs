@@ -7,6 +7,7 @@ using Fusee.Xene;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Fusee.Engine.Core
 {
@@ -198,15 +199,15 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Pops from the RenderState and sets the Model and View matrices in the RenderContext.
         /// </summary>
-        protected override void PopState()
+        protected override async Task PopState()
         {
-            _rc.SetRenderStateSet(_state.RenderUndoStates);
+            await _rc.SetRenderStateSet(_state.RenderUndoStates);
             _state.Pop();
             _rc.Model = _state.Model;
 
             //If we render the shadow pass: ignore ShaderEffects of the SceneNodes and use the ones that are needed to render the shadow maps.
             if (_currentPass != RenderPasses.SHADOW)
-                _rc.SetShaderEffect(_state.Effect);
+                await _rc.SetShaderEffect(_state.Effect);
 
         }
         #endregion
@@ -400,14 +401,14 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="rc">The <see cref="RenderContext"/>.</param>
         /// <param name="renderTex">If the render texture isn't null, the last pass of the deferred pipeline will render into it, else it will render to the screen.</param>        
-        public void Render(RenderContext rc, WritableTexture renderTex = null)
+        public async Task Render(RenderContext rc, WritableTexture renderTex = null)
         {
-            SetContext(rc);
+            await SetContext(rc);
 
             PrePassVisitor.PrePassTraverse(_sc, _rc);
             AccumulateLight();
 
-            _rc.EnableDepthClamp();
+            await _rc.EnableDepthClamp();
 
             _canUseGeometryShaders = _rc.GetHardwareCapabilities(HardwareCapability.CAN_USE_GEOMETRY_SHADERS) == 1U ? true : false;
 

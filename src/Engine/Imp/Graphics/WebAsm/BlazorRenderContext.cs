@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -27,6 +28,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         public ElementReference Canvas { get; }
 
+
+        // TODO: Rewrite semaphoreSlim, this is not working with 
         internal BlazorRenderContext(FusCanvas reference, string contextName, object parameters = null)
         {
             this.Canvas = reference.CanvasReference;
@@ -117,6 +120,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             this._awaitingBatchedCall = true;
             var currentBatch = this._batchedCallObjects.ToArray();
+         
             this._batchedCallObjects.Clear();
             this._semaphoreSlim.Release();
 

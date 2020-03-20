@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Fusee.Math.Core;
 using Fusee.Serialization;
 using Fusee.Xene;
@@ -180,10 +181,13 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Pops from the RenderState and sets the Model and View matrices in the RenderContext.
         /// </summary>
-        protected override void PopState()
+        protected override Task PopState()
         {
-            _state.Pop();
-            _rc.Model = _state.Model;
+            return Task.Run(() =>
+            {
+                _state.Pop();
+                _rc.Model = _state.Model;
+            });
         }
 
         /// <summary>

@@ -27,9 +27,10 @@ namespace Fusee.Engine.Core
         /// This is the color that will be copied to all pixels in the output color buffer when Clear is called on the render context.
         /// </remarks>
         /// <seealso cref="Clear"/>
+        [Obsolete("Use SetClearColor() instead")]
         public float4 ClearColor
         {
-            set { _rci.SetClearColorAsync(value); }
+            set { _rci.SetClearColorAsync(value).GetAwaiter().GetResult(); }
         }
 
         public async Task<float4> GetClearColor()
@@ -37,7 +38,11 @@ namespace Fusee.Engine.Core
             var color = await _rci.GetClearColorAsync();
             return new float4(color[0], color[1], color[2], color[3]);
         }
-    
+
+        public async Task SetClearColor(float4 val)
+        {
+            await _rci.SetClearColorAsync(val);
+        }
 
         /// <summary>
         /// The depth value to use when clearing the color buffer.
@@ -48,10 +53,16 @@ namespace Fusee.Engine.Core
         /// <remarks>
         /// This is the depth (z-) value that will be copied to all pixels in the depth (z-) buffer when Clear is called on the render context.
         /// </remarks>
+        [Obsolete("Use SetClearDepth() instead")]
         public float ClearDepth
         {
-            set { _rci.SetClearDepthAsync(value); }
+            set { _rci.SetClearDepthAsync(value).GetAwaiter().GetResult(); }
         }         
+
+        public async Task SetClearDepth(float val)
+        {
+            await _rci.SetClearDepthAsync(val);
+        }
 
         public async Task<float> GetClearDepth() => await _rci.GetClearDepthAsync();
       
@@ -818,9 +829,9 @@ namespace Fusee.Engine.Core
         /// z-buffer. <see cref="ClearFlags"/> for a list of possible buffers to clear. Make sure to use the bitwise
         /// or-operator (|) to combine several buffers to clear.
         /// </remarks>
-        public void Clear(ClearFlags flags)
+        public async Task Clear(ClearFlags flags)
         {
-            _rci.Clear(flags);
+            await _rci.Clear(flags);
         }
 
         /// <summary>
@@ -833,13 +844,13 @@ namespace Fusee.Engine.Core
         /// <remarks>
         /// Setting the Viewport limits the rendering output to the specified rectangular region.
         /// </remarks>
-        public void Viewport(int x, int y, int width, int height)
+        public async Task Viewport(int x, int y, int width, int height)
         {
             if (ViewportXStart == x && ViewportYStart == y && ViewportWidth == width && ViewportHeight == height)
                 return;
 
-            _rci.Scissor(x, y, width, height);
-            _rci.Viewport(x, y, width, height);
+            await _rci.Scissor(x, y, width, height);
+            await _rci.Viewport(x, y, width, height);
 
             ViewportWidth = width;
             ViewportHeight = height;
@@ -858,28 +869,28 @@ namespace Fusee.Engine.Core
         /// <param name="startY">y offset in pixels.</param>
         /// <param name="width">Width in pixels.</param>
         /// <param name="height">Height in pixels.</param>
-        internal void UpdateTextureRegion(Texture dstTexture, Texture srcTexture, int startX, int startY, int width, int height)
+        internal async Task UpdateTextureRegion(Texture dstTexture, Texture srcTexture, int startX, int startY, int width, int height)
         {
             ITextureHandle textureHandle = _textureManager.GetTextureHandleFromTexture(dstTexture);
-            _rci.UpdateTextureRegion(textureHandle, srcTexture, startX, startY, width, height);
+            await _rci.UpdateTextureRegion(textureHandle, srcTexture, startX, startY, width, height);
         }
 
         /// <summary>
         /// Free all allocated gpu memory that belongs to a frame-buffer object.
         /// </summary>
         /// <param name="bufferHandle">The platform dependent abstraction of the gpu buffer handle.</param>
-        internal void DeleteFrameBuffer(IBufferHandle bufferHandle)
+        internal async Task DeleteFrameBuffer(IBufferHandle bufferHandle)
         {
-            _rci.DeleteFrameBuffer(bufferHandle);
+            await _rci.DeleteFrameBuffer(bufferHandle);
         }
 
         /// <summary>
         /// Free all allocated gpu memory that belongs to a render-buffer object.
         /// </summary>
         /// <param name="bufferHandle">The platform dependent abstraction of the gpu buffer handle.</param>
-        internal void DeleteRenderBuffer(IBufferHandle bufferHandle)
+        internal async Task DeleteRenderBuffer(IBufferHandle bufferHandle)
         {
-            _rci.DeleteRenderBuffer(bufferHandle);
+            await _rci.DeleteRenderBuffer(bufferHandle);
         }
 
         /// <summary>
@@ -887,10 +898,10 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="texture">An ITexture.</param>
-        private void SetShaderParamTexture(IShaderParam param, Texture texture)
+        private async Task SetShaderParamTexture(IShaderParam param, Texture texture)
         {
             ITextureHandle textureHandle = _textureManager.GetTextureHandleFromTexture(texture);
-            _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE2D);
+            await _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE2D);
         }
 
         /// <summary>
@@ -898,10 +909,10 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="texture">An ITexture.</param>
-        private void SetShaderParamWritableTexture(IShaderParam param, WritableTexture texture)
+        private async Task SetShaderParamWritableTexture(IShaderParam param, WritableTexture texture)
         {
             ITextureHandle textureHandle = _textureManager.GetWritableTextureHandleFromTexture(texture);
-            _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE2D);
+            await _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE2D);
         }
 
         /// <summary>
@@ -909,7 +920,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="textures">A texture array.</param>
-        private void SetShaderParamWritableTextureArray(IShaderParam param, WritableTexture[] textures)
+        private async Task SetShaderParamWritableTextureArray(IShaderParam param, WritableTexture[] textures)
         {
             var texHandles = new List<ITextureHandle>();
             foreach (var tex in textures)
@@ -918,7 +929,7 @@ namespace Fusee.Engine.Core
                 texHandles.Add(textureHandle);
             }
             var handlesAsArray = texHandles.ToArray();
-            _rci.SetShaderParamTextureArray(param, handlesAsArray, TextureType.TEXTURE2D);
+            await _rci.SetShaderParamTextureArray(param, handlesAsArray, TextureType.TEXTURE2D);
         }
 
         /// <summary>
@@ -926,10 +937,10 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="texture">An ITexture.</param>
-        private void SetShaderParamWritableCubeMap(IShaderParam param, WritableCubeMap texture)
+        private async Task SetShaderParamWritableCubeMap(IShaderParam param, WritableCubeMap texture)
         {
             ITextureHandle textureHandle = _textureManager.GetWritableCubeMapHandleFromTexture(texture);
-            _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE_CUBE_MAP);
+            await _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE_CUBE_MAP);
         }
 
         #endregion
@@ -944,7 +955,7 @@ namespace Fusee.Engine.Core
         /// <remarks>A ShaderEffect must be attached to a context before you can render geometry with it. The main
         /// task performed in this method is compiling the provided shader source code and uploading the shaders to
         /// the gpu.</remarks>
-        public async void SetShaderEffect(ShaderEffect ef)
+        public async Task SetShaderEffect(ShaderEffect ef)
         {
             if (_rci == null)
                 throw new NullReferenceException("No render context Implementation found!");
@@ -975,10 +986,13 @@ namespace Fusee.Engine.Core
                 for (i = 0; i < nPasses; i++)
                 {
                     Console.WriteLine($"PASS: {i}");
-                    var shaderOnGpu = await _rci.CreateShaderProgramAsync(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]).ConfigureAwait(true);
-                    var shaderParamsRes = await _rci.GetShaderParamListAsync(shaderOnGpu).ConfigureAwait(true);
+                    var shaderOnGpu = await _rci.CreateShaderProgramAsync(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]);
+
+                    var shaderParamsRes = await _rci.GetShaderParamListAsync(shaderOnGpu);
+                    
                     var shaderParams = shaderParamsRes.ToDictionary(info => info.Name, info => info);
                     Console.WriteLine("After List");
+
                     foreach (var param in shaderParams)
                     {
                         if (!activeUniforms.ContainsKey(param.Key))
@@ -1097,13 +1111,13 @@ namespace Fusee.Engine.Core
         /// Removes given shader program from GPU. Should ONLY be used by the <see cref="ShaderEffectManager"/>!
         /// </summary>
         /// <param name="ef">The ShaderEffect.</param>
-        internal void RemoveShader(ShaderEffect ef)
+        internal async Task RemoveShader(ShaderEffect ef)
         {
             if (!_allCompiledShaderEffects.TryGetValue(ef, out CompiledShaderEffect sFxParam)) return;
 
             foreach (var program in sFxParam.ShaderPrograms)
             {
-                _rci.RemoveShader(program.GpuHandle);
+                await _rci.RemoveShader(program.GpuHandle);
             }
         }
 
@@ -1111,12 +1125,12 @@ namespace Fusee.Engine.Core
         /// Activates the passed shader program as the current shader for rendering.
         /// </summary>
         /// <param name="program">The shader to apply to mesh geometry subsequently passed to the RenderContext</param>
-        private void SetShaderProgram(ShaderProgram program)
+        private async Task SetShaderProgram(ShaderProgram program)
         {
             if (_currentShaderProgram != program)
             {
                 _currentShaderProgram = program;
-                _rci.SetShader(program.GpuHandle);
+                await _rci.SetShader(program.GpuHandle);
             }
         }
 
@@ -1124,17 +1138,17 @@ namespace Fusee.Engine.Core
         /// Sets the shaderParam, works with every type.
         /// </summary>
         /// <param name="param"></param>
-        private void SetShaderParamT(EffectParam param)
+        private async Task SetShaderParamT(EffectParam param)
         {
             if (param.HasValueChanged)
             {
                 if (param.Info.Type == typeof(int))
                 {
-                    _rci.SetShaderParam(param.Info.Handle, (int)param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (int)param.Value);
                 }
                 else if (param.Info.Type == typeof(float))
                 {
-                    _rci.SetShaderParam(param.Info.Handle, (float)param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (float)param.Value);
                 }
                 else if (param.Info.Type == typeof(float2))
                 {
@@ -1142,10 +1156,10 @@ namespace Fusee.Engine.Core
                     {
                         // parameter is an array
                         var paramArray = (float2[])param.Value;
-                        _rci.SetShaderParam(param.Info.Handle, paramArray);
+                        await _rci.SetShaderParam(param.Info.Handle, paramArray);
                         return;
                     }
-                    _rci.SetShaderParam(param.Info.Handle, (float2)param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (float2)param.Value);
                 }
                 else if (param.Info.Type == typeof(float3))
                 {
@@ -1153,14 +1167,14 @@ namespace Fusee.Engine.Core
                     {
                         // parameter is an array
                         var paramArray = (float3[])param.Value;
-                        _rci.SetShaderParam(param.Info.Handle, paramArray);
+                        await _rci.SetShaderParam(param.Info.Handle, paramArray);
                         return;
                     }
-                    _rci.SetShaderParam(param.Info.Handle, (float3)param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (float3)param.Value);
                 }
                 else if (param.Info.Type == typeof(float4))
                 {
-                    _rci.SetShaderParam(param.Info.Handle, (float4)param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (float4)param.Value);
                 }
                 else if (param.Info.Type == typeof(float4x4))
                 {
@@ -1168,14 +1182,14 @@ namespace Fusee.Engine.Core
                     {
                         // parameter is an array
                         var paramArray = (float4x4[])param.Value;
-                        _rci.SetShaderParam(param.Info.Handle, paramArray);
+                        await _rci.SetShaderParam(param.Info.Handle, paramArray);
                         return;
                     }
-                    _rci.SetShaderParam(param.Info.Handle, (float4x4)param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (float4x4)param.Value);
                 }
                 else if (param.Info.Type == typeof(float4x4[]))
                 {
-                    _rci.SetShaderParam(param.Info.Handle, (float4x4[])param.Value);
+                    await _rci.SetShaderParam(param.Info.Handle, (float4x4[])param.Value);
                 }
 
                 else if (param.Value is IWritableCubeMap)
@@ -1184,15 +1198,15 @@ namespace Fusee.Engine.Core
                 }
                 else if (param.Value is IWritableTexture[])
                 {
-                    SetShaderParamWritableTextureArray(param.Info.Handle, (WritableTexture[])param.Value);
+                    await SetShaderParamWritableTextureArray(param.Info.Handle, (WritableTexture[])param.Value);
                 }
                 else if (param.Value is IWritableTexture)
                 {
-                    SetShaderParamWritableTexture(param.Info.Handle, ((WritableTexture)param.Value));
+                    await SetShaderParamWritableTexture(param.Info.Handle, ((WritableTexture)param.Value));
                 }
                 else if (param.Value is ITexture)
                 {
-                    SetShaderParamTexture(param.Info.Handle, (Texture)param.Value);
+                    await SetShaderParamTexture(param.Info.Handle, (Texture)param.Value);
                 }
             }
             else
@@ -1202,24 +1216,24 @@ namespace Fusee.Engine.Core
                     if (param.Value is IWritableCubeMap)
                     {
                         ITextureHandle textureHandle = _textureManager.GetWritableCubeMapHandleFromTexture((WritableCubeMap)param.Value);
-                        _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE_CUBE_MAP);
+                        await _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE_CUBE_MAP);
                     }
                     else if (param.Value is IWritableTexture)
                     {
                         ITextureHandle textureHandle = _textureManager.GetWritableTextureHandleFromTexture((WritableTexture)param.Value);
-                        _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE2D);
+                        await _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE2D);
                     }
                     else if (param.Value is ITexture)
                     {
                         ITextureHandle textureHandle = _textureManager.GetTextureHandleFromTexture((Texture)param.Value);
-                        _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE2D);
+                        await _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE2D);
                     }
                     else if (param.Value is IWritableTexture[])
                     {
                         foreach (var tex in (WritableTexture[])param.Value)
                         {
                             ITextureHandle textureHandle = _textureManager.GetWritableTextureHandleFromTexture(tex);
-                            _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE2D);
+                            await _rci.SetActiveAndBindTexture(param.Info.Handle, textureHandle, TextureType.TEXTURE2D);
                         }
                     }
                 }
@@ -1238,17 +1252,17 @@ namespace Fusee.Engine.Core
         /// This is done with glEnable(GL_DEPTH_CLAMP). This will cause the clip-space Z to remain unclipped by the front and rear viewing volume.
         /// See: https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Depth_clamping
         /// </summary>
-        public void EnableDepthClamp()
+        public async Task EnableDepthClamp()
         {
-            _rci.EnableDepthClamp();
+            await _rci.EnableDepthClamp();
         }
 
         /// <summary>
         /// Disables depths clamping. <seealso cref="EnableDepthClamp"/>
         /// </summary>
-        public void DisableDepthClamp()
+        public async Task DisableDepthClamp()
         {
-            _rci.DisableDepthClamp();
+            await _rci.DisableDepthClamp();
         }
 
         /// <summary>
@@ -1313,10 +1327,8 @@ namespace Fusee.Engine.Core
         /// due to the ambiguity of the value parameter type. If you want type-safe state values and also 
         /// want to set a couple of states at the same time, try the more 
         /// elaborate <see cref="SetRenderStateSet(RenderStateSet, bool)"/> method.</remarks>
-        public void SetRenderState(RenderState renderState, uint value, bool doLockState = false)
+        public async Task SetRenderState(RenderState renderState, uint value, bool doLockState = false)
         {
-            Console.WriteLine($"Setting renderstate: {renderState}, {value}");
-            Console.WriteLine($"_rci is {_rci}");
             if (LockedStates.TryGetValue(renderState, out var lockedState))
             {
                 if (lockedState.Key)
@@ -1324,7 +1336,7 @@ namespace Fusee.Engine.Core
                     if (doLockState)
                     {
                         CurrentRenderState.SetRenderState(renderState, value);
-                        _rci.SetRenderState(renderState, value);
+                        await _rci.SetRenderState(renderState, value);
                         Diagnostics.Warn("PREVIOUSLY LOCKED STATE WAS OVERWRITTEN: Render state " + renderState + " was locked and will remain its old value.\n Call UnlockRenderState(renderState) to undo it.");
                     }
                     else
@@ -1346,7 +1358,7 @@ namespace Fusee.Engine.Core
                 }
 
                 CurrentRenderState.SetRenderState(renderState, value);
-                _rci.SetRenderState(renderState, value);
+                await _rci.SetRenderState(renderState, value);
             }
         }
 
@@ -1357,11 +1369,11 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="renderStateSet">A set of render states with their respective values to be set.</param>
         /// <param name="doLockState">Forces all states that are set in this <see cref="RenderStateSet"/> to have the given value and locks them. Unlock them by calling <see cref="UnlockRenderState(RenderState, bool)"/></param>
-        public void SetRenderStateSet(RenderStateSet renderStateSet, bool doLockState = false)
+        public async Task SetRenderStateSet(RenderStateSet renderStateSet, bool doLockState = false)
         {
             foreach (var state in renderStateSet.States)
             {
-                SetRenderState(state.Key, state.Value, doLockState);
+                await SetRenderState(state.Key, state.Value, doLockState);
             }
         }
 
@@ -1384,7 +1396,7 @@ namespace Fusee.Engine.Core
         /// Sets the RenderTarget, if texture is null render target is the main screen, otherwise the picture will be rendered onto given texture
         /// </summary>
         /// <param name="renderTarget">The render target.</param>
-        public void SetRenderTarget(RenderTarget renderTarget = null)
+        public async Task SetRenderTarget(RenderTarget renderTarget = null)
         {
             ITextureHandle[] texHandles = null;
             if (renderTarget != null)
@@ -1399,36 +1411,36 @@ namespace Fusee.Engine.Core
                 }
             }
 
-            _rci.SetRenderTarget(renderTarget, texHandles);
+            await _rci.SetRenderTarget(renderTarget, texHandles);
         }
 
         /// <summary>
         ///  Renders into the given texture.
         /// </summary>
         /// <param name="tex">The render texture.</param>
-        public void SetRenderTarget(IWritableTexture tex)
+        public async Task SetRenderTarget(IWritableTexture tex)
         {
             var texHandle = _textureManager.GetWritableTextureHandleFromTexture((WritableTexture)tex);
-            _rci.SetRenderTarget(tex, texHandle);
+            await _rci.SetRenderTarget(tex, texHandle);
         }
 
         /// <summary>
         /// Renders into the given texture.
         /// </summary>
         /// <param name="tex">The render texture.</param>
-        public void SetRenderTarget(IWritableCubeMap tex)
+        public async Task SetRenderTarget(IWritableCubeMap tex)
         {
             var texHandle = _textureManager.GetWritableCubeMapHandleFromTexture((WritableCubeMap)tex);
-            _rci.SetRenderTarget(tex, texHandle);
+            await _rci.SetRenderTarget(tex, texHandle);
         }
 
         /// <summary>
         /// Specifies the rasterized width of both aliased and antialiased lines.
         /// </summary>
         /// <param name="width">The width in pixel.</param>
-        public void SetLineWidth(float width)
+        public async Task SetLineWidth(float width)
         {
-            _rci.SetLineWidth(width);
+            await _rci.SetLineWidth(width);
         }
 
         /// <summary>
@@ -1439,7 +1451,7 @@ namespace Fusee.Engine.Core
         /// Passes geometry to be pushed through the rendering pipeline. <see cref="Mesh"/> for a description how geometry is made up.
         /// The geometry is transformed and rendered by the currently active shader program.
         /// </remarks>
-        internal void Render(Mesh m)
+        internal async Task Render(Mesh m)
         {
             if (_currentShaderEffect == null) return;
 
@@ -1449,8 +1461,8 @@ namespace Fusee.Engine.Core
             {
                 try
                 {
-                    SetShaderProgram(compiledShaderEffect.ShaderPrograms[i]);
-                    SetRenderStateSet(_currentShaderEffect.States[i]);
+                    await SetShaderProgram(compiledShaderEffect.ShaderPrograms[i]);
+                    await SetRenderStateSet(_currentShaderEffect.States[i]);
 
                     foreach (var paramItem in compiledShaderEffect.ShaderPrograms[i].ParamsByName)
                     {
@@ -1468,13 +1480,16 @@ namespace Fusee.Engine.Core
                         }
 
                         var param = compiledShaderEffect.ParamsPerPass[i][paramItem.Key];
-                        SetShaderParamT(param);
+                        await SetShaderParamT(param);
                         param.HasValueChanged = false;
                     }
 
                     // TODO: split up RenderContext.Render into a preparation and a draw call so that we can prepare a mesh once and draw it for each pass.
                     var meshImp = _meshManager.GetMeshImpFromMesh(m);
-                    _rci.Render(meshImp);
+
+                    Console.WriteLine("Before render");
+
+                    await _rci.Render(meshImp);
 
                     // After rendering always cleanup pending meshes
                     _meshManager.Cleanup();
@@ -1496,9 +1511,9 @@ namespace Fusee.Engine.Core
         /// Resets the RenderContexts View, Projection and Viewport to the values defined in <see cref="DefaultState"/>.
         /// Must be called after every visitation of the Scene Graph that changed these values.
         /// </summary>
-        internal void ResetToDefaultRenderContextState()
+        internal async Task ResetToDefaultRenderContextState()
         {
-            Viewport(0, 0, DefaultState.CanvasWidth, DefaultState.CanvasHeight);
+            await Viewport(0, 0, DefaultState.CanvasWidth, DefaultState.CanvasHeight);
             View = DefaultState.View;
             Projection = DefaultState.Projection;            
         }

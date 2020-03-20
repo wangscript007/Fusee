@@ -9,6 +9,7 @@ using Fusee.Xirkit;
 using Fusee.Base.Common;
 using Fusee.Engine.Common;
 using Fusee.Engine.Core.ShaderShards.Fragment;
+using System.Threading.Tasks;
 
 namespace Fusee.Engine.Core
 {
@@ -259,7 +260,7 @@ namespace Fusee.Engine.Core
         /// Sets the render context for the given scene.
         /// </summary>
         /// <param name="rc"></param>
-        public void SetContext(RenderContext rc)
+        public async Task SetContext(RenderContext rc)
         {
             if (rc == null)
                 throw new ArgumentNullException("rc");
@@ -268,7 +269,7 @@ namespace Fusee.Engine.Core
             {
                 _rc = rc;
                 _boneMap = new Dictionary<SceneNodeContainer, float4x4>();
-                _rc.SetShaderEffect(ShaderCodeBuilder.Default);
+                await _rc.SetShaderEffect(ShaderCodeBuilder.Default);
             }
         }
         #endregion
@@ -278,11 +279,9 @@ namespace Fusee.Engine.Core
         /// Renders the scene.
         /// </summary>
         /// <param name="rc"></param>       
-        public void Render(RenderContext rc)
+        public async Task Render(RenderContext rc)
         {
-            Console.WriteLine("Render before set context");
-
-            SetContext(rc);
+            await SetContext(rc);
 
             PrePassVisitor.PrePassTraverse(_sc, _rc);
 
@@ -296,9 +295,9 @@ namespace Fusee.Engine.Core
                     if (cam.Item2.Camera.Active)
                     {
                         DoFrumstumCulling = cam.Item2.Camera.FrustumCullingOn;
-                        PerCamRender(cam);
+                        await PerCamRender(cam);
                         //Reset Viewport and frustum culling bool in case we have another scene, rendered without a camera
-                        _rc.Viewport(0, 0, rc.DefaultState.CanvasWidth, rc.DefaultState.CanvasHeight);
+                        await _rc.Viewport(0, 0, rc.DefaultState.CanvasWidth, rc.DefaultState.CanvasHeight);
                         //Standard value: frustum culling is on.
                         DoFrumstumCulling = true;
                     }
@@ -308,29 +307,34 @@ namespace Fusee.Engine.Core
             {
                 UpdateShaderParamsForAllLights();
 
+                Console.WriteLine("#### Traverse called");
+
                 Traverse(_sc.Children);
+              
+                Console.WriteLine("##### Traverse ended");
+
             }
         }
 
-        private void PerCamRender(Tuple<SceneNodeContainer, CameraResult> cam)
+        private async Task PerCamRender(Tuple<SceneNodeContainer, CameraResult> cam)
         {
             var tex = cam.Item2.Camera.RenderTexture;
 
             if (tex != null)
-                _rc.SetRenderTarget(cam.Item2.Camera.RenderTexture);
+                await _rc.SetRenderTarget(cam.Item2.Camera.RenderTexture);
             else
-                _rc.SetRenderTarget();
+                await _rc.SetRenderTarget();
 
             _rc.Projection = cam.Item2.Camera.GetProjectionMat(_rc.ViewportWidth, _rc.ViewportHeight, out float4 viewport);
-            _rc.Viewport((int)viewport.x, (int)viewport.y, (int)viewport.z, (int)viewport.w);
+            await _rc.Viewport((int)viewport.x, (int)viewport.y, (int)viewport.z, (int)viewport.w);
 
-            _rc.ClearColor = cam.Item2.Camera.BackgroundColor;
+            await _rc.SetClearColor(cam.Item2.Camera.BackgroundColor);
 
             if (cam.Item2.Camera.ClearColor)
-                _rc.Clear(ClearFlags.Color);
+                await _rc.Clear(ClearFlags.Color);
 
             if (cam.Item2.Camera.ClearDepth)
-                _rc.Clear(ClearFlags.Depth);
+                await _rc.Clear(ClearFlags.Depth);
 
             _rc.View = cam.Item2.View;
 
@@ -656,7 +660,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="shaderComponent">The ShaderEffectComponent</param>
         [VisitMethod]
-        public void RenderShaderEffect(ShaderEffectComponent shaderComponent)
+        public async Task RenderShaderEffect(ShaderEffectComponent shaderComponent)
         {
             Console.WriteLine("RenderShaderEffect Comp");
 
@@ -666,7 +670,7 @@ namespace Fusee.Engine.Core
                 HasNumberOfLightsChanged = false;
             }
             _state.Effect = shaderComponent.Effect;
-            _rc.SetShaderEffect(_state.Effect);
+            await _rc.SetShaderEffect(_state.Effect);
         }
 
         /// <summary>
@@ -675,7 +679,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="mesh">The Mesh.</param>
         [VisitMethod]
-        public void RenderMesh(Mesh mesh)
+        public async Task RenderMesh(Mesh mesh)
         {
             Console.WriteLine("RenderMesh Comp");
 
@@ -697,7 +701,7 @@ namespace Fusee.Engine.Core
                 AddWeightComponentToMesh(mesh, wc);
 
             var renderStatesBefore = _rc.CurrentRenderState.Copy();
-            _rc.Render(mesh);
+            await _rc.Render(mesh);
             var renderStatesAfter = _rc.CurrentRenderState.Copy();
 
             _state.RenderUndoStates = renderStatesBefore.Delta(renderStatesAfter);
@@ -782,13 +786,12 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Pops from the RenderState and sets the Model and View matrices in the RenderContext.
         /// </summary>
-        protected override void PopState()
+        protected override async Task PopState()
         {
-            _rc.SetRenderStateSet(_state.RenderUndoStates);
+            await _rc.SetRenderStateSet(_state.RenderUndoStates);
             _state.Pop();
             _rc.Model = _state.Model;
-            _rc.SetShaderEffect(_state.Effect);
-
+            await _rc.SetShaderEffect(_state.Effect);
         }
 
         #endregion        
