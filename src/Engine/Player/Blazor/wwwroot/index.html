@@ -14,13 +14,13 @@
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
         function requestLoop() {
-            console.log("requestAnimationFrame called");
+            //
             window.requestAnimationFrame((time) => {
+                //console.log("requestAnimationFrame called");
                 // this is calling loop() which is calling this request animation frame method again
                 DotNet.invokeMethod('Fusee.Base.Imp.WebAsm', 'Loop', time)
             });
         }
-
         function start() {
             Blazor.start({})
                 .then(() => {                    

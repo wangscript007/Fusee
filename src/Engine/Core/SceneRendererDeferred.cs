@@ -455,13 +455,15 @@ namespace Fusee.Engine.Core
             RenderAllPasses(viewport, renderTex);
         }
 
-        private void RenderAllPasses(float4 lightingPassViewport, WritableTexture renderTex = null)
+        private async void RenderAllPasses(float4 lightingPassViewport, WritableTexture renderTex = null)
         {
             var preRenderStateSet = _rc.CurrentRenderState.Copy(); //"Snapshot" of the current render states as they came from the user code.
             var preRenderLockedStates = new Dictionary<RenderState, KeyValuePair<bool, uint>>(_rc.LockedStates);
 
-            if (_rc.ClearColor != _texClearColor)
-                BackgroundColor = _rc.ClearColor;
+            var clearColor = await _rc.GetClearColor();
+
+            if (clearColor != _texClearColor)
+                BackgroundColor = clearColor;
 
             _rc.ClearColor = _texClearColor;
 

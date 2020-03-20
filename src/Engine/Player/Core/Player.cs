@@ -137,89 +137,89 @@ namespace Fusee.Engine.Player.Core
 
             // Clear the backbuffer
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
-
+            Console.WriteLine("RAF after Clear");
             RC.Viewport(0, 0, Width, Height);
+            Console.WriteLine("RAF after viewport");
+            //// Mouse and keyboard movement
+            //if (Keyboard.LeftRightAxis != 0 || Keyboard.UpDownAxis != 0)
+            //{
+            //    _keys = true;
+            //}
 
-            // Mouse and keyboard movement
-            if (Keyboard.LeftRightAxis != 0 || Keyboard.UpDownAxis != 0)
-            {
-                _keys = true;
-            }
-
-            var curDamp = (float)System.Math.Exp(-Damping * DeltaTime);
-            // Zoom & Roll
-            if (Touch.TwoPoint)
-            {
-                if (!_twoTouchRepeated)
-                {
-                    _twoTouchRepeated = true;
-                    _angleRollInit = Touch.TwoPointAngle - _angleRoll;
-                    _offsetInit = Touch.TwoPointMidPoint - _offset;
-                    _maxPinchSpeed = 0;
-                }
-                _zoomVel = Touch.TwoPointDistanceVel * -0.01f;
-                _angleRoll = Touch.TwoPointAngle - _angleRollInit;
-                _offset = Touch.TwoPointMidPoint - _offsetInit;
-                float pinchSpeed = Touch.TwoPointDistanceVel;
-                if (pinchSpeed > _maxPinchSpeed) _maxPinchSpeed = pinchSpeed; // _maxPinchSpeed is used for debugging only.
-            }
-            else
-            {
-                _twoTouchRepeated = false;
-                _zoomVel = Mouse.WheelVel * -0.5f;
-                _angleRoll *= curDamp * 0.8f;
-                _offset *= curDamp * 0.8f;
-            }
+            //var curDamp = (float)System.Math.Exp(-Damping * DeltaTime);
+            //// Zoom & Roll
+            //if (Touch.TwoPoint)
+            //{
+            //    if (!_twoTouchRepeated)
+            //    {
+            //        _twoTouchRepeated = true;
+            //        _angleRollInit = Touch.TwoPointAngle - _angleRoll;
+            //        _offsetInit = Touch.TwoPointMidPoint - _offset;
+            //        _maxPinchSpeed = 0;
+            //    }
+            //    _zoomVel = Touch.TwoPointDistanceVel * -0.01f;
+            //    _angleRoll = Touch.TwoPointAngle - _angleRollInit;
+            //    _offset = Touch.TwoPointMidPoint - _offsetInit;
+            //    float pinchSpeed = Touch.TwoPointDistanceVel;
+            //    if (pinchSpeed > _maxPinchSpeed) _maxPinchSpeed = pinchSpeed; // _maxPinchSpeed is used for debugging only.
+            //}
+            //else
+            //{
+            //    _twoTouchRepeated = false;
+            //    _zoomVel = Mouse.WheelVel * -0.5f;
+            //    _angleRoll *= curDamp * 0.8f;
+            //    _offset *= curDamp * 0.8f;
+            //}
 
 
-            // UpDown / LeftRight rotation
-            if (Mouse.LeftButton)
-            {
+            //// UpDown / LeftRight rotation
+            //if (Mouse.LeftButton)
+            //{
 
-                _keys = false;
-                _angleVelHorz = -RotationSpeed * Mouse.XVel * DeltaTime * 0.0005f;
-                _angleVelVert = -RotationSpeed * Mouse.YVel * DeltaTime * 0.0005f;
-            }
+            //    _keys = false;
+            //    _angleVelHorz = -RotationSpeed * Mouse.XVel * DeltaTime * 0.0005f;
+            //    _angleVelVert = -RotationSpeed * Mouse.YVel * DeltaTime * 0.0005f;
+            //}
 
-            else if (Touch.GetTouchActive(TouchPoints.Touchpoint_0) && !Touch.TwoPoint)
-            {
-                _keys = false;
-                float2 touchVel;
-                touchVel = Touch.GetVelocity(TouchPoints.Touchpoint_0);
-                _angleVelHorz = -RotationSpeed * touchVel.x * DeltaTime * 0.0005f;
-                _angleVelVert = -RotationSpeed * touchVel.y * DeltaTime * 0.0005f;
-            }
-            else
-            {
-                if (_keys)
-                {
-                    _angleVelHorz = -RotationSpeed * Keyboard.LeftRightAxis * DeltaTime;
-                    _angleVelVert = -RotationSpeed * Keyboard.UpDownAxis * DeltaTime;
-                }
-                else
-                {
-                    _angleVelHorz *= curDamp;
-                    _angleVelVert *= curDamp;
-                }
-            }
+            //else if (Touch.GetTouchActive(TouchPoints.Touchpoint_0) && !Touch.TwoPoint)
+            //{
+            //    _keys = false;
+            //    float2 touchVel;
+            //    touchVel = Touch.GetVelocity(TouchPoints.Touchpoint_0);
+            //    _angleVelHorz = -RotationSpeed * touchVel.x * DeltaTime * 0.0005f;
+            //    _angleVelVert = -RotationSpeed * touchVel.y * DeltaTime * 0.0005f;
+            //}
+            //else
+            //{
+            //    if (_keys)
+            //    {
+            //        _angleVelHorz = -RotationSpeed * Keyboard.LeftRightAxis * DeltaTime;
+            //        _angleVelVert = -RotationSpeed * Keyboard.UpDownAxis * DeltaTime;
+            //    }
+            //    else
+            //    {
+            //        _angleVelHorz *= curDamp;
+            //        _angleVelVert *= curDamp;
+            //    }
+            //}
 
-            _zoom += _zoomVel;
-            // Limit zoom
-            if (_zoom < 80)
-                _zoom = 80;
-            if (_zoom > 2000)
-                _zoom = 2000;
+            //_zoom += _zoomVel;
+            //// Limit zoom
+            //if (_zoom < 80)
+            //    _zoom = 80;
+            //if (_zoom > 2000)
+            //    _zoom = 2000;
 
-            _angleHorz += _angleVelHorz;
-            // Wrap-around to keep _angleHorz between -PI and + PI
-            _angleHorz = M.MinAngle(_angleHorz);
+            //_angleHorz += _angleVelHorz;
+            //// Wrap-around to keep _angleHorz between -PI and + PI
+            //_angleHorz = M.MinAngle(_angleHorz);
 
-            _angleVert += _angleVelVert;
-            // Limit pitch to the range between [-PI/2, + PI/2]
-            _angleVert = M.Clamp(_angleVert, -M.PiOver2, M.PiOver2);
+            //_angleVert += _angleVelVert;
+            //// Limit pitch to the range between [-PI/2, + PI/2]
+            //_angleVert = M.Clamp(_angleVert, -M.PiOver2, M.PiOver2);
 
-            // Wrap-around to keep _angleRoll between -PI and + PI
-            _angleRoll = M.MinAngle(_angleRoll);
+            //// Wrap-around to keep _angleRoll between -PI and + PI
+            //_angleRoll = M.MinAngle(_angleRoll);
 
             // Create the camera matrix and set it as the current View transformation
             var mtxRot = /*float4x4.CreateRotationZ(_angleRoll) **/ float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
@@ -242,8 +242,13 @@ namespace Fusee.Engine.Player.Core
             // Tick any animations and Render the scene loaded in Init()
             RC.View = view;
             RC.Projection = perspective;
-            _sceneRenderer.Animate();
+
+            Console.WriteLine("RAF before render");
+
+            //_sceneRenderer.Animate();
             _sceneRenderer.Render(RC);
+
+            Console.WriteLine("RAF after render");
 
             RC.View = view;
             RC.Projection = orthographic;

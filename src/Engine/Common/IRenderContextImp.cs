@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Fusee.Base.Common;
 using Fusee.Math.Core;
 
@@ -22,7 +24,34 @@ namespace Fusee.Engine.Common
         /// This is the color that will be copied to all pixels in the output color buffer when Clear is called on the render context.
         /// </remarks>
         /// <seealso cref="Clear"/>
+        [Obsolete("Use async variant instead.")]
         float4 ClearColor { set; get; }
+
+        /// <summary>
+        /// The color to use when clearing the color buffer.
+        /// </summary>
+        /// <value>
+        /// The color value is interpreted as a (Red, Green, Blue, Alpha) quadruple with
+        /// component values ranging from 0.0f to 1.0f.
+        /// </value>
+        /// <remarks>
+        /// This is the color that will be copied to all pixels in the output color buffer when Clear is called on the render context.
+        /// </remarks>
+        /// <seealso cref="Clear"/>
+        Task<float[]> GetClearColorAsync();
+
+        /// <summary>
+        /// The color to use when clearing the color buffer.
+        /// </summary>
+        /// <value>
+        /// The color value is interpreted as a (Red, Green, Blue, Alpha) quadruple with
+        /// component values ranging from 0.0f to 1.0f.
+        /// </value>
+        /// <remarks>
+        /// This is the color that will be copied to all pixels in the output color buffer when Clear is called on the render context.
+        /// </remarks>
+        /// <seealso cref="Clear"/>
+        void SetClearColorAsync(float4 val);
 
         /// <summary>
         /// The depth value to use when clearing the color buffer.
@@ -33,7 +62,28 @@ namespace Fusee.Engine.Common
         /// <remarks>
         /// This is the depth (z-) value that will be copied to all pixels in the depth (z-) buffer when Clear is called on the render context.
         /// </remarks>
+        [Obsolete("Use async variant instead.")]
         float ClearDepth { set; get; }
+
+
+        /// <summary>
+        /// Gets the depth value to use when clearing the color buffer.
+        /// </summary>     
+        /// <remarks>
+        /// This is the depth (z-) value that will be copied to all pixels in the depth (z-) buffer when Clear is called on the render context.
+        /// </remarks>
+        Task<float> GetClearDepthAsync();
+
+        /// <summary>
+        /// Sets the depth value to use when clearing the color buffer.
+        /// </summary>
+        /// <value>
+        /// Typically set to the highest possible depth value. Typically ranges between 0 and 1.
+        /// </value>
+        /// <remarks>
+        /// This is the depth (z-) value that will be copied to all pixels in the depth (z-) buffer when Clear is called on the render context.
+        /// </remarks>
+        void SetClearDepthAsync(float value);
 
         /// <summary>
         /// The clipping behavior against the Z position of a vertex can be turned off by activating depth clamping. 
@@ -60,7 +110,22 @@ namespace Fusee.Engine.Common
         /// The result is already compiled to code executable on the GPU. <see cref="IRenderContextImp.SetShader"/>
         /// to activate the result as the current shader used for rendering geometry passed to the RenderContext.
         /// </remarks>
+        [Obsolete("Use async variant instead.")]
         IShaderHandle CreateShaderProgram(string vs, string ps, string gs = null);
+
+        /// <summary>
+        /// Creates a shader object from vertex shader source code and pixel shader source code.
+        /// </summary>
+        /// <param name="vs">A string containing the vertex shader source.</param>
+        /// <param name="gs">A string containing the geometry shader source.</param>
+        /// <param name="ps">A string containing the pixel (fragment) shader source code.</param>
+        /// <returns>A shader program object identifying the combination of the given vertex and pixel shader.</returns>
+        /// <remarks>
+        /// Currently only shaders in GLSL (or rather GLSL/ES) source language(s) are supported.
+        /// The result is already compiled to code executable on the GPU. <see cref="IRenderContextImp.SetShader"/>
+        /// to activate the result as the current shader used for rendering geometry passed to the RenderContext.
+        /// </remarks>
+        Task<IShaderHandle> CreateShaderProgramAsync(string vs, string ps, string gs = null);
 
         /// <summary>
         /// Removes given shader program from GPU
@@ -108,7 +173,20 @@ namespace Fusee.Engine.Common
         /// uniform parameters that are accessed by either the vertex shader, the pixel shader, or both shaders compiled into
         /// the given shader.
         /// </returns>
+        [Obsolete("Use async variant instead.")]
         IList<ShaderParamInfo> GetShaderParamList(IShaderHandle shaderProgram);
+
+        /// <summary>
+        /// Get a list of (uniform) shader parameters accessed by the given shader.
+        /// </summary>
+        /// <param name="shaderProgram">The shader program to query for parameters.</param>
+        /// <returns>
+        /// A list of shader parameters accessed by the shader code of the given shader program. The parameters listed here
+        /// are the so-called uniform parameters of the shader (in contrast to the varying parameters). The list contains all
+        /// uniform parameters that are accessed by either the vertex shader, the pixel shader, or both shaders compiled into
+        /// the given shader.
+        /// </returns>
+        Task<IList<ShaderParamInfo>> GetShaderParamListAsync(IShaderHandle shaderProgram);
 
         /// <summary>
         /// Returns an identifier for the named (uniform) parameter used in the specified shader program.
@@ -120,7 +198,20 @@ namespace Fusee.Engine.Common
         /// The returned handle can be used to assign values to a (uniform) shader parameter.
         /// </remarks>
         /// <seealso cref="SetShaderParam(IShaderParam,float)"/>
+        [Obsolete("Use async variant instead.")]
         IShaderParam GetShaderParam(IShaderHandle shaderProgram, string paramName);
+
+        /// <summary>
+        /// Returns an identifier for the named (uniform) parameter used in the specified shader program.
+        /// </summary>
+        /// <param name="shaderProgram">The shader program using the parameter.</param>
+        /// <param name="paramName">Name of the shader parameter.</param>
+        /// <returns>A handle object to identify the given parameter in subsequent calls to SetShaderParam.</returns>
+        /// <remarks>
+        /// The returned handle can be used to assign values to a (uniform) shader parameter.
+        /// </remarks>
+        /// <seealso cref="SetShaderParamAsync(IShaderParam,float)"/>
+        Task<IShaderParam> GetShaderParamAsync(IShaderHandle shaderProgram, string paramName);
 
         /// <summary>
         /// Sets the specified shader parameter to a float value.
@@ -300,20 +391,45 @@ namespace Fusee.Engine.Common
         /// Method should be called after LoadImage method to process
         /// the BitmapData an make them available for the shader.
         /// </remarks>
-        /// <param name="img">An <see cref="ITexture"/>, containing necessary information for the upload to the graphics card.</param>       
+        /// <param name="img">An <see cref="ITexture"/>, containing necessary information for the upload to the graphics card.</param>   
+        [Obsolete("Use async variant instead.")]
         ITextureHandle CreateTexture(ITexture img);
+
+        /// <summary>
+        /// Creates a new texture and binds it to the shader.
+        /// </summary>
+        /// <remarks>
+        /// Method should be called after LoadImage method to process
+        /// the BitmapData an make them available for the shader.
+        /// </remarks>
+        /// <param name="img">An <see cref="ITexture"/>, containing necessary information for the upload to the graphics card.</param>       
+        Task<ITextureHandle> CreateTextureAsync(ITexture img);
+
+        /// <summary>
+        /// Creates a new cube map and binds it to the shader.
+        /// </summary>        
+        /// <param name="img">An <see cref="IWritableCubeMap"/>, containing necessary information for the upload to the graphics card.</param>   
+        [Obsolete("Use async variant instead.")]
+        ITextureHandle CreateTexture(IWritableCubeMap img);
 
         /// <summary>
         /// Creates a new cube map and binds it to the shader.
         /// </summary>        
         /// <param name="img">An <see cref="IWritableCubeMap"/>, containing necessary information for the upload to the graphics card.</param>       
-        ITextureHandle CreateTexture(IWritableCubeMap img);
+        Task<ITextureHandle> CreateTextureAsync(IWritableCubeMap img);
+
+        /// <summary>
+        /// Creates a new texture and binds it to the shader.
+        /// </summary>      
+        /// <param name="img">An <see cref="IWritableTexture"/>, containing necessary information for the upload to the graphics card.</param> 
+        [Obsolete("Use async variant instead.")]
+        ITextureHandle CreateTexture(IWritableTexture img);
 
         /// <summary>
         /// Creates a new texture and binds it to the shader.
         /// </summary>      
         /// <param name="img">An <see cref="IWritableTexture"/>, containing necessary information for the upload to the graphics card.</param>       
-        ITextureHandle CreateTexture(IWritableTexture img);
+        Task<ITextureHandle> CreateTextureAsync(IWritableTexture img);
 
         /// <summary>
         /// Removes the TextureHandle's buffers and textures from the graphics card's memory
@@ -540,7 +656,14 @@ namespace Fusee.Engine.Common
         /// Creates the mesh implementation.
         /// </summary>
         /// <returns>The <see cref="IMeshImp" /> instance.</returns>
+        [Obsolete("Use async variant instead.")]
         IMeshImp CreateMeshImp();
+
+        /// <summary>
+        /// Creates the mesh implementation.
+        /// </summary>
+        /// <returns>The <see cref="IMeshImp" /> instance.</returns>
+        Task<IMeshImp> CreateMeshImpAsync();
 
         /// <summary>
         /// Sets the specified render state to the given setting.
@@ -577,22 +700,16 @@ namespace Fusee.Engine.Common
         /// <param name="texHandle">The texture handle, associated with the given texture. Should be created by the TextureManager in the RenderContext.</param>
         void SetRenderTarget(IWritableCubeMap tex, ITextureHandle texHandle);
 
-        /*
-         * TODO: NO tangent space normal maps at this time...
-         * 
-         * http://gamedev.stackexchange.com/a/72806/44105
-         * 
         /// <summary>
-        /// This method is a replacement for SetVertices, SetUVs and SetNormals. Taking all three
-        /// vertex information arrays a the same time, an implementation can additionally calculate
-        /// tangent and bitangent information as well. 
+        /// Retrieves a sub-image of the given region.
         /// </summary>
-        /// <param name="meshImp">The mesh implementation to operate on.</param>
-        /// <param name="vertices">The array of vertices</param>
-        /// <param name="uVs">The texture coordinate array</param>
-        /// <param name="normals">The normals</param>
-        void SetVertexData(IMeshImp meshImp, float3[] vertices, float2[] uVs, float3[] normals);
-         * */
+        /// <param name="x">The x value of the start of the region.</param>
+        /// <param name="y">The y value of the start of the region.</param>
+        /// <param name="w">The width to copy.</param>
+        /// <param name="h">The height to copy.</param>
+        /// <returns>The specified sub-image</returns>
+        [Obsolete("Use async variant instead.")]
+        IImageData GetPixelColor(int x, int y, int w, int h);
 
         /// <summary>
         /// Retrieves a sub-image of the given region.
@@ -602,7 +719,7 @@ namespace Fusee.Engine.Common
         /// <param name="w">The width to copy.</param>
         /// <param name="h">The height to copy.</param>
         /// <returns>The specified sub-image</returns>
-        IImageData GetPixelColor(int x, int y, int w, int h);
+        Task<IImageData> GetPixelColorAsync(int x, int y, int w, int h);
 
         /// <summary>
         /// Retrieves the Z-value at the given pixel position.
@@ -610,7 +727,16 @@ namespace Fusee.Engine.Common
         /// <param name="x">The x value.</param>
         /// <param name="y">The y value.</param>
         /// <returns>The Z value at (x, y).</returns>
+        [Obsolete("Use async variant instead.")]
         float GetPixelDepth(int x, int y);
+
+        /// <summary>
+        /// Retrieves the Z-value at the given pixel position.
+        /// </summary>
+        /// <param name="x">The x value.</param>
+        /// <param name="y">The y value.</param>
+        /// <returns>The Z value at (x, y).</returns>
+        Task<float> GetPixelDepthAsync(int x, int y);
 
         /// <summary> 
         /// Returns the capabilities of the underlying graphics hardware 
@@ -618,6 +744,7 @@ namespace Fusee.Engine.Common
         /// <param name="capability">The capability to check against</param> 
         /// <returns>uint</returns> 
         uint GetHardwareCapabilities(HardwareCapability capability);
+            
 
         /// <summary> 
         /// Returns a human readable description of the underlying graphics hardware 

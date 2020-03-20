@@ -13,7 +13,7 @@ namespace Fusee.Engine.Player.Blazor
       
             builder.Services.AddBaseAddressHttpClient();
 
-            await builder.Build().RunAsync();
+            await builder.Build().RunAsync().ConfigureAwait(false);
         }
     }
 }

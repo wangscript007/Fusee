@@ -5,6 +5,7 @@ using Fusee.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Fusee.Engine.Core
 {
@@ -28,9 +29,15 @@ namespace Fusee.Engine.Core
         /// <seealso cref="Clear"/>
         public float4 ClearColor
         {
-            set { _rci.ClearColor = value; }
-            get { return _rci.ClearColor; }
+            set { _rci.SetClearColorAsync(value); }
         }
+
+        public async Task<float4> GetClearColor()
+        {
+            var color = await _rci.GetClearColorAsync();
+            return new float4(color[0], color[1], color[2], color[3]);
+        }
+    
 
         /// <summary>
         /// The depth value to use when clearing the color buffer.
@@ -43,10 +50,11 @@ namespace Fusee.Engine.Core
         /// </remarks>
         public float ClearDepth
         {
-            set { _rci.ClearDepth = value; }
-            get { return _rci.ClearDepth; }
-        }
+            set { _rci.SetClearDepthAsync(value); }
+        }         
 
+        public async Task<float> GetClearDepth() => await _rci.GetClearDepthAsync();
+      
         /// <summary>
         /// Contains the default state of the render context. can be used to reset this RenderContext to it's DefaultState.
         /// </summary>
@@ -936,7 +944,7 @@ namespace Fusee.Engine.Core
         /// <remarks>A ShaderEffect must be attached to a context before you can render geometry with it. The main
         /// task performed in this method is compiling the provided shader source code and uploading the shaders to
         /// the gpu.</remarks>
-        public void SetShaderEffect(ShaderEffect ef)
+        public async void SetShaderEffect(ShaderEffect ef)
         {
             if (_rci == null)
                 throw new NullReferenceException("No render context Implementation found!");
@@ -965,9 +973,9 @@ namespace Fusee.Engine.Core
             {
                 for (i = 0; i < nPasses; i++)
                 {
-                    var shaderOnGpu = _rci.CreateShaderProgram(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]);
-                    var shaderParams = _rci.GetShaderParamList(shaderOnGpu).ToDictionary(info => info.Name, info => info);
-
+                    var shaderOnGpu = await _rci.CreateShaderProgramAsync(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]);
+                    var shaderParams = (await _rci.GetShaderParamListAsync(shaderOnGpu)).ToDictionary(info => info.Name, info => info);
+                    Console.WriteLine("After List");
                     foreach (var param in shaderParams)
                     {
                         if (!activeUniforms.ContainsKey(param.Key))

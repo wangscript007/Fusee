@@ -259,7 +259,7 @@ namespace Fusee.Engine.Core
         /// Sets the render context for the given scene.
         /// </summary>
         /// <param name="rc"></param>
-        public async void SetContext(RenderContext rc)
+        public void SetContext(RenderContext rc)
         {
             if (rc == null)
                 throw new ArgumentNullException("rc");
@@ -280,11 +280,15 @@ namespace Fusee.Engine.Core
         /// <param name="rc"></param>       
         public void Render(RenderContext rc)
         {
+            Console.WriteLine("Render before set context");
+
             SetContext(rc);
 
             PrePassVisitor.PrePassTraverse(_sc, _rc);
 
             AccumulateLight();
+
+            Console.WriteLine("Render after accum light");
 
             if (PrePassVisitor.CameraPrepassResults.Count != 0)
             {
@@ -305,6 +309,8 @@ namespace Fusee.Engine.Core
             else
             {
                 UpdateShaderParamsForAllLights();
+
+                Console.WriteLine("Before traverse");
                 Traverse(_sc.Children);
             }
         }
@@ -632,6 +638,7 @@ namespace Fusee.Engine.Core
         [VisitMethod]
         public void RenderTransform(TransformComponent transform)
         {
+            Console.WriteLine("Transform COmp");
             _state.Model *= transform.Matrix();
             _rc.Model = _state.Model;
         }

@@ -1,4 +1,4 @@
-﻿using Fusee.Serialization;
+using Fusee.Serialization;
 
 namespace Fusee.Engine.Core.ShaderShards
 {
