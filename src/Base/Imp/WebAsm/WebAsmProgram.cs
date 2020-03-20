@@ -80,7 +80,7 @@ namespace Fusee.Base.Imp.WebAsm
             canvasObject.SetDims(newWidth, newHeight);
         }
 
-        [JSInvokableAttribute("Loop")]
+        [JSInvokable("Loop")]
         public static void Loop(double milliseconds)
         {
             Console.WriteLine($"Loop called {milliseconds} ms");
@@ -90,7 +90,7 @@ namespace Fusee.Base.Imp.WebAsm
             mainExecutable.Update(elapsedMilliseconds);
             mainExecutable.Draw();
 
-            RequestAnimationFrame();
+            //RequestAnimationFrame(); we just want to render 1 frame
         }
 
         private static void RequestAnimationFrame()

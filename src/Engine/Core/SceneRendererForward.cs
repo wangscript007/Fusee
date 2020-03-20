@@ -288,8 +288,6 @@ namespace Fusee.Engine.Core
 
             AccumulateLight();
 
-            Console.WriteLine("Render after accum light");
-
             if (PrePassVisitor.CameraPrepassResults.Count != 0)
             {
                 var cams = PrePassVisitor.CameraPrepassResults.OrderBy(cam => cam.Item2.Camera.Layer);
@@ -310,7 +308,6 @@ namespace Fusee.Engine.Core
             {
                 UpdateShaderParamsForAllLights();
 
-                Console.WriteLine("Before traverse");
                 Traverse(_sc.Children);
             }
         }
@@ -638,7 +635,7 @@ namespace Fusee.Engine.Core
         [VisitMethod]
         public void RenderTransform(TransformComponent transform)
         {
-            Console.WriteLine("Transform COmp");
+            Console.WriteLine("Transform Comp");
             _state.Model *= transform.Matrix();
             _rc.Model = _state.Model;
         }
@@ -661,6 +658,8 @@ namespace Fusee.Engine.Core
         [VisitMethod]
         public void RenderShaderEffect(ShaderEffectComponent shaderComponent)
         {
+            Console.WriteLine("RenderShaderEffect Comp");
+
             if (HasNumberOfLightsChanged)
             {
                 //change #define MAX_LIGHTS... or rebuild shader effect?
@@ -678,6 +677,8 @@ namespace Fusee.Engine.Core
         [VisitMethod]
         public void RenderMesh(Mesh mesh)
         {
+            Console.WriteLine("RenderMesh Comp");
+
             if (!mesh.Active) return;
 
             if (DoFrumstumCulling)

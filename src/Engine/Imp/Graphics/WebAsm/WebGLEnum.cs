@@ -234,7 +234,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
     public enum ShaderType
     {
         FRAGMENT_SHADER = 0x8B30,
-        VERTEX_SHADER = 0x8B31
+        VERTEX_SHADER = 0x8B31 
     }
 
     public enum ShaderParameter

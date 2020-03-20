@@ -29,7 +29,11 @@ namespace Fusee.Base.Imp.WebAsm
             canvasWidth = (int)canvas.Width;
             canvasHeight = (int)canvas.Height;           
 
-            gl = await canvas.CreateWebGLAsync(new WebGLContextAttributes { Alpha = true, Antialias = true });
+            gl = await canvas.CreateWebGLAsync(new WebGLContextAttributes { 
+                Alpha = true, 
+                Antialias = true,
+                PowerPreference = WebGLContextAttributes.POWER_PREFERENCE_HIGH_PERFORMANCE             
+            });
         }
 
         public virtual void Run()

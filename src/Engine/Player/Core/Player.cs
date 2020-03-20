@@ -40,9 +40,9 @@ namespace Fusee.Engine.Player.Core
         private const float ZFar = 3000;
         private float _fovy = M.PiOver4;
 
-        private SceneRendererForward _guiRenderer;
-        private SceneContainer _gui;
-        private SceneInteractionHandler _sih;
+        //private SceneRendererForward _guiRenderer;
+        //private SceneContainer _gui;
+        //private SceneInteractionHandler _sih;
         private readonly CanvasRenderMode _canvasRenderMode = CanvasRenderMode.SCREEN;
         private float _initCanvasWidth;
         private float _initCanvasHeight;
@@ -78,7 +78,30 @@ namespace Fusee.Engine.Player.Core
 
             // Load the standard model
             //_scene = await AssetStorage.GetAsync<SceneContainer>(ModelFile);
-            _scene = await Rocket.Build();
+            //_scene = await Rocket.Build();
+            _scene = new SceneContainer
+            {
+                Children = new List<SceneNodeContainer>
+                {
+                    new SceneNodeContainer
+                    {
+                        Components = new List<SceneComponentContainer>
+                        {
+                            new TransformComponent
+                            {
+                                Name = "TransformComp"
+                            },
+                            new ShaderEffectComponent {
+                                Name = "ShaderEffectComponent",
+                                Effect = await ShaderCodeBuilder.MakeShaderEffect(float4.One * 0.5f, float4.One * 0.5f, 20) },
+                            new Cube
+                            {
+                                Name = "Cube",
+                            }
+                        }
+                    }
+                }
+            };
 
             //_gui = await CreateGui();
             // Create the interaction handler
@@ -116,8 +139,12 @@ namespace Fusee.Engine.Player.Core
 
             //foreach (var comp in _scene.Children[1].Components)
             //    Diagnostics.Info(comp);
-            
+
             // Wrap a SceneRenderer around the model.
+
+            Console.WriteLine($"Scene content");
+            _scene.Children[0].Components.ForEach(comp => Console.WriteLine(comp.Name));
+
             _sceneRenderer = new SceneRendererForward(_scene);
             //_guiRenderer = new SceneRendererForward(_gui);
 

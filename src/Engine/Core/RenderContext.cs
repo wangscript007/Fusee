@@ -959,7 +959,8 @@ namespace Fusee.Engine.Core
                 return;
             }
 
-            int i = 0, nPasses = ef.VertexShaderSrc.Length;
+            var i = 0;
+            var nPasses = ef.VertexShaderSrc.Length;
 
             var compiledEffect = new CompiledShaderEffect
             {
@@ -973,8 +974,10 @@ namespace Fusee.Engine.Core
             {
                 for (i = 0; i < nPasses; i++)
                 {
-                    var shaderOnGpu = await _rci.CreateShaderProgramAsync(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]);
-                    var shaderParams = (await _rci.GetShaderParamListAsync(shaderOnGpu)).ToDictionary(info => info.Name, info => info);
+                    Console.WriteLine($"PASS: {i}");
+                    var shaderOnGpu = await _rci.CreateShaderProgramAsync(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]).ConfigureAwait(true);
+                    var shaderParamsRes = await _rci.GetShaderParamListAsync(shaderOnGpu).ConfigureAwait(true);
+                    var shaderParams = shaderParamsRes.ToDictionary(info => info.Name, info => info);
                     Console.WriteLine("After List");
                     foreach (var param in shaderParams)
                     {
