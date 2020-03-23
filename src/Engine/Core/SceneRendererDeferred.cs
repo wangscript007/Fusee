@@ -149,7 +149,7 @@ namespace Fusee.Engine.Core
 
             if (_currentPass != RenderPasses.SHADOW)
             {
-                _rc.SetShaderEffect(shaderComponent.Effect);
+                _rc.SetShaderEffectAsync(shaderComponent.Effect);
                 _state.Effect = shaderComponent.Effect;
             }
         }
@@ -160,7 +160,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="mesh">The Mesh.</param>
         [VisitMethod]
-        public new void RenderMesh(Mesh mesh)
+        public new async void RenderMesh(Mesh mesh)
         {
             if (!mesh.Active) return;
 
@@ -199,15 +199,15 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Pops from the RenderState and sets the Model and View matrices in the RenderContext.
         /// </summary>
-        protected override async Task PopState()
+        protected override void PopState()
         {
-            await _rc.SetRenderStateSet(_state.RenderUndoStates);
+            _rc.SetRenderStateSet(_state.RenderUndoStates);
             _state.Pop();
             _rc.Model = _state.Model;
 
             //If we render the shadow pass: ignore ShaderEffects of the SceneNodes and use the ones that are needed to render the shadow maps.
             if (_currentPass != RenderPasses.SHADOW)
-                await _rc.SetShaderEffect(_state.Effect);
+                _rc.SetShaderEffectAsync(_state.Effect);
 
         }
         #endregion
@@ -401,9 +401,9 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="rc">The <see cref="RenderContext"/>.</param>
         /// <param name="renderTex">If the render texture isn't null, the last pass of the deferred pipeline will render into it, else it will render to the screen.</param>        
-        public async Task Render(RenderContext rc, WritableTexture renderTex = null)
+        public async void Render(RenderContext rc, WritableTexture renderTex = null)
         {
-            await SetContext(rc);
+            SetContext(rc);
 
             PrePassVisitor.PrePassTraverse(_sc, _rc);
             AccumulateLight();
@@ -626,7 +626,7 @@ namespace Fusee.Engine.Core
                 else
                     _lightingPassEffect.SetEffectParam(ShaderShards.UniformNameDeclarations.BackgroundColor, _texClearColor);
 
-                _rc.SetShaderEffect(_lightingPassEffect);
+                _rc.SetShaderEffectAsync(_lightingPassEffect);
                 _rc.Render(_quad);
                 lightPassCnt++;
             }
@@ -656,7 +656,7 @@ namespace Fusee.Engine.Core
 
                             _shadowCubeMapEffect.SetEffectParam("LightMatClipPlanes", shadowParams.ClipPlanesForLightMat[0]);
                             _shadowCubeMapEffect.SetEffectParam("LightPos", lightVisRes.Item2.WorldSpacePos);
-                            _rc.SetShaderEffect(_shadowCubeMapEffect);
+                            _rc.SetShaderEffectAsync(_shadowCubeMapEffect);
 
                             _rc.SetRenderTarget((IWritableCubeMap)shadowParams.ShadowMaps[0]);
 
@@ -672,7 +672,7 @@ namespace Fusee.Engine.Core
                             for (int i = 0; i < shadowParams.LightSpaceMatrices.Length; i++)
                             {
                                 _shadowEffect.SetEffectParam(ShaderShards.UniformNameDeclarations.LightSpaceMatrix, shadowParams.LightSpaceMatrices[i]);
-                                _rc.SetShaderEffect(_shadowEffect);
+                                _rc.SetShaderEffectAsync(_shadowEffect);
                                 _rc.SetRenderTarget(shadowParams.ShadowMaps[i]);
 
                                 _lightFrustum = shadowParams.Frustums[i];
@@ -686,7 +686,7 @@ namespace Fusee.Engine.Core
                         {
                             DoFrumstumCulling = true;
                             _shadowEffect.SetEffectParam(ShaderShards.UniformNameDeclarations.LightSpaceMatrix, shadowParams.LightSpaceMatrices[0]);
-                            _rc.SetShaderEffect(_shadowEffect);
+                            _rc.SetShaderEffectAsync(_shadowEffect);
                             _rc.SetRenderTarget(shadowParams.ShadowMaps[0]);
 
                             _lightFrustum = shadowParams.Frustums[0];
@@ -713,7 +713,7 @@ namespace Fusee.Engine.Core
             _currentPass = RenderPasses.SSAO;
             if (_ssaoTexEffect == null)
                 _ssaoTexEffect = ShaderCodeBuilder.SSAORenderTargetTextureEffect(_gBufferRenderTarget, 64, new float2((float)TexRes, (float)TexRes));
-            _rc.SetShaderEffect(_ssaoTexEffect);
+            _rc.SetShaderEffectAsync(_ssaoTexEffect);
             _rc.SetRenderTarget(_ssaoRenderTexture);
             _rc.Render(_quad);
 
@@ -721,7 +721,7 @@ namespace Fusee.Engine.Core
             _currentPass = RenderPasses.SSAO_BLUR;
             if (_blurEffect == null)
                 _blurEffect = ShaderCodeBuilder.SSAORenderTargetBlurEffect(_ssaoRenderTexture);
-            _rc.SetShaderEffect(_blurEffect);
+            _rc.SetShaderEffectAsync(_blurEffect);
             _rc.SetRenderTarget(_blurRenderTex);
             _rc.Render(_quad);
 
@@ -734,7 +734,7 @@ namespace Fusee.Engine.Core
             _currentPass = RenderPasses.FXAA;
             if (_fxaaEffect == null)
                 _fxaaEffect = ShaderCodeBuilder.FXAARenderTargetEffect(_lightedSceneTex, new float2((float)TexRes, (float)TexRes));
-            _rc.SetShaderEffect(_fxaaEffect);
+            _rc.SetShaderEffectAsync(_fxaaEffect);
 
             if (renderTex == null)
                 _rc.SetRenderTarget();

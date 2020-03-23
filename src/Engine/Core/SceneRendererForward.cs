@@ -9,6 +9,7 @@ using Fusee.Xirkit;
 using Fusee.Base.Common;
 using Fusee.Engine.Common;
 using Fusee.Engine.Core.ShaderShards.Fragment;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Fusee.Engine.Core
@@ -260,7 +261,7 @@ namespace Fusee.Engine.Core
         /// Sets the render context for the given scene.
         /// </summary>
         /// <param name="rc"></param>
-        public async Task SetContext(RenderContext rc)
+        public void SetContext(RenderContext rc)
         {
             if (rc == null)
                 throw new ArgumentNullException("rc");
@@ -269,7 +270,7 @@ namespace Fusee.Engine.Core
             {
                 _rc = rc;
                 _boneMap = new Dictionary<SceneNodeContainer, float4x4>();
-                await _rc.SetShaderEffect(ShaderCodeBuilder.Default);
+                //await _rc.SetShaderEffect(ShaderCodeBuilder.Default);
             }
         }
         #endregion
@@ -281,7 +282,7 @@ namespace Fusee.Engine.Core
         /// <param name="rc"></param>       
         public async Task Render(RenderContext rc)
         {
-            await SetContext(rc);
+            SetContext(rc);
 
             PrePassVisitor.PrePassTraverse(_sc, _rc);
 
@@ -295,9 +296,9 @@ namespace Fusee.Engine.Core
                     if (cam.Item2.Camera.Active)
                     {
                         DoFrumstumCulling = cam.Item2.Camera.FrustumCullingOn;
-                        await PerCamRender(cam);
+                        PerCamRender(cam);
                         //Reset Viewport and frustum culling bool in case we have another scene, rendered without a camera
-                        await _rc.Viewport(0, 0, rc.DefaultState.CanvasWidth, rc.DefaultState.CanvasHeight);
+                        _rc.Viewport(0, 0, rc.DefaultState.CanvasWidth, rc.DefaultState.CanvasHeight);
                         //Standard value: frustum culling is on.
                         DoFrumstumCulling = true;
                     }
@@ -306,35 +307,29 @@ namespace Fusee.Engine.Core
             else
             {
                 UpdateShaderParamsForAllLights();
-
-                Console.WriteLine("#### Traverse called");
-
                 Traverse(_sc.Children);
-              
-                Console.WriteLine("##### Traverse ended");
-
             }
         }
 
-        private async Task PerCamRender(Tuple<SceneNodeContainer, CameraResult> cam)
+        private void PerCamRender(Tuple<SceneNodeContainer, CameraResult> cam)
         {
             var tex = cam.Item2.Camera.RenderTexture;
 
             if (tex != null)
-                await _rc.SetRenderTarget(cam.Item2.Camera.RenderTexture);
+                _rc.SetRenderTarget(cam.Item2.Camera.RenderTexture);
             else
-                await _rc.SetRenderTarget();
+                _rc.SetRenderTarget();
 
             _rc.Projection = cam.Item2.Camera.GetProjectionMat(_rc.ViewportWidth, _rc.ViewportHeight, out float4 viewport);
-            await _rc.Viewport((int)viewport.x, (int)viewport.y, (int)viewport.z, (int)viewport.w);
+            _rc.Viewport((int)viewport.x, (int)viewport.y, (int)viewport.z, (int)viewport.w);
 
-            await _rc.SetClearColor(cam.Item2.Camera.BackgroundColor);
+            _rc.SetClearColor(cam.Item2.Camera.BackgroundColor);
 
             if (cam.Item2.Camera.ClearColor)
-                await _rc.Clear(ClearFlags.Color);
+                _rc.Clear(ClearFlags.Color);
 
             if (cam.Item2.Camera.ClearDepth)
-                await _rc.Clear(ClearFlags.Depth);
+                _rc.Clear(ClearFlags.Depth);
 
             _rc.View = cam.Item2.View;
 
@@ -361,7 +356,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="bone">The bone.</param>
         [VisitMethod]
-        public void RenderBone(BoneComponent bone)
+        public async Task RenderBone(BoneComponent bone)
         {
             SceneNodeContainer boneContainer = CurrentNode;
 
@@ -382,7 +377,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="weight"></param>
         [VisitMethod]
-        public void RenderWeight(WeightComponent weight)
+        public async Task RenderWeight(WeightComponent weight)
         {
             float4x4[] boneArray = new float4x4[weight.Joints.Count()];
             for (int i = 0; i < weight.Joints.Count(); i++)
@@ -400,7 +395,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="ctc">The CanvasTransformComponent.</param>
         [VisitMethod]
-        public void RenderCanvasTransform(CanvasTransformComponent ctc)
+        public async Task RenderCanvasTransform(CanvasTransformComponent ctc)
         {
             _ctc = ctc;
 
@@ -475,7 +470,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="rtc">The XFormComponent.</param>
         [VisitMethod]
-        public void RenderRectTransform(RectTransformComponent rtc)
+        public async Task RenderRectTransform(RectTransformComponent rtc)
         {
             MinMaxRect newRect;
             if (_ctc.CanvasRenderMode == CanvasRenderMode.SCREEN)
@@ -512,7 +507,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="xfc">The XFormComponent.</param>
         [VisitMethod]
-        public void RenderXForm(XFormComponent xfc)
+        public async Task RenderXForm(XFormComponent xfc)
         {
             float4x4 scale;
 
@@ -536,23 +531,23 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="xfc">The XFormTextComponent.</param>
         [VisitMethod]
-        public void RenderXFormText(XFormTextComponent xfc)
+        public async Task RenderXFormText(XFormTextComponent xfc)
         {
             var zNear = (_rc.InvProjection * new float4(-1, -1, -1, 1)).z;
             var scaleFactor = zNear / 100;
             var invScaleFactor = 1 / scaleFactor;
 
-            float translationY; 
+            float translationY;
             float translationX;
 
             float scaleX;
             float scaleY;
-            
+
             if (_ctc.CanvasRenderMode == CanvasRenderMode.SCREEN)
             {
                 //Undo parent scale
                 scaleX = 1 / _state.UiRect.Size.x;
-                scaleY = 1 / _state.UiRect.Size.y;                
+                scaleY = 1 / _state.UiRect.Size.y;
 
                 //Calculate translation according to alignment
                 switch (xfc.HorizontalAlignment)
@@ -564,7 +559,7 @@ namespace Fusee.Engine.Core
                         translationX = -xfc.Width / 2;
                         break;
                     case HorizontalTextAlignment.RIGHT:
-                        translationX = _state.UiRect.Size.x  / 2 - xfc.Width;
+                        translationX = _state.UiRect.Size.x / 2 - xfc.Width;
                         break;
                     default:
                         throw new ArgumentException("Invalid Horizontal Alignment");
@@ -589,7 +584,7 @@ namespace Fusee.Engine.Core
             {
                 //Undo parent scale, scale by distance
                 scaleX = 1 / _state.UiRect.Size.x * scaleFactor;
-                scaleY = 1 / _state.UiRect.Size.y * scaleFactor;                
+                scaleY = 1 / _state.UiRect.Size.y * scaleFactor;
 
                 //Calculate translation according to alignment by scaling the rectangle size
                 switch (xfc.HorizontalAlignment)
@@ -637,9 +632,9 @@ namespace Fusee.Engine.Core
         /// </summary> 
         /// <param name="transform">The TransformComponent.</param>
         [VisitMethod]
-        public void RenderTransform(TransformComponent transform)
+        public async Task RenderTransform(TransformComponent transform)
         {
-            Console.WriteLine("Transform Comp");
+            Console.WriteLine("Transform component traversed");
             _state.Model *= transform.Matrix();
             _rc.Model = _state.Model;
         }
@@ -649,7 +644,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="ptOctant"></param>
         [VisitMethod]
-        public void RenderPtOctantComponent(PtOctantComponent ptOctant)
+        public async Task RenderPtOctantComponent(PtOctantComponent ptOctant)
         {
             _state.Effect.SetEffectParam("OctantLevel", ptOctant.Level);
         }
@@ -660,17 +655,21 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="shaderComponent">The ShaderEffectComponent</param>
         [VisitMethod]
-        public async Task RenderShaderEffect(ShaderEffectComponent shaderComponent)
+        public async Task RenderShaderEffectAsync(ShaderEffectComponent shaderComponent)
         {
-            Console.WriteLine("RenderShaderEffect Comp");
+            Console.WriteLine("ShaderEffectComponent component traversed");
+
 
             if (HasNumberOfLightsChanged)
             {
                 //change #define MAX_LIGHTS... or rebuild shader effect?
                 HasNumberOfLightsChanged = false;
             }
+
             _state.Effect = shaderComponent.Effect;
-            await _rc.SetShaderEffect(_state.Effect);
+            await _rc.SetShaderEffectAsync(_state.Effect);
+
+            Console.WriteLine("ShaderEffectComponent ready");
         }
 
         /// <summary>
@@ -681,8 +680,7 @@ namespace Fusee.Engine.Core
         [VisitMethod]
         public async Task RenderMesh(Mesh mesh)
         {
-            Console.WriteLine("RenderMesh Comp");
-
+            Console.WriteLine("Mesh component traversed");
             if (!mesh.Active) return;
 
             if (DoFrumstumCulling)
@@ -701,7 +699,7 @@ namespace Fusee.Engine.Core
                 AddWeightComponentToMesh(mesh, wc);
 
             var renderStatesBefore = _rc.CurrentRenderState.Copy();
-            await _rc.Render(mesh);
+            _rc.Render(mesh);
             var renderStatesAfter = _rc.CurrentRenderState.Copy();
 
             _state.RenderUndoStates = renderStatesBefore.Delta(renderStatesAfter);
@@ -786,12 +784,13 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Pops from the RenderState and sets the Model and View matrices in the RenderContext.
         /// </summary>
-        protected override async Task PopState()
+        protected override void PopState()
         {
-            await _rc.SetRenderStateSet(_state.RenderUndoStates);
+            _rc.SetRenderStateSet(_state.RenderUndoStates);
             _state.Pop();
             _rc.Model = _state.Model;
-            await _rc.SetShaderEffect(_state.Effect);
+           // await _rc.SetShaderEffect(_state.Effect);
+
         }
 
         #endregion        

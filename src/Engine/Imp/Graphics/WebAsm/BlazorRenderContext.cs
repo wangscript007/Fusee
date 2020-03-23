@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace Fusee.Engine.Imp.Graphics.WebAsm
 {
@@ -32,10 +31,10 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         // TODO: Rewrite semaphoreSlim, this is not working with 
         internal BlazorRenderContext(FusCanvas reference, string contextName, object parameters = null)
         {
-            this.Canvas = reference.CanvasReference;
-            this._contextName = contextName;
-            this._jsRuntime = reference.JSRuntime;
-            this._parameters = parameters;
+            Canvas = reference.CanvasReference;
+            _contextName = contextName;
+            _jsRuntime = reference.JSRuntime;
+            _parameters = parameters;
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously; Reason: extension point for subclasses, which may do asynchronous work
@@ -44,14 +43,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         internal async Task<BlazorRenderContext> InitializeAsync()
         {
-            await this._semaphoreSlim.WaitAsync();
-            if (!this._initialized)
+            await _semaphoreSlim.WaitAsync();
+            if (!_initialized)
             {
-                await this._jsRuntime.InvokeAsync<object>($"{NAMESPACE_PREFIX}.{this._contextName}.{ADD_ACTION}", this.Canvas, this._parameters);
-                await this.ExtendedInitializeAsync();
-                this._initialized = true;
+                await _jsRuntime.InvokeAsync<WebGLContext>($"{NAMESPACE_PREFIX}.{_contextName}.{ADD_ACTION}", Canvas, _parameters);
+                await ExtendedInitializeAsync();
+                _initialized = true;
             }
-            this._semaphoreSlim.Release();
+            _semaphoreSlim.Release();
             return this;
         }
 
@@ -59,82 +58,82 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         public async Task BeginBatchAsync()
         {
-            await this._semaphoreSlim.WaitAsync();
-            this._batching = true;
-            this._semaphoreSlim.Release();
+            await _semaphoreSlim.WaitAsync();
+            _batching = true;
+            _semaphoreSlim.Release();
         }
 
         public async Task EndBatchAsync()
         {
-            await this._semaphoreSlim.WaitAsync();
+            await _semaphoreSlim.WaitAsync();
 
-            await this.BatchCallInnerAsync();
+            await BatchCallInnerAsync();
         }
 
         protected async Task BatchCallAsync(string name, bool isMethodCall, params object[] value)
         {
-            await this._semaphoreSlim.WaitAsync();
+            await _semaphoreSlim.WaitAsync();
 
             var callObject = new object[value.Length + 2];
             callObject[0] = name;
             callObject[1] = isMethodCall;
             Array.Copy(value, 0, callObject, 2, value.Length);
-            this._batchedCallObjects.Add(callObject);
+            _batchedCallObjects.Add(callObject);
 
-            if (this._batching || this._awaitingBatchedCall)
+            if (_batching || _awaitingBatchedCall)
             {
-                this._semaphoreSlim.Release();
+                _semaphoreSlim.Release();
             }
             else
             {
-                await this.BatchCallInnerAsync();
+                await BatchCallInnerAsync();
             }
         }
 
         protected async Task<T> GetPropertyAsync<T>(string property)
         {
-            return await this._jsRuntime.InvokeAsync<T>($"{NAMESPACE_PREFIX}.{this._contextName}.{GET_PROPERTY_ACTION}", this.Canvas, property);
+            return await _jsRuntime.InvokeAsync<T>($"{NAMESPACE_PREFIX}.{_contextName}.{GET_PROPERTY_ACTION}", Canvas, property);
         }
 
         protected T CallMethod<T>(string method)
         {
-            return this.CallMethodAsync<T>(method).GetAwaiter().GetResult();
+            return CallMethodAsync<T>(method).GetAwaiter().GetResult();
         }
 
         protected async Task<T> CallMethodAsync<T>(string method)
         {
-            return await this._jsRuntime.InvokeAsync<T>($"{NAMESPACE_PREFIX}.{this._contextName}.{CALL_METHOD_ACTION}", this.Canvas, method);
+            return await _jsRuntime.InvokeAsync<T>($"{NAMESPACE_PREFIX}.{_contextName}.{CALL_METHOD_ACTION}", Canvas, method);
         }
 
         protected T CallMethod<T>(string method, params object[] value)
         {
-            return this.CallMethodAsync<T>(method, value).GetAwaiter().GetResult();
+            return CallMethodAsync<T>(method, value).GetAwaiter().GetResult();
         }
 
         protected async Task<T> CallMethodAsync<T>(string method, params object[] value)
         {
-            return await this._jsRuntime.InvokeAsync<T>($"{NAMESPACE_PREFIX}.{this._contextName}.{CALL_METHOD_ACTION}", this.Canvas, method, value);
+            return await _jsRuntime.InvokeAsync<T>($"{NAMESPACE_PREFIX}.{_contextName}.{CALL_METHOD_ACTION}", Canvas, method, value);
         }
 
         private async Task BatchCallInnerAsync()
         {
-            this._awaitingBatchedCall = true;
-            var currentBatch = this._batchedCallObjects.ToArray();
-         
-            this._batchedCallObjects.Clear();
-            this._semaphoreSlim.Release();
+            _awaitingBatchedCall = true;
+            var currentBatch = _batchedCallObjects.ToArray();
 
-            _ = await this._jsRuntime.InvokeAsync<object>($"{NAMESPACE_PREFIX}.{this._contextName}.{CALL_BATCH_ACTION}", this.Canvas, currentBatch);
+            _batchedCallObjects.Clear();
+            _semaphoreSlim.Release();
 
-            await this._semaphoreSlim.WaitAsync();
-            this._awaitingBatchedCall = false;
-            this._batching = false;
-            this._semaphoreSlim.Release();
+            _ = await _jsRuntime.InvokeAsync<object>($"{NAMESPACE_PREFIX}.{_contextName}.{CALL_BATCH_ACTION}", Canvas, currentBatch);
+
+            await _semaphoreSlim.WaitAsync();
+            _awaitingBatchedCall = false;
+            _batching = false;
+            _semaphoreSlim.Release();
         }
 
         public void Dispose()
         {
-            Task.Run(async () => await this._jsRuntime.InvokeAsync<object>($"{NAMESPACE_PREFIX}.{this._contextName}.{REMOVE_ACTION}", this.Canvas));
+            Task.Run(async () => await _jsRuntime.InvokeAsync<object>($"{NAMESPACE_PREFIX}.{_contextName}.{REMOVE_ACTION}", Canvas));
         }
 
         #endregion

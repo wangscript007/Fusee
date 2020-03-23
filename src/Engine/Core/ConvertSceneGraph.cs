@@ -28,7 +28,7 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Method is called when going up one hierarchy level while traversing. Override this method to perform pop on any self-defined state.
         /// </summary>
-        protected override Task PopState() => Task.Run(() => _predecessors.Pop());
+        protected override void PopState() => _predecessors.Pop();
        
         /// <summary>
         /// Traverses the given SceneContainer and creates new high level graph by converting and/or splitting its components into the high level equivalents.

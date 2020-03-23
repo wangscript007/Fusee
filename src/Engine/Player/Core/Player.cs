@@ -56,6 +56,8 @@ namespace Fusee.Engine.Player.Core
         // Init is called on startup. 
         public override async Task<bool> Init()
         {
+            Console.WriteLine("Player.Init() called!");
+
             _initCanvasWidth = Width / 100f;
             _initCanvasHeight = Height / 100f;
 
@@ -72,7 +74,7 @@ namespace Fusee.Engine.Player.Core
             _offsetInit = float2.Zero;
 
             // Set the clear color for the back buffer to white (100% intensity in all color channels R, G, B, A).
-            RC.ClearColor = new float4(1, 1, 1, 1);
+            RC.SetClearColor(new float4(1, 1, 1, 1));
 
             // Load the standard model
             //_scene = await AssetStorage.GetAsync<SceneContainer>(ModelFile);
@@ -143,21 +145,23 @@ namespace Fusee.Engine.Player.Core
             _sceneRenderer = new SceneRendererForward(_scene);
             //_guiRenderer = new SceneRendererForward(_gui);
 
+            Console.WriteLine("Player.Init() ready!");
+
             return true;
         }
 
 
         // RenderAFrame is called once a frame
-        public override async void RenderAFrame()
-        {
+        public override async Task RenderAFrame()
+        { 
             Console.WriteLine("RAF called");
 
             //if (_gamePad != null)
             //    Diagnostics.Log(_gamePad.LSX);
 
             // Clear the backbuffer
-            await RC.Clear(ClearFlags.Color | ClearFlags.Depth);
-            await RC.Viewport(0, 0, Width, Height);
+            RC.Clear(ClearFlags.Color | ClearFlags.Depth);
+            RC.Viewport(0, 0, Width, Height);
             //// Mouse and keyboard movement
             //if (Keyboard.LeftRightAxis != 0 || Keyboard.UpDownAxis != 0)
             //{
@@ -266,9 +270,12 @@ namespace Fusee.Engine.Player.Core
             //_sceneRenderer.Animate();
             await _sceneRenderer.Render(RC);
 
+
             RC.View = view;
             RC.Projection = orthographic;
             // _guiRenderer.Render(RC);            
+
+            Console.WriteLine("~~~~~~~~~~~~~~~~~~~ RAF after render");
 
             // Swap buffers: Show the contents of the backbuffer (containing the currently rendered frame) on the front buffer.
             Present();

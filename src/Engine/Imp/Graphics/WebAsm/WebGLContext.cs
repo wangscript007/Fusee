@@ -13,7 +13,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
     public class WebGLContext : BlazorRenderContext
     {
         #region Constants
-        private const string CONTEXT_NAME = "WebGL";
+        private const string CONTEXT_NAME = "WebGL2";
         private const string CLEAR_COLOR = "clearColor";
         private const string CLEAR = "clear";
         private const string DRAWING_BUFFER_WIDTH = "drawingBufferWidth";

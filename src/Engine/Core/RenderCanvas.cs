@@ -152,7 +152,7 @@ namespace Fusee.Engine.Core
             // InitImplementors();
             CanvasImplementor.Caption = GetAppName();
 
-            Console.WriteLine($"CanvasImplementor found {CanvasImplementor.Caption}");
+            Console.WriteLine($"CanvasImplementor found {CanvasImplementor.Caption} {CanvasImplementor}");
 
             var windowWidth = GetWindowWidth();
             var windowHeight = GetWindowHeight();
@@ -176,17 +176,19 @@ namespace Fusee.Engine.Core
             CanvasImplementor.Init += async delegate { await Init(); _appInitialized = true; };
             CanvasImplementor.UnLoad += delegate { DeInit(); };
 
-            CanvasImplementor.Render += delegate
+            CanvasImplementor.Render += async delegate
             {
+                Console.WriteLine($"App initialized: {_appInitialized}");
+
                 if (!_appInitialized) return; // let init() finish!
 
                 // pre-rendering
                 Network.Instance.OnUpdateFrame();
                 Input.Instance.PreRender();
                 Time.Instance.DeltaTimeIncrement = CanvasImplementor.DeltaTime;
-
+                Console.WriteLine("RAF called from RenderCanvas");
                 // rendering
-                RenderAFrame();
+                await RenderAFrame();
 
                 //Resets the RenderStateSet and Viewport, View and Projection Matrix to their default state.
                 RC.ResetToDefaultRenderContextState();
@@ -213,7 +215,7 @@ namespace Fusee.Engine.Core
         ///     use the render context (<see cref="RC" />) to achieve this. Consider the code you implement here as the body of the
         ///     application's rendering loop.
         /// </remarks>
-        public virtual void RenderAFrame()
+        public virtual async Task RenderAFrame()
         {
         }
 

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using WebAssembly;
@@ -19,24 +20,27 @@ namespace Fusee.Base.Imp.WebAsm
         protected static double previousMilliseconds;
         protected static WebAsmBase mainExecutable;
 
-        public static void Start(WebAsmBase webAsm)
+        public static async Task Start(WebAsmBase webAsm)
         {
+            Console.WriteLine("Start has been called");
             mainExecutable = webAsm;
 
             mainExecutable.Init(webAsm.Canvas, CanvasColor);
-            mainExecutable.Run();
-               
+
+            Console.WriteLine("Before run");
+            await mainExecutable.Run();
+            Console.WriteLine("After run");
 
             AddEnterFullScreenHandler();
             AddResizeHandler();
 
-            RequestAnimationFrame();
+            await RequestAnimationFrame();
         }
 
         private static void AddResizeHandler()
         {
-           // call fusee resize
-           //mainExecutable.Resize(Canvas, windowHeight);               
+            // call fusee resize
+            //mainExecutable.Resize(Canvas, windowHeight);               
         }
 
         private static void RequestFullscreen(FusCanvas canvas)
@@ -82,23 +86,29 @@ namespace Fusee.Base.Imp.WebAsm
             canvasObject.SetDims(newWidth, newHeight);
         }
 
+        static int cnt = 0;
+
         [JSInvokable("Loop")]
-        public static void Loop(double milliseconds)
+        public static async void Loop(double milliseconds)
         {
+
             Console.WriteLine($"Loop called {milliseconds} ms");
             var elapsedMilliseconds = milliseconds - previousMilliseconds;
             previousMilliseconds = milliseconds;
 
+            Console.WriteLine($"Loop().Update()");
             mainExecutable.Update(elapsedMilliseconds);
+            Console.WriteLine($"Loop().Draw()");
             mainExecutable.Draw();
 
-            //RequestAnimationFrame(); we just want to render 1 frame
+            //if(++cnt < 10)
+            //    await RequestAnimationFrame(); //we just want to render 1 frame
         }
 
-        private async static void RequestAnimationFrame()
+        private async static Task RequestAnimationFrame()
         {
             Console.WriteLine("Request Animation frame called");
-            await mainExecutable.Canvas.JSRuntime.InvokeAsync<bool>("requestLoop");        
+            await mainExecutable.Canvas.JSRuntime.InvokeVoidAsync("requestLoop");
         }
     }
 

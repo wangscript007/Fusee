@@ -43,7 +43,7 @@ namespace Fusee.Engine.Core
             WorldSpacePos = float3.Zero;
             Rotation = float4x4.Identity;
             Id = Suid.GenerateSuid();
-        }       
+        }
 
         /// <summary>
         /// Override for the Equals method.
@@ -94,12 +94,12 @@ namespace Fusee.Engine.Core
     {
         public CameraComponent Camera { get; private set; }
 
-        public float4x4 View { get; private set; }        
+        public float4x4 View { get; private set; }
 
         public CameraResult(CameraComponent cam, float4x4 view)
         {
             Camera = cam;
-            View = view;            
+            View = view;
         }
     }
 
@@ -129,7 +129,7 @@ namespace Fusee.Engine.Core
     }
 
     internal class PrePassVisitor : SceneVisitor
-    {        
+    {
         public List<Tuple<SceneNodeContainer, LightResult>> LightPrepassResuls;
         public List<Tuple<SceneNodeContainer, CameraResult>> CameraPrepassResults;
 
@@ -139,12 +139,12 @@ namespace Fusee.Engine.Core
         private RendererState _state;
 
         private CanvasTransformComponent _ctc;
-        private MinMaxRect _parentRect;       
+        private MinMaxRect _parentRect;
         protected RenderContext _rc;
         private bool isCtcInitialized = false;
 
         public PrePassVisitor()
-        {            
+        {
             _state = new RendererState();
             LightPrepassResuls = new List<Tuple<SceneNodeContainer, LightResult>>();
             CameraPrepassResults = new List<Tuple<SceneNodeContainer, CameraResult>>();
@@ -181,13 +181,10 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Pops from the RenderState and sets the Model and View matrices in the RenderContext.
         /// </summary>
-        protected override Task PopState()
+        protected override void PopState()
         {
-            return Task.Run(() =>
-            {
-                _state.Pop();
-                _rc.Model = _state.Model;
-            });
+            _state.Pop();
+            _rc.Model = _state.Model;
         }
 
         /// <summary>
@@ -435,7 +432,7 @@ namespace Fusee.Engine.Core
         /// <param name="transform">The TransformComponent.</param>
         [VisitMethod]
         public void RenderTransform(TransformComponent transform)
-        {            
+        {
             _state.Model *= transform.Matrix();
             _rc.Model = _state.Model;
         }
@@ -444,12 +441,12 @@ namespace Fusee.Engine.Core
         public void OnLight(LightComponent lightComponent)
         {
             var lightResult = new LightResult(lightComponent)
-            {                
+            {
                 Rotation = _state.Model.RotationComponent(),
                 WorldSpacePos = new float3(_state.Model.M14, _state.Model.M24, _state.Model.M34)
-            };        
+            };
 
-            LightPrepassResuls.Add(new Tuple<SceneNodeContainer, LightResult>(CurrentNode, lightResult));            
+            LightPrepassResuls.Add(new Tuple<SceneNodeContainer, LightResult>(CurrentNode, lightResult));
         }
 
         [VisitMethod]
@@ -477,13 +474,13 @@ namespace Fusee.Engine.Core
                 view.M13 /= scale.z;
                 view.M23 /= scale.z;
                 view.M33 /= scale.z;
-            }          
+            }
 
-            view = view.Invert();            
+            view = view.Invert();
 
-            var cameraResult = new CameraResult(camComp, view);            
+            var cameraResult = new CameraResult(camComp, view);
             CameraPrepassResults.Add(new Tuple<SceneNodeContainer, CameraResult>(CurrentNode, cameraResult));
-        }        
+        }
     }
-   
+
 }

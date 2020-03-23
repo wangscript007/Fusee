@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Fusee.Base.Common;
 using Fusee.Base.Core;
 using Fusee.Base.Imp.WebAsm;
@@ -9,28 +5,31 @@ using Fusee.Engine.Core;
 using Fusee.Engine.Imp.Graphics.WebAsm;
 using Fusee.Math.Core;
 using Fusee.Serialization;
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Fusee.Engine.Player.Blazor.Pages
 {
     public class WebGLComponent : FusCanvas
     {
+        private Main main;
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await Task.Run(() =>
-            {
-                Console.WriteLine("OnAfterRenderAsync called");
+            if (firstRender)
+            { 
+                Console.WriteLine("Initialized called");
                 // This method takes care of everything
-
-                WebAsmProgram.Start(new Main(this));
-            }).ConfigureAwait(false);
-        }        
+                await WebAsmProgram.Start(new Main(this)).ConfigureAwait(true);
+            }
+        }
     }
 
     public class Main : WebAsmBase
     {
-        private RenderCanvasImp _canvasImp;
+        public RenderCanvasImp _canvasImp;
         private Core.Player _app;
 
         public Main(FusCanvas canvas)
@@ -38,19 +37,22 @@ namespace Fusee.Engine.Player.Blazor.Pages
             Canvas = canvas;
         }
 
-        public async override void Run()
+        public override async Task Run()
         {
-            gl = await Canvas.CreateWebGLAsync().ConfigureAwait(false);
-           
-            base.Run();
-                        
+            gl = await Canvas.CreateWebGLAsync(new WebGLContextAttributes
+            {
+                Alpha = true,
+                Antialias = true,
+                PowerPreference = WebGLContextAttributes.POWER_PREFERENCE_HIGH_PERFORMANCE
+            }).ConfigureAwait(false);
+
+
             // disable the debug output as the console output and debug output are the same for web
             // this prevents that every message is printed twice!
             //Diagnostics.SetMinDebugOutputLoggingSeverityLevel(Diagnostics.SeverityLevel.NONE);
 
             // Inject Fusee.Engine.Base InjectMe dependencies
             IO.IOImp = new Fusee.Base.Imp.WebAsm.IOImp();
-
 
             var fap = new Fusee.Base.Imp.WebAsm.AssetProvider();
             fap.RegisterTypeHandler(
@@ -155,7 +157,9 @@ namespace Fusee.Engine.Player.Blazor.Pages
             _app = new Core.Player();
 
             // Inject Fusee.Engine InjectMe dependencies (hard coded)
+            Console.WriteLine("Canvas Imp Setter");
             _canvasImp = new RenderCanvasImp(Canvas, gl, canvasWidth, canvasHeight);
+            Console.WriteLine("Canvas Imp Set");
             _app.CanvasImplementor = _canvasImp;
             _app.ContextImplementor = new RenderContextImp(_app.CanvasImplementor);
             Input.AddDriverImp(new RenderCanvasInputDriverImp(_app.CanvasImplementor));
@@ -172,6 +176,7 @@ namespace Fusee.Engine.Player.Blazor.Pages
 
         public override void Draw()
         {
+            Console.WriteLine($"FusDrawMain().Called with cnvs imp " + ((_canvasImp == null) ? "<null>" : _canvasImp.ToString()));
             _canvasImp?.DoRender();
         }
 

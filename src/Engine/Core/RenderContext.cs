@@ -39,7 +39,7 @@ namespace Fusee.Engine.Core
             return new float4(color[0], color[1], color[2], color[3]);
         }
 
-        public async Task SetClearColor(float4 val)
+        public async void SetClearColor(float4 val)
         {
             await _rci.SetClearColorAsync(val);
         }
@@ -59,7 +59,7 @@ namespace Fusee.Engine.Core
             set { _rci.SetClearDepthAsync(value).GetAwaiter().GetResult(); }
         }         
 
-        public async Task SetClearDepth(float val)
+        public async void SetClearDepth(float val)
         {
             await _rci.SetClearDepthAsync(val);
         }
@@ -131,7 +131,7 @@ namespace Fusee.Engine.Core
         private readonly Dictionary<ShaderEffect, CompiledShaderEffect> _allCompiledShaderEffects = new Dictionary<ShaderEffect, CompiledShaderEffect>();
 
         /// <summary>
-        /// The currently used <see cref="ShaderEffect"/> is set in <see cref="SetShaderEffect(ShaderEffect)"/>.
+        /// The currently used <see cref="ShaderEffect"/> is set in <see cref="SetShaderEffectAsync(ShaderEffect)"/>.
         /// </summary>
         private ShaderEffect _currentShaderEffect;
 
@@ -829,7 +829,7 @@ namespace Fusee.Engine.Core
         /// z-buffer. <see cref="ClearFlags"/> for a list of possible buffers to clear. Make sure to use the bitwise
         /// or-operator (|) to combine several buffers to clear.
         /// </remarks>
-        public async Task Clear(ClearFlags flags)
+        public async void Clear(ClearFlags flags)
         {
             await _rci.Clear(flags);
         }
@@ -844,7 +844,7 @@ namespace Fusee.Engine.Core
         /// <remarks>
         /// Setting the Viewport limits the rendering output to the specified rectangular region.
         /// </remarks>
-        public async Task Viewport(int x, int y, int width, int height)
+        public async void Viewport(int x, int y, int width, int height)
         {
             if (ViewportXStart == x && ViewportYStart == y && ViewportWidth == width && ViewportHeight == height)
                 return;
@@ -869,7 +869,7 @@ namespace Fusee.Engine.Core
         /// <param name="startY">y offset in pixels.</param>
         /// <param name="width">Width in pixels.</param>
         /// <param name="height">Height in pixels.</param>
-        internal async Task UpdateTextureRegion(Texture dstTexture, Texture srcTexture, int startX, int startY, int width, int height)
+        internal async void UpdateTextureRegion(Texture dstTexture, Texture srcTexture, int startX, int startY, int width, int height)
         {
             ITextureHandle textureHandle = _textureManager.GetTextureHandleFromTexture(dstTexture);
             await _rci.UpdateTextureRegion(textureHandle, srcTexture, startX, startY, width, height);
@@ -879,7 +879,7 @@ namespace Fusee.Engine.Core
         /// Free all allocated gpu memory that belongs to a frame-buffer object.
         /// </summary>
         /// <param name="bufferHandle">The platform dependent abstraction of the gpu buffer handle.</param>
-        internal async Task DeleteFrameBuffer(IBufferHandle bufferHandle)
+        internal async void DeleteFrameBuffer(IBufferHandle bufferHandle)
         {
             await _rci.DeleteFrameBuffer(bufferHandle);
         }
@@ -888,7 +888,7 @@ namespace Fusee.Engine.Core
         /// Free all allocated gpu memory that belongs to a render-buffer object.
         /// </summary>
         /// <param name="bufferHandle">The platform dependent abstraction of the gpu buffer handle.</param>
-        internal async Task DeleteRenderBuffer(IBufferHandle bufferHandle)
+        internal async void DeleteRenderBuffer(IBufferHandle bufferHandle)
         {
             await _rci.DeleteRenderBuffer(bufferHandle);
         }
@@ -898,7 +898,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="texture">An ITexture.</param>
-        private async Task SetShaderParamTexture(IShaderParam param, Texture texture)
+        private async void SetShaderParamTexture(IShaderParam param, Texture texture)
         {
             ITextureHandle textureHandle = _textureManager.GetTextureHandleFromTexture(texture);
             await _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE2D);
@@ -909,7 +909,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="texture">An ITexture.</param>
-        private async Task SetShaderParamWritableTexture(IShaderParam param, WritableTexture texture)
+        private async void SetShaderParamWritableTexture(IShaderParam param, WritableTexture texture)
         {
             ITextureHandle textureHandle = _textureManager.GetWritableTextureHandleFromTexture(texture);
             await _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE2D);
@@ -920,7 +920,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="textures">A texture array.</param>
-        private async Task SetShaderParamWritableTextureArray(IShaderParam param, WritableTexture[] textures)
+        private async void SetShaderParamWritableTextureArray(IShaderParam param, WritableTexture[] textures)
         {
             var texHandles = new List<ITextureHandle>();
             foreach (var tex in textures)
@@ -937,7 +937,7 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
         /// <param name="texture">An ITexture.</param>
-        private async Task SetShaderParamWritableCubeMap(IShaderParam param, WritableCubeMap texture)
+        private async void SetShaderParamWritableCubeMap(IShaderParam param, WritableCubeMap texture)
         {
             ITextureHandle textureHandle = _textureManager.GetWritableCubeMapHandleFromTexture(texture);
             await _rci.SetShaderParamTexture(param, textureHandle, TextureType.TEXTURE_CUBE_MAP);
@@ -955,8 +955,10 @@ namespace Fusee.Engine.Core
         /// <remarks>A ShaderEffect must be attached to a context before you can render geometry with it. The main
         /// task performed in this method is compiling the provided shader source code and uploading the shaders to
         /// the gpu.</remarks>
-        public async Task SetShaderEffect(ShaderEffect ef)
+        public async Task SetShaderEffectAsync(ShaderEffect ef)
         {
+            Console.WriteLine($"SetShaderEffect called");
+
             if (_rci == null)
                 throw new NullReferenceException("No render context Implementation found!");
 
@@ -985,13 +987,13 @@ namespace Fusee.Engine.Core
             {
                 for (i = 0; i < nPasses; i++)
                 {
-                    Console.WriteLine($"PASS: {i}");
+                    
                     var shaderOnGpu = await _rci.CreateShaderProgramAsync(ef.VertexShaderSrc[i], ef.PixelShaderSrc[i], ef.GeometryShaderSrc[i]);
 
                     var shaderParamsRes = await _rci.GetShaderParamListAsync(shaderOnGpu);
                     
                     var shaderParams = shaderParamsRes.ToDictionary(info => info.Name, info => info);
-                    Console.WriteLine("After List");
+                   
 
                     foreach (var param in shaderParams)
                     {
@@ -1017,6 +1019,8 @@ namespace Fusee.Engine.Core
 
             // register this shader effect as current shader
             _currentShaderEffect = ef;
+
+            Console.WriteLine("Done with shader");
         }
 
         /// <summary>
@@ -1111,7 +1115,7 @@ namespace Fusee.Engine.Core
         /// Removes given shader program from GPU. Should ONLY be used by the <see cref="ShaderEffectManager"/>!
         /// </summary>
         /// <param name="ef">The ShaderEffect.</param>
-        internal async Task RemoveShader(ShaderEffect ef)
+        internal async void RemoveShader(ShaderEffect ef)
         {
             if (!_allCompiledShaderEffects.TryGetValue(ef, out CompiledShaderEffect sFxParam)) return;
 
@@ -1125,7 +1129,7 @@ namespace Fusee.Engine.Core
         /// Activates the passed shader program as the current shader for rendering.
         /// </summary>
         /// <param name="program">The shader to apply to mesh geometry subsequently passed to the RenderContext</param>
-        private async Task SetShaderProgram(ShaderProgram program)
+        private async void SetShaderProgram(ShaderProgram program)
         {
             if (_currentShaderProgram != program)
             {
@@ -1138,8 +1142,9 @@ namespace Fusee.Engine.Core
         /// Sets the shaderParam, works with every type.
         /// </summary>
         /// <param name="param"></param>
-        private async Task SetShaderParamT(EffectParam param)
+        private async void SetShaderParamT(EffectParam param)
         {
+         
             if (param.HasValueChanged)
             {
                 if (param.Info.Type == typeof(int))
@@ -1198,15 +1203,15 @@ namespace Fusee.Engine.Core
                 }
                 else if (param.Value is IWritableTexture[])
                 {
-                    await SetShaderParamWritableTextureArray(param.Info.Handle, (WritableTexture[])param.Value);
+                    SetShaderParamWritableTextureArray(param.Info.Handle, (WritableTexture[])param.Value);
                 }
                 else if (param.Value is IWritableTexture)
                 {
-                    await SetShaderParamWritableTexture(param.Info.Handle, ((WritableTexture)param.Value));
+                    SetShaderParamWritableTexture(param.Info.Handle, ((WritableTexture)param.Value));
                 }
                 else if (param.Value is ITexture)
                 {
-                    await SetShaderParamTexture(param.Info.Handle, (Texture)param.Value);
+                    SetShaderParamTexture(param.Info.Handle, (Texture)param.Value);
                 }
             }
             else
@@ -1327,7 +1332,7 @@ namespace Fusee.Engine.Core
         /// due to the ambiguity of the value parameter type. If you want type-safe state values and also 
         /// want to set a couple of states at the same time, try the more 
         /// elaborate <see cref="SetRenderStateSet(RenderStateSet, bool)"/> method.</remarks>
-        public async Task SetRenderState(RenderState renderState, uint value, bool doLockState = false)
+        public async void SetRenderState(RenderState renderState, uint value, bool doLockState = false)
         {
             if (LockedStates.TryGetValue(renderState, out var lockedState))
             {
@@ -1369,11 +1374,11 @@ namespace Fusee.Engine.Core
         /// </summary>
         /// <param name="renderStateSet">A set of render states with their respective values to be set.</param>
         /// <param name="doLockState">Forces all states that are set in this <see cref="RenderStateSet"/> to have the given value and locks them. Unlock them by calling <see cref="UnlockRenderState(RenderState, bool)"/></param>
-        public async Task SetRenderStateSet(RenderStateSet renderStateSet, bool doLockState = false)
+        public void SetRenderStateSet(RenderStateSet renderStateSet, bool doLockState = false)
         {
             foreach (var state in renderStateSet.States)
             {
-                await SetRenderState(state.Key, state.Value, doLockState);
+                SetRenderState(state.Key, state.Value, doLockState);
             }
         }
 
@@ -1396,7 +1401,7 @@ namespace Fusee.Engine.Core
         /// Sets the RenderTarget, if texture is null render target is the main screen, otherwise the picture will be rendered onto given texture
         /// </summary>
         /// <param name="renderTarget">The render target.</param>
-        public async Task SetRenderTarget(RenderTarget renderTarget = null)
+        public async void SetRenderTarget(RenderTarget renderTarget = null)
         {
             ITextureHandle[] texHandles = null;
             if (renderTarget != null)
@@ -1418,7 +1423,7 @@ namespace Fusee.Engine.Core
         ///  Renders into the given texture.
         /// </summary>
         /// <param name="tex">The render texture.</param>
-        public async Task SetRenderTarget(IWritableTexture tex)
+        public async void SetRenderTarget(IWritableTexture tex)
         {
             var texHandle = _textureManager.GetWritableTextureHandleFromTexture((WritableTexture)tex);
             await _rci.SetRenderTarget(tex, texHandle);
@@ -1428,7 +1433,7 @@ namespace Fusee.Engine.Core
         /// Renders into the given texture.
         /// </summary>
         /// <param name="tex">The render texture.</param>
-        public async Task SetRenderTarget(IWritableCubeMap tex)
+        public async void SetRenderTarget(IWritableCubeMap tex)
         {
             var texHandle = _textureManager.GetWritableCubeMapHandleFromTexture((WritableCubeMap)tex);
             await _rci.SetRenderTarget(tex, texHandle);
@@ -1438,7 +1443,7 @@ namespace Fusee.Engine.Core
         /// Specifies the rasterized width of both aliased and antialiased lines.
         /// </summary>
         /// <param name="width">The width in pixel.</param>
-        public async Task SetLineWidth(float width)
+        public async void SetLineWidth(float width)
         {
             await _rci.SetLineWidth(width);
         }
@@ -1451,7 +1456,7 @@ namespace Fusee.Engine.Core
         /// Passes geometry to be pushed through the rendering pipeline. <see cref="Mesh"/> for a description how geometry is made up.
         /// The geometry is transformed and rendered by the currently active shader program.
         /// </remarks>
-        internal async Task Render(Mesh m)
+        internal async void Render(Mesh m)
         {
             if (_currentShaderEffect == null) return;
 
@@ -1461,8 +1466,8 @@ namespace Fusee.Engine.Core
             {
                 try
                 {
-                    await SetShaderProgram(compiledShaderEffect.ShaderPrograms[i]);
-                    await SetRenderStateSet(_currentShaderEffect.States[i]);
+                    SetShaderProgram(compiledShaderEffect.ShaderPrograms[i]);
+                    SetRenderStateSet(_currentShaderEffect.States[i]);
 
                     foreach (var paramItem in compiledShaderEffect.ShaderPrograms[i].ParamsByName)
                     {
@@ -1480,7 +1485,7 @@ namespace Fusee.Engine.Core
                         }
 
                         var param = compiledShaderEffect.ParamsPerPass[i][paramItem.Key];
-                        await SetShaderParamT(param);
+                        SetShaderParamT(param);
                         param.HasValueChanged = false;
                     }
 
@@ -1511,9 +1516,9 @@ namespace Fusee.Engine.Core
         /// Resets the RenderContexts View, Projection and Viewport to the values defined in <see cref="DefaultState"/>.
         /// Must be called after every visitation of the Scene Graph that changed these values.
         /// </summary>
-        internal async Task ResetToDefaultRenderContextState()
+        internal void ResetToDefaultRenderContextState()
         {
-            await Viewport(0, 0, DefaultState.CanvasWidth, DefaultState.CanvasHeight);
+            Viewport(0, 0, DefaultState.CanvasWidth, DefaultState.CanvasHeight);
             View = DefaultState.View;
             Projection = DefaultState.Projection;            
         }

@@ -22,21 +22,15 @@ namespace Fusee.Base.Imp.WebAsm
 
         public virtual async void Init(FusCanvas canvas, float4 clearColor)
         {
-            Console.WriteLine("Base init called");
+            Console.WriteLine("base.Init() called");
             this.clearColor = clearColor;
             Canvas = canvas;
 
             canvasWidth = (int)canvas.Width;
-            canvasHeight = (int)canvas.Height;           
-
-            gl = await canvas.CreateWebGLAsync(new WebGLContextAttributes { 
-                Alpha = true, 
-                Antialias = true,
-                PowerPreference = WebGLContextAttributes.POWER_PREFERENCE_HIGH_PERFORMANCE             
-            });
+            canvasHeight = (int)canvas.Height; 
         }
 
-        public virtual void Run()
+        public virtual async Task Run()
         {
         }
 
@@ -46,7 +40,7 @@ namespace Fusee.Base.Imp.WebAsm
 
         public async virtual void Draw()
         {
-            Console.WriteLine("Draw() called");
+            Console.WriteLine("base.Draw() called");
 
             await gl.EnableAsync(EnableCap.DEPTH_TEST);
 

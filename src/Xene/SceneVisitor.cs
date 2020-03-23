@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Fusee.Base.Core;
 using Fusee.Serialization;
 
 namespace Fusee.Xene
@@ -125,9 +124,8 @@ namespace Fusee.Xene
         /// over the list starting with the first node in the list.
         /// </summary>
         /// <param name="children">The list of nodes to traverse over.</param>
-        public void Traverse(IEnumerable<SceneNodeContainer> children)
+        public async Task Traverse(IEnumerable<SceneNodeContainer> children)
         {
-
             if (children == null)
                 return;
 
@@ -182,9 +180,8 @@ namespace Fusee.Xene
         /// <summary>
         /// Method is called when going up one hierarchy level while traversing. Override this method to perform pop on any self-defined state.
         /// </summary>
-        protected virtual Task PopState()
+        protected virtual void PopState()
         {
-            return Task.CompletedTask;
             // _state.Pop();
         }
         /// <summary>
@@ -491,27 +488,27 @@ namespace Fusee.Xene
             CurrentNode = null;
         }
 
-        private async Task DoTraverse(SceneNodeContainer node)
+        private void DoTraverse(SceneNodeContainer node)
         {
             CurrentNode = node;
             PushState();
 
             DoVisitNode(node);
 
-            await DoVisitComponents(node);
+            DoVisitComponents(node);
 
             if (node.Children != null)
             {
                 foreach (var child in node.Children)
                 {
-                    await DoTraverse(child);
+                    DoTraverse(child);
                 }
             }
-            await PopState();
+            PopState();
             CurrentNode = null;
         }
 
-        private async Task DoVisitComponents(SceneNodeContainer node)
+        private void DoVisitComponents(SceneNodeContainer node)
         {
             // Are there any components at all?
             if (node.Components == null)
@@ -520,7 +517,7 @@ namespace Fusee.Xene
             foreach (var component in node.Components)
             {
                 CurrentComponent = component;
-                await Task.Run(() => DoVisitComponent(component));
+                DoVisitComponent(component);
                 CurrentComponent = null;
             }
         }

@@ -130,7 +130,7 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Method is called when going up one hierarchy level while traversing.
         /// </summary>
-        protected override Task PopState() => Task.Run(() => _state.Pop());
+        protected override void PopState() => _state.Pop();
      
 
         #endregion
@@ -270,7 +270,7 @@ namespace Fusee.Engine.Core
         /// <summary>
         /// Method is called when going up one hierarchy level while traversing.
         /// </summary>
-        protected override Task PopState() => Task.Run(() => _state.Pop());
+        protected override void PopState() => _state.Pop();
 
         #endregion
     }
