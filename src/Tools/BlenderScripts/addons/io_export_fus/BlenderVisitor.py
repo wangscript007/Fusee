@@ -50,6 +50,7 @@ class BlenderVisitor:
             'MESH':     self.VisitMesh,
             'LIGHT':    self.VisitLight,
             'CAMERA':   self.VisitCamera,
+            'EMPTY':    self.VisitEmpty,
             'ARMATURE': self.VisitArmature,
         }
 
@@ -457,9 +458,14 @@ class BlenderVisitor:
                     self.__fusWriter.Push()
                     self.__fusWriter.AddChild(mesh.name)
 
+                # See if the FUSEE-Mesh was already processed and is already instantiated in another node
                 if self.__fusWriter.TryReferenceMesh(meshName):
+                    # The FUSEE-mesh identified by its unique name (containting material, 65-K-chunk and applied scale) 
+                    # was already written out to .fus and has simple been referenced once more. Add the number of vertices
+                    # contained in the mesh to the number of already processed vertices.
                     iVert = iVert + self.__fusWriter.GetReferencedMeshTriVertCount(meshName)
                 else:
+                    # Write out the current 65-K-or-less-chunk for the given material and the applied scale as a FUSEE-mesh
                     vert = vertsPerMat[iMaterial][iVert]
                     self.__fusWriter.BeginMesh(
                         vert[0],    # Vertex 
@@ -509,9 +515,13 @@ class BlenderVisitor:
             lightType = 0 # FusScene.LightType.Value('Point')
 
         print('Warning: Light "' + light.name + '"found but NOT exported"')
+
         ### Write light node ###
-#        self.__fusWriter.AddChild(light.name)
-#        self.__AddTransform(light, false)
+        # TODO: remove check on empty children list and write out light component
+        if len(light.children) > 0:
+            # The light has children. Write out an empty FUSEE node as a container for possibly exportable children
+            self.__fusWriter.AddChild(light.name)
+            self.__AddTransform()
 #        self.__fusWriter.AddLight(
 #            True, 
 #            (lightData.color.r, lightData.color.g, lightData.color.b, 1),
@@ -537,9 +547,13 @@ class BlenderVisitor:
             print('WARNING: Unknown projection type "' + cameraData.type + '" on Camera object "' + camera.name + '"')
         
         print('WARNING: Camera "' + camera.name + '"found but NOT exported"')
+        
         ### Write camera node ###
-#        self.__fusWriter.AddChild(camera.name)
-#        self.__AddTransform(camera, false)
+        # TODO: remove check on empty children list and write out camera component
+        if len(camera.children) > 0:
+            # The camera has children. Write out an empty FUSEE node as a container for possibly exportable children
+            self.__fusWriter.AddChild(camera.name)
+            self.__AddTransform()
 #        self.__fusWriter.AddCamera(
 #            camType, 
 #            cameraData.angle_y, 
@@ -548,8 +562,18 @@ class BlenderVisitor:
 
     def VisitArmature(self, armature):
         self.__fusWriter.AddChild(armature.name)
-        print('Armature: ' + armature.name)       
+        self.__AddTransform()
+
+    def VisitEmpty(self, empty):
+        self.__fusWriter.AddChild(empty.name)
+        self.__AddTransform()
 
     def VisitUnknown(self, ob):
-        print('WARNING: Type: ' + ob.type + ' of object ' + ob.name + ' not handled ')       
+        print('WARNING: Type: ' + ob.type + ' of object ' + ob.name + ' not handled ')
+        if len(ob.children) > 0:
+            # The unknown object has children. Write out an empty FUSEE node as a container for possibly exportable children
+            self.__fusWriter.AddChild(ob.name)
+            self.__AddTransform()
+
+
 

@@ -314,7 +314,6 @@ class FusSceneWriter:
             self.__curMesh.BoundingBox.max.z = vertex[2]
             self.__vertCache = {}
             self.AddVertex(vertex, normal, uv, tangent, bitangent)
-
         else:
             raise RuntimeError('Cannot begin a mesh component with another component not ended. Call EndXYZ() to close the currently open component.')
 
