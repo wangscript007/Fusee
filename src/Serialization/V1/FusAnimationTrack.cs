@@ -145,16 +145,16 @@ namespace Fusee.Serialization.V1
     }
 
     /// <summary>
-    /// Stores data about a single animation track (mainly a list of keyframes)
+    /// Stores data about a single animation track (mainly a list of keyframes).
     /// </summary>
     [ProtoContract]
     public class FusAnimationTrack
     {
         /// <summary>
-        /// The scene component to be controlled by this animation track.
+        /// The scene component index to be controlled by this animation track.
         /// </summary>
         [ProtoMember(1)]
-        public FusComponent? SceneComponent;
+        public int Component;
 
         /// <summary>
         /// The name to the property/field to control. May be a dot-separated path to a sub-item (e.g. "Transform.Position.x").

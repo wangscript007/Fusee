@@ -105,6 +105,13 @@ class ExportFUS(bpy.types.Operator, ExportHelper):
         default=True,
     )
 
+    doBakeNLATracks : BoolProperty(
+        name="Bake non-linear animation tracks (NLA)",
+        description="Generate one-key-per-frame tracks for each NLA track with all settings (scale, blend, reverse, repeat)" 
+                    "and all modifiers applied to all strips. When disabled, only export the first unmodified strip on each NLA track.",
+        default=True,
+    )
+    
     #get FuseeRoot environment variable
     tool_Path = 'fusee.exe'
     isRoot = None
@@ -117,6 +124,7 @@ class ExportFUS(bpy.types.Operator, ExportHelper):
         layout.prop(self,'doApplyScale')
         layout.prop(self,'doRecalcOutside')
         layout.prop(self,'doApplyModifiers')
+        layout.prop(self,'doBakeNLATracks')
         
     def execute(self, context):
         #check if all paths are set
@@ -142,6 +150,7 @@ class ExportFUS(bpy.types.Operator, ExportHelper):
         visitor.DoApplyModifiers = self.doApplyModifiers
         visitor.DoApplyScale = self.doApplyScale
         visitor.DoRecalcOutside = self.doRecalcOutside
+        visitor.DoBakeNLATracks = self.doBakeNLATracks
  
         visitor.TraverseList(roots)
         # visitor.PrintFus()

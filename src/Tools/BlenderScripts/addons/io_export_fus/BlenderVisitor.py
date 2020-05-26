@@ -41,6 +41,7 @@ class BlenderVisitor:
         self.DoApplyScale = True
         self.DoRecalcOutside = True
         self.DoApplyModifiers = True
+        self.DoBakeNLATracks = True
 
         self.__matrixStack = [mathutils.Matrix.Identity(4)]
         self.__transformStack = [(mathutils.Vector((0, 0, 0)), mathutils.Quaternion(), mathutils.Vector((0, 0, 0)))]
@@ -119,6 +120,115 @@ class BlenderVisitor:
             (-rot_eul.x, -rot_eul.z, -rot_eul.y),
             (scale.x, scale.z, scale.y)
         )
+
+    def __AddAnimationIfPresent(self, ob):
+        """Add animation components to FUSEE object for each non-linear animation (NLA) track present on blender object"""
+        if not ob.animation_data or not ob.animation_data.nla_tracks:
+            return
+
+        # Select the object (and nothing else)
+        if bpy.context.mode != 'OBJECT' and bpy.ops.object.mode_set.poll():
+            bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.context.view_layer.objects.active = ob
+        ob.select_set(True)
+
+        tracks = ob.animation_data.nla_tracks
+        for track in tracks:
+            # Do not export empty tracks
+            if not track.strips:
+                continue
+
+            fCurves = None
+
+            currentAction = ob.animation_data.action
+            soloStatus = track.is_solo
+            if self.DoBakeNLATracks:
+                # Bake the entire track including all strips and their transformations and modifiers into a single one-key-per-frame action
+                startFrame = endFrame = 0
+                # Calculate the start and end frame point of the entire nla track looking at each strip
+                for i, strip in enumerate(track.strips):
+                    if i == 0:
+                        startFrame = strip.frame_start
+                        endFrame = strip.frame_end
+                    else:
+                        startFrame = strip.frame_start if strip.frame_start < startFrame else startFrame
+                        endFrame = strip.frame_end if strip.end_frame > endFrame else endFrame
+    
+                # Set Solo Mode on given track
+                track.is_solo = True
+                
+                # Bake the soloed track to an animation action. This will override the current action (if any)
+                bpy.ops.nla.bake(frame_start=startFrame, frame_end=endFrame, bake_types={'OBJECT'})
+                fCurves = ob.animation_data.action.fcurves
+            else:
+                # Export the unmodified, unscaled FIRST strip only. Ignore all other strips
+                fCurves = track.strips[0].action.fcurves
+
+            # Extract and output keyframes
+            iPosX = iPosY = iPosZ = iRotX = iRotY = iRotZ = iSclX = iSclY = iSclZ = -1
+            for i, fcu in enumerate(fCurves):
+                d
+            
+            for keyframe in fCurves.keyframe_points:
+                print("      " + str(keyframe.co))
+
+            if self.DoBakeNLATracks:
+                # Restore solo status
+                track.is_solo = soloStatus
+                # Restore old animation action (probably None), thus unlinking the baked animation action
+                ob.animation_data.action = currentAction
+
+
+
+    #    tracks = ob.animation_data.nla_tracks
+    #    print("Found " + str(len(tracks)) + " animation tracks on object " + ob.name)
+    #    for track in tracks:
+    #        print ("  Track " + track.name)
+    #        for strip in track.strips:
+    #            print("    " + str(strip))
+    #            action=strip.action
+    #            for fcu in action.fcurves:
+    #                print("      " + fcu.data_path + " channel " + str(fcu.array_index))
+    #                for keyframe in fcu.keyframe_points:
+    #                    print("      " + str(keyframe.co))
+    
+    #  >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[0].data_path
+    # 'location', array_index == 0
+    # >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[1].data_path
+    # 'location', array_index == 1
+    # >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[2].data_path
+    # 'location', array_index == 2
+    # 
+    # >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[3].data_path
+    # 'rotation_euler', array_index == 0
+    # >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[4].data_path
+    # 'rotation_euler', array_index == 1
+    # >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[5].data_path
+    # 'rotation_euler', array_index == 2
+    # 
+    # >>> bpy.data.objects['Sphere'].animation_data.action.fcurves[6].data_path
+    # 'scale', array_index == 0
+
+
+    ### How to bake an nla animation track
+
+    ### Set Solo Mode on given track
+    # bpy.data.objects['Sphere'].animation_data.nla_tracks[0].is_solo
+
+    ### Bake animation
+    # bpy.ops.nla.bake(frame_start=1, frame_end=50, bake_types={'OBJECT'})
+
+    ### Access baked animation
+    ## bpy.data.objects['Sphere'].animation_data.action
+
+    ### Access keyframes, e.g. on channel fcurves[2] ( =  is z-coordinate of location - each baked action has 9 fcurves (x, y, z of loc, rot, scale))
+    ### len(bpy.data.objects['Sphere'].animation_data.action.fcurves[2].keyframe_points) 
+
+    ### Unlink the baked animation to get rid of it
+    ### bpy.data.objects['Sphere'].animation_data.action = None    
+
+
 
     def __GetProcessedBMesh(self, obj):
         """Create a modifier-applied, normal-flipped, scale-normalized, triangulated BMesh from the Blender mesh object passed. Call result.free() and del result after using the returned bmesh."""
@@ -385,6 +495,7 @@ class BlenderVisitor:
     def VisitMesh(self, mesh):
         self.__fusWriter.AddChild(mesh.name)
         self.__AddTransform()
+        self.__AddAnimationIfPresent(mesh)
         
         if self.DoApplyScale:
             scale = self.XFormGetTOSTransform()[2]
@@ -522,6 +633,8 @@ class BlenderVisitor:
             # The light has children. Write out an empty FUSEE node as a container for possibly exportable children
             self.__fusWriter.AddChild(light.name)
             self.__AddTransform()
+            self.__AddAnimationIfPresent(light)
+
 #        self.__fusWriter.AddLight(
 #            True, 
 #            (lightData.color.r, lightData.color.g, lightData.color.b, 1),
@@ -554,6 +667,8 @@ class BlenderVisitor:
             # The camera has children. Write out an empty FUSEE node as a container for possibly exportable children
             self.__fusWriter.AddChild(camera.name)
             self.__AddTransform()
+            self.__AddAnimationIfPresent(camera)
+
 #        self.__fusWriter.AddCamera(
 #            camType, 
 #            cameraData.angle_y, 
@@ -563,10 +678,12 @@ class BlenderVisitor:
     def VisitArmature(self, armature):
         self.__fusWriter.AddChild(armature.name)
         self.__AddTransform()
+        self.__AddAnimationIfPresent()
 
     def VisitEmpty(self, empty):
         self.__fusWriter.AddChild(empty.name)
         self.__AddTransform()
+        self.__AddAnimationIfPresent(empty)
 
     def VisitUnknown(self, ob):
         print('WARNING: Type: ' + ob.type + ' of object ' + ob.name + ' not handled ')
@@ -574,6 +691,8 @@ class BlenderVisitor:
             # The unknown object has children. Write out an empty FUSEE node as a container for possibly exportable children
             self.__fusWriter.AddChild(ob.name)
             self.__AddTransform()
+            self.__AddAnimationIfPresent(ob)
+
 
 
 
