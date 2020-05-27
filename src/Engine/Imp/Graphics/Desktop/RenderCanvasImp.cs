@@ -8,6 +8,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using Fusee.Engine.Common;
+using System.Threading;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -838,8 +839,14 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         #region Overrides
 
+        private DesktopRenderCanvasImpContext _ctx;
+
+
         protected override void OnLoad(EventArgs e)
         {
+            _ctx = new DesktopRenderCanvasImpContext();
+            SynchronizationContext.SetSynchronizationContext(_ctx);
+
             // Check for necessary capabilities
             string version = GL.GetString(StringName.Version);
 
@@ -903,6 +910,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
             if (_renderCanvasImp != null)
                 _renderCanvasImp.DoRender();
+
+            _ctx.ExecutePendingPostAwaits();
         }
 
         #endregion

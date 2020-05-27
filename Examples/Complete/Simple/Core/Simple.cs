@@ -46,8 +46,6 @@ namespace Fusee.Examples.Simple.Core
             // Create the interaction handler
             _sih = new SceneInteractionHandler(_gui);
 
-            // Set the clear color for the backbuffer to white (100% intensity in all color channels R, G, B, A).
-            RC.ClearColor = new float4(1, 1, 1, 1);
 
             // Load the rocket model
             _rocketScene = await AssetStorage.GetAsync<SceneContainer>("FUSEERocket.fus");
@@ -55,6 +53,10 @@ namespace Fusee.Examples.Simple.Core
             // Wrap a SceneRenderer around the model.
             _sceneRenderer = new SceneRendererForward(_rocketScene);
             _guiRenderer = new SceneRendererForward(_gui);
+
+
+            // Set the clear color for the backbuffer to white (100% intensity in all color channels R, G, B, A).
+            RC.ClearColor = new float4(1, 1, 1, 1);
 
             return true;
         }

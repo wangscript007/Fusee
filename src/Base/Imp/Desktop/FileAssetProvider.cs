@@ -185,6 +185,7 @@ namespace Fusee.Base.Imp.Desktop
                 if (File.Exists(path))
                     return true;
             }
+            Diagnostics.Error($"Asset {id} not found!");
             return false;
         }
 
@@ -242,6 +243,7 @@ namespace Fusee.Base.Imp.Desktop
                     if (File.Exists(path))
                         return true;
                 }
+                Diagnostics.Error($"Asset {id} not found!");
                 return false;
             });
         }
