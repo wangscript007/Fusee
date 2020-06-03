@@ -84,7 +84,7 @@ namespace Fusee.Engine.Core
         private readonly Stack<SceneNode> _predecessors;
         private SceneNode _currentNode;
 
-        private readonly Dictionary<FusMaterial, ShaderEffect> _matMap;
+        private readonly Dictionary<FusMaterial, Task<ShaderEffect>> _matMap;
         private readonly Dictionary<FusMesh, Mesh> _meshMap;
         private readonly Stack<SceneNode> _boneContainers;
 
@@ -101,7 +101,7 @@ namespace Fusee.Engine.Core
             _predecessors = new Stack<SceneNode>();
             _convertedScene = new SceneContainer();
 
-            _matMap = new Dictionary<FusMaterial, ShaderEffect>();
+            _matMap = new Dictionary<FusMaterial, Task<ShaderEffect>>();
             _meshMap = new Dictionary<FusMesh, Mesh>();
             _boneContainers = new Stack<SceneNode>();
         }
@@ -121,7 +121,7 @@ namespace Fusee.Engine.Core
         /// <param name="snc"></param>
         [VisitMethod]
         public void ConvFusNode(FusNode snc)
-        {   
+        {
             snc.Scene = _fusScene;
 
             if (_predecessors.Count != 0)
@@ -326,7 +326,7 @@ namespace Fusee.Engine.Core
             {
                 _currentNode.Components.Add(mesh);
                 return;
-            }          
+            }
 
             // convert mesh
             mesh = new Mesh
@@ -483,7 +483,8 @@ namespace Fusee.Engine.Core
 
         private async Task<ShaderEffect> LookupMaterial(FusMaterial m)
         {
-            if (_matMap.TryGetValue(m, out var sfx)) return sfx;
+            if (_matMap.TryGetValue(m, out var sfx)) return await sfx;
+
 
             var vals = new MaterialValues();
 
@@ -514,7 +515,8 @@ namespace Fusee.Engine.Core
                 vals.SpecularShininess = m.Specular.Shininess;
             }
 
-            sfx = await ShaderCodeBuilder.MakeShaderEffectFromShaderEffectProps(
+            sfx =
+            ShaderCodeBuilder.MakeShaderEffectFromShaderEffectProps(
                 new ShaderEffectProps
                 {
                     MatProbs =
@@ -531,15 +533,17 @@ namespace Fusee.Engine.Core
                     MatValues = vals
                 });
 
-            sfx.Name = m.Name ?? "";
-
             _matMap.Add(m, sfx);
-            return sfx;
+
+            var _sfx = await sfx;
+            _sfx.Name = m.Name ?? "";
+
+            return _sfx;
         }
 
         private async Task<ShaderEffect> LookupMaterial(FusMaterialPBR m)
         {
-            if (_matMap.TryGetValue(m, out var sfx)) return sfx;
+            if (_matMap.TryGetValue(m, out var sfx)) return await sfx;
 
             var vals = new MaterialValues();
 
@@ -574,7 +578,7 @@ namespace Fusee.Engine.Core
             vals.FresnelReflectance = m.FresnelReflectance;
             vals.RoughnessValue = m.RoughnessValue;
 
-            sfx = await ShaderCodeBuilder.MakeShaderEffectFromShaderEffectProps(
+            sfx = ShaderCodeBuilder.MakeShaderEffectFromShaderEffectProps(
                 new ShaderEffectProps
                 {
                     MatProbs =
@@ -591,10 +595,12 @@ namespace Fusee.Engine.Core
                     MatValues = vals
                 });
 
-            sfx.Name = m.Name ?? "";
 
             _matMap.Add(m, sfx);
-            return sfx;
+            var _sfx = await sfx;
+            _sfx.Name = m.Name ?? "";
+
+            return _sfx;
         }
 
         #endregion

@@ -26,11 +26,20 @@ namespace Fusee.Base.Core
     public sealed class AssetStorage
     {
         private readonly List<IAssetProvider> _providers;
+        private readonly Dictionary<string, Task> _assetBuffer;
+
         private static AssetStorage _instance;
+
+        /// <summary>
+        /// Returns true if all assets have finished loading, independent of failed or sucess state
+        /// </summary>
+        public static bool AllAssetsFinishedLoading => 
+            _instance._assetBuffer.Values.All(x => x.IsCompleted);
 
         private AssetStorage()
         {
             _providers = new List<IAssetProvider>();
+            _assetBuffer = new Dictionary<string, Task>();
         }
 
         /// <summary>
@@ -40,6 +49,31 @@ namespace Fusee.Base.Core
         /// The (one-and-only) instance of AssetStorage.
         /// </value>
         public static AssetStorage Instance => _instance ?? (_instance = new AssetStorage());
+
+        /// <summary>
+        /// Returns true if an asset is currently loading or already loaded
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static bool IsAssetPresent(string id)
+        {
+            return Instance._assetBuffer.ContainsKey(id);
+        }
+
+        /// <summary>
+        /// Returns true if an asset has finished loading successfully,
+        /// returns false if not present, see <see cref="IsAssetPresent(string)"/>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static bool IsAssetLoaded(string id)
+        {
+            if(Instance._assetBuffer.TryGetValue(id, out var val))
+            {
+                return val.IsCompletedSuccessfully;
+            }
+            return false;
+        }
 
         /// <summary>
         /// Staticton implementation of <see cref="GetAsset{T}"/>.
@@ -55,7 +89,17 @@ namespace Fusee.Base.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public static async Task<T> GetAsync<T>(string id) => await Instance.GetAssetAsync<T>(id).ConfigureAwait(false);
+        public static Task<T> GetAsync<T>(string id)
+        {
+            if (IsAssetPresent(id))
+                return (Task<T>) _instance._assetBuffer[id];
+            else
+            {
+                var task = Instance.GetAssetAsync<T>(id);
+                _instance._assetBuffer.Add(id, (Task)task);
+                return task;
+            }
+        }
 
         /// <summary>
         /// Retrieves the asset identified by id.
@@ -76,7 +120,7 @@ namespace Fusee.Base.Core
                     return (T)assetProvider.GetAsset(id, typeof(T));
                 }
             }
-            return default(T);
+            return default;
         }
 
         /// <summary>

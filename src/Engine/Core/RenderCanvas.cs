@@ -166,7 +166,7 @@ namespace Fusee.Engine.Core
             Network.Instance.NetworkImp = NetworkImplementor;
             VideoManager.Instance.VideoManagerImp = VideoManagerImplementor;
 
-            CanvasImplementor.Init += async delegate { await Init(); _appInitialized = true; };
+            CanvasImplementor.Init += delegate { Init(); _appInitialized = true; };
             CanvasImplementor.UnLoad += delegate { DeInit(); };
 
             CanvasImplementor.Render += delegate
@@ -215,9 +215,8 @@ namespace Fusee.Engine.Core
         ///     Override this method in inherited classes of RenderCanvas to apply initialization code. Typically, an application
         ///     will call one-time initialization code on the render context (<see cref="RC" />) to set render states.
         /// </remarks>
-        public virtual async Task<bool> Init()
+        public virtual void Init()
         {
-            return await Task.FromResult(false);
         }
 
         /// <summary>

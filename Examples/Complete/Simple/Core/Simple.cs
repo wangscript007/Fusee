@@ -38,27 +38,102 @@ namespace Fusee.Examples.Simple.Core
 
         private bool _keys;
 
-        // Init is called on startup.
-        public override async Task<bool> Init()
+        public async void LoadAssets()
         {
-            _gui = await CreateGui();
+            //_gui = await CreateGui();
+
+            // No await here! Let's collect everything first and await at the actual position where this variable is first used
+            var vsTex = AssetStorage.GetAsync<string>("texture.vert");
+            var psTex = AssetStorage.GetAsync<string>("texture.frag");
+            var imgLogo = AssetStorage.GetAsync<ImageData>("FuseeText.png");
+            var fontLato = AssetStorage.GetAsync<Font>("Lato-Black.ttf");
+            // Load the rocket model
+            var rocket = AssetStorage.GetAsync<SceneContainer>("FUSEERocket.fus");
+
+            var canvasWidth = Width / 100f;
+            var canvasHeight = Height / 100f;
+
+            var btnFuseeLogo = new GUIButton
+            {
+                Name = "Canvas_Button"
+            };
+            btnFuseeLogo.OnMouseEnter += BtnLogoEnter;
+            btnFuseeLogo.OnMouseExit += BtnLogoExit;
+            btnFuseeLogo.OnMouseDown += BtnLogoDown;
+
+            var fuseeLogo = new TextureNode(
+                "fuseeLogo",
+                await vsTex,
+                await psTex,
+                //Set the albedo texture you want to use.
+                new Texture(await imgLogo),
+                //Define anchor points. They are given in percent, seen from the lower left corner, respectively to the width/height of the parent.
+                //In this setup the element will stretch horizontally but stay the same vertically if the parent element is scaled.
+                UIElementPosition.GetAnchors(AnchorPos.TopTopLeft),
+                //Define Offset and therefor the size of the element.
+                UIElementPosition.CalcOffsets(AnchorPos.TopTopLeft, new float2(0, canvasHeight - 0.5f), canvasHeight, canvasWidth, new float2(1.75f, 0.5f))
+                );
+            fuseeLogo.AddComponent(btnFuseeLogo);
+
+
+            var guiLatoBlack = new FontMap(await fontLato, 24);
+
+            var text = new TextNode(
+                "FUSEE Simple Example",
+                "ButtonText",
+                await vsTex,
+                await psTex,
+                UIElementPosition.GetAnchors(AnchorPos.StretchHorizontal),
+                UIElementPosition.CalcOffsets(AnchorPos.StretchHorizontal, new float2(canvasWidth / 2 - 4, 0), canvasHeight, canvasWidth, new float2(8, 1)),
+                guiLatoBlack,
+                ColorUint.Tofloat4(ColorUint.Greenery),
+                HorizontalTextAlignment.Center,
+                VerticalTextAlignment.Center);
+
+            var canvas = new CanvasNode(
+                "Canvas",
+                _canvasRenderMode,
+                new MinMaxRect
+                {
+                    Min = new float2(-canvasWidth / 2, -canvasHeight / 2f),
+                    Max = new float2(canvasWidth / 2, canvasHeight / 2f)
+                })
+            {
+                Children = new ChildList()
+                {
+                    //Simple Texture Node, contains the fusee logo.
+                    fuseeLogo,
+                    text
+                }
+            };
+
+            _gui = new SceneContainer
+            {
+                Children = new List<SceneNode>
+                {
+                    //Add canvas.
+                    canvas
+                }
+            };
 
             // Create the interaction handler
             _sih = new SceneInteractionHandler(_gui);
 
 
-            // Load the rocket model
-            _rocketScene = await AssetStorage.GetAsync<SceneContainer>("FUSEERocket.fus");
-
             // Wrap a SceneRenderer around the model.
+            _rocketScene = await rocket;
             _sceneRenderer = new SceneRendererForward(_rocketScene);
             _guiRenderer = new SceneRendererForward(_gui);
 
+        }
+
+        // Init is called on startup.
+        public override void Init()
+        {
+            LoadAssets();
 
             // Set the clear color for the backbuffer to white (100% intensity in all color channels R, G, B, A).
             RC.ClearColor = new float4(1, 1, 1, 1);
-
-            return true;
         }
 
         // RenderAFrame is called once a frame
@@ -68,6 +143,8 @@ namespace Fusee.Examples.Simple.Core
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
 
             RC.Viewport(0, 0, Width, Height);
+
+            if (!AssetStorage.AllAssetsFinishedLoading) return;
 
             // Mouse and keyboard movement
             if (Keyboard.LeftRightAxis != 0 || Keyboard.UpDownAxis != 0)
@@ -133,79 +210,6 @@ namespace Fusee.Examples.Simple.Core
 
             // Swap buffers: Show the contents of the backbuffer (containing the currently rendered frame) on the front buffer.
             Present();
-        }
-
-        private async Task<SceneContainer> CreateGui()
-        {
-            var vsTex = await AssetStorage.GetAsync<string>("texture.vert");
-            var psTex = await AssetStorage.GetAsync<string>("texture.frag");
-
-            var canvasWidth = Width / 100f;
-            var canvasHeight = Height / 100f;
-
-            var btnFuseeLogo = new GUIButton
-            {
-                Name = "Canvas_Button"
-            };
-            btnFuseeLogo.OnMouseEnter += BtnLogoEnter;
-            btnFuseeLogo.OnMouseExit += BtnLogoExit;
-            btnFuseeLogo.OnMouseDown += BtnLogoDown;
-
-            var guiFuseeLogo = new Texture(await AssetStorage.GetAsync<ImageData>("FuseeText.png"));
-            var fuseeLogo = new TextureNode(
-                "fuseeLogo",
-                vsTex,
-                psTex,
-                //Set the albedo texture you want to use.
-                guiFuseeLogo,
-                //Define anchor points. They are given in percent, seen from the lower left corner, respectively to the width/height of the parent.
-                //In this setup the element will stretch horizontally but stay the same vertically if the parent element is scaled.
-                UIElementPosition.GetAnchors(AnchorPos.TopTopLeft),
-                //Define Offset and therefor the size of the element.
-                UIElementPosition.CalcOffsets(AnchorPos.TopTopLeft, new float2(0, canvasHeight - 0.5f), canvasHeight, canvasWidth, new float2(1.75f, 0.5f))
-                );
-            fuseeLogo.AddComponent(btnFuseeLogo);
-
-            var fontLato = await AssetStorage.GetAsync<Font>("Lato-Black.ttf");
-            var guiLatoBlack = new FontMap(fontLato, 24);
-
-            var text = new TextNode(
-                "FUSEE Simple Example",
-                "ButtonText",
-                vsTex,
-                psTex,
-                UIElementPosition.GetAnchors(AnchorPos.StretchHorizontal),
-                UIElementPosition.CalcOffsets(AnchorPos.StretchHorizontal, new float2(canvasWidth / 2 - 4, 0), canvasHeight, canvasWidth, new float2(8, 1)),
-                guiLatoBlack,
-                ColorUint.Tofloat4(ColorUint.Greenery),
-                HorizontalTextAlignment.Center,
-                VerticalTextAlignment.Center);
-
-            var canvas = new CanvasNode(
-                "Canvas",
-                _canvasRenderMode,
-                new MinMaxRect
-                {
-                    Min = new float2(-canvasWidth / 2, -canvasHeight / 2f),
-                    Max = new float2(canvasWidth / 2, canvasHeight / 2f)
-                })
-            {
-                Children = new ChildList()
-                {
-                    //Simple Texture Node, contains the fusee logo.
-                    fuseeLogo,
-                    text
-                }
-            };
-
-            return new SceneContainer
-            {
-                Children = new List<SceneNode>
-                {
-                    //Add canvas.
-                    canvas
-                }
-            };
         }
 
         public void BtnLogoEnter(CodeComponent sender)
