@@ -90,6 +90,8 @@ namespace Fusee.Examples.Simple.Core
                 HorizontalTextAlignment.Center,
                 VerticalTextAlignment.Center);
 
+            // THIS IS THE LAST await POSITION. AFTER THAT AssetStorage RETURNS TRUE FOR RAF BLOCK
+
             var canvas = new CanvasNode(
                 "Canvas",
                 _canvasRenderMode,
