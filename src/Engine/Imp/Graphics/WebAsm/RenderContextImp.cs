@@ -62,7 +62,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             //_blendSrcRgb = (uint)gl2.GetParameter(BLEND_SRC_RGB);
             //_blendEquationAlpha = (uint)gl2.GetParameter(BLEND_EQUATION_ALPHA);
             //_blendEquationRgb = (uint)gl2.GetParameter(BLEND_EQUATION_RGB);
-           
+
         }
 
         #region Image data related Members
@@ -299,7 +299,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <summary>
         /// Creates a new Texture and binds it to the shader.
         /// </summary>
-        /// <param name="img">A given ImageData object, containing all necessary information for the upload to the graphics card.</param> 
+        /// <param name="img">A given ImageData object, containing all necessary information for the upload to the graphics card.</param>
         /// <returns>An ITextureHandle that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
         public ITextureHandle CreateTexture(ITexture img)
         {
@@ -334,7 +334,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <summary>
         /// Creates a new Texture and binds it to the shader.
         /// </summary>
-        /// <param name="img">A given ImageData object, containing all necessary information for the upload to the graphics card.</param> 
+        /// <param name="img">A given ImageData object, containing all necessary information for the upload to the graphics card.</param>
         /// <returns>An ITextureHandle that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
         public ITextureHandle CreateTexture(IWritableTexture img)
         {
@@ -348,7 +348,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             var glWrapMode = GetWrapMode(img.WrapMode);
             var pxInfo = GetTexturePixelInfo(img);
 
-            var imgData = GetEmptyArray(img);        
+            var imgData = GetEmptyArray(img);
 
             gl2.TexImage2D(TEXTURE_2D, 0, pxInfo.InternalFormat, img.Width, img.Height, 0, pxInfo.Format, pxInfo.PxType, imgData);
 
@@ -590,7 +590,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
 
         /// <summary>
-        /// Gets the shader parameter list of a specific <see cref="IShaderHandle" />. 
+        /// Gets the shader parameter list of a specific <see cref="IShaderHandle" />.
         /// </summary>
         /// <param name="shaderProgram">The shader program.</param>
         /// <returns>All Shader parameters of a shader program are returned.</returns>
@@ -775,6 +775,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     Diagnostics.Error("OpenTK ES31 does not support Texture1D.");
                     break;
                 case TextureType.Texture2D:
+                    Console.WriteLine($"Texture handle {((TextureHandle)texId).TexHandle.Handle}");
                     gl.BindTexture(TEXTURE_2D, ((TextureHandle)texId).TexHandle);
                     break;
                 case TextureType.Texture3D:
@@ -800,7 +801,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             if (!_shaderParam2TexUnit.TryGetValue(iParam, out int texUnit))
             {
                 _textureCountPerShader++;
-                texUnit = _textureCountPerShader;
+                //texUnit = _textureCountPerShader;
                 _shaderParam2TexUnit[iParam] = texUnit;
             }
 
@@ -906,7 +907,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <param name="texTarget">The texture type, describing to which texture target the texture gets bound to.</param>
         public unsafe void SetShaderParamTextureArray(IShaderParam param, ITextureHandle[] texIds, TextureType texTarget)
         {
-            SetActiveAndBindTextureArray(param, texIds, texTarget, out int[] texUnitArray);            
+            SetActiveAndBindTextureArray(param, texIds, texTarget, out int[] texUnitArray);
             gl2.Uniform1i(((ShaderParam)param).handle, texUnitArray[0]);
         }
 
@@ -983,7 +984,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         }
 
         /// <summary>
-        /// The clipping behavior against the Z position of a vertex can be turned off by activating depth clamping. 
+        /// The clipping behavior against the Z position of a vertex can be turned off by activating depth clamping.
         /// This is done with glEnable(GL_DEPTH_CLAMP). This will cause the clip-space Z to remain unclipped by the front and rear viewing volume.
         /// See: https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Depth_clamping
         /// </summary>
@@ -1067,7 +1068,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             if (((MeshImp)mr).VertexBufferObject == null)
                 ((MeshImp)mr).VertexBufferObject = gl2.CreateBuffer();
 
-            gl2.BindBuffer(ARRAY_BUFFER, ((MeshImp)mr).VertexBufferObject);           
+            gl2.BindBuffer(ARRAY_BUFFER, ((MeshImp)mr).VertexBufferObject);
 
             var verticesFlat = new float[vertices.Length * 3];
             unsafe
@@ -1519,16 +1520,16 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     default:
                         gl2.DrawElements(TRIANGLES, ((MeshImp)mr).NElements, UNSIGNED_SHORT, 0);
                         break;
-                    case OpenGLPrimitiveType.Points:                        
+                    case OpenGLPrimitiveType.Points:
                         gl.DrawElements(POINTS, ((MeshImp)mr).NElements, UNSIGNED_SHORT, 0);
                         break;
-                    case OpenGLPrimitiveType.Lines:                       
+                    case OpenGLPrimitiveType.Lines:
                         gl.DrawElements(LINES, ((MeshImp)mr).NElements, UNSIGNED_SHORT, 0);
                         break;
-                    case OpenGLPrimitiveType.LineLoop:                        
+                    case OpenGLPrimitiveType.LineLoop:
                         gl.DrawElements(LINE_LOOP, ((MeshImp)mr).NElements, UNSIGNED_SHORT, 0);
                         break;
-                    case OpenGLPrimitiveType.LineStrip:                        
+                    case OpenGLPrimitiveType.LineStrip:
                         gl.DrawElements(LINE_STRIP, ((MeshImp)mr).NElements, UNSIGNED_SHORT, 0);
                         break;
                     case OpenGLPrimitiveType.Patches:
@@ -2175,7 +2176,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// </summary>
         /// <param name="renderTarget">The render target.</param>
         /// <param name="attachment">Number of the fbo attachment. For example: attachment = 1 will detach the texture currently associated with <see cref="COLOR_ATTACHMENT1"/>.</param>
-        /// <param name="isDepthTex">Determines if the texture is a depth texture. In this case the texture currently associated with <see cref="DEPTH_ATTACHMENT"/> will be detached.</param>       
+        /// <param name="isDepthTex">Determines if the texture is a depth texture. In this case the texture currently associated with <see cref="DEPTH_ATTACHMENT"/> will be detached.</param>
         public void DetachTextureFromFbo(IRenderTarget renderTarget, bool isDepthTex, int attachment = 0)
         {
             ChangeFramebufferTexture2D(renderTarget, attachment, null, isDepthTex); //TODO: check if "null" is the equivalent to the zero texture (handle = 0) in OpenGL Core
@@ -2187,7 +2188,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// </summary>
         /// <param name="renderTarget">The render target.</param>
         /// <param name="attachment">Number of the fbo attachment. For example: attachment = 1 will attach the texture to <see cref="COLOR_ATTACHMENT1"/>.</param>
-        /// <param name="isDepthTex">Determines if the texture is a depth texture. In this case the texture is attached to <see cref="DEPTH_ATTACHMENT"/>.</param>        
+        /// <param name="isDepthTex">Determines if the texture is a depth texture. In this case the texture is attached to <see cref="DEPTH_ATTACHMENT"/>.</param>
         /// <param name="texHandle">The gpu handle of the texture.</param>
         public void AttacheTextureToFbo(IRenderTarget renderTarget, bool isDepthTex, ITextureHandle texHandle, int attachment = 0)
         {
@@ -2220,7 +2221,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         }
 
         /// <summary>
-        /// Set the Viewport of the rendering output window by x,y position and width,height parameters. 
+        /// Set the Viewport of the rendering output window by x,y position and width,height parameters.
         /// The Viewport is the portion of the final image window.
         /// </summary>
         /// <param name="x">The x.</param>
@@ -2263,10 +2264,10 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Returns a human readable description of the underlying graphics hardware. This implementation reports GL_VENDOR, GL_RENDERER, GL_VERSION and GL_EXTENSIONS.
-        /// </summary> 
-        /// <returns></returns> 
+        /// </summary>
+        /// <returns></returns>
         public string GetHardwareDescription()
         {
             return "";
