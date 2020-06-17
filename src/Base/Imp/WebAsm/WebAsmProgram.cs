@@ -7,7 +7,7 @@ namespace Fusee.Base.Imp.WebAsm
     /// <summary>
     /// A WebAsmProgram contains some runtime variables, like canvasName, the canvas clear color as well as the render loop action
     /// </summary>
-    public class WebAsmProgram
+    public static class WebAsmProgram
     {
         private static readonly float4 CanvasColor = new float4(255, 0, 255, 255);
         private static readonly Action<double> loop = new Action<double>(Loop);
@@ -20,23 +20,23 @@ namespace Fusee.Base.Imp.WebAsm
         private static WebAsmBase mainExecutable;
 
         /// <summary>
-        /// Starts the webAsm program
+        /// Starts the WASM program
         /// </summary>
-        /// <param name="webAsm"></param>
-        public static void Start(WebAsmBase webAsm)
+        /// <param name="wasm"></param>
+        public static void Start(WebAsmBase wasm)
         {
             // Let's first check if we can continue with WebGL2 instead of crashing.
-            if (!isBrowserSupportsWebGL2())
+            if (!IsBrowserSupportsWebGL2())
             {
                 HtmlHelper.AddParagraph("We are sorry, but your browser does not seem to support WebGL2.");
                 return;
             }
 
             // Create our sample
-            mainExecutable = webAsm;
+            mainExecutable = wasm;
 
-            divCanvasName = $"div_canvas";
-            canvasName = $"canvas";
+            divCanvasName = "div_canvas";
+            canvasName = "canvas";
 
             using (var window = (JSObject)Runtime.GetGlobalObject("window"))
             {
@@ -88,10 +88,6 @@ namespace Fusee.Base.Imp.WebAsm
             if (canvas.GetObjectProperty("msRequestFullscreen") != null)
                 canvas.Invoke("msRequestFullscreen");
 
-            // mozRequestFullScreen seems to be obsolete
-
-            //if (canvas.GetObjectProperty("mozRequestFullScreen") != null)
-            //    canvas.Invoke("mozRequestFullScreen");
         }
 
         private static void AddEnterFullScreenHandler()
@@ -148,7 +144,7 @@ namespace Fusee.Base.Imp.WebAsm
             window.Invoke("requestAnimationFrame", loop);
         }
 
-        private static bool isBrowserSupportsWebGL2()
+        private static bool IsBrowserSupportsWebGL2()
         {
             if (window == null)
             {
@@ -166,7 +162,7 @@ namespace Fusee.Base.Imp.WebAsm
     public static class HtmlHelper
     {
         /// <summary>
-        /// Creates an attaches a canvas to the html page
+        /// Creates an attaches a canvas to the HTML page
         /// </summary>
         /// <param name="divId"></param>
         /// <param name="canvasId"></param>
@@ -194,22 +190,7 @@ namespace Fusee.Base.Imp.WebAsm
         }
 
         /// <summary>
-        /// Adds a header to the current html page
-        /// </summary>
-        /// <param name="headerIndex"></param>
-        /// <param name="text"></param>
-        public static void AddHeader(int headerIndex, string text)
-        {
-            using var document = (JSObject)Runtime.GetGlobalObject("document");
-            using var body = (JSObject)document.GetObjectProperty("body");
-            using var header = (JSObject)document.Invoke("createElement", $"h{headerIndex}");
-            using var headerText = (JSObject)document.Invoke("createTextNode", text);
-            header.Invoke("appendChild", headerText);
-            body.Invoke("appendChild", header);
-        }
-
-        /// <summary>
-        /// Adds a paragraph to the current html page
+        /// Adds a paragraph to the current HTML page
         /// </summary>
         /// <param name="text"></param>
         public static void AddParagraph(string text)
@@ -219,35 +200,6 @@ namespace Fusee.Base.Imp.WebAsm
             using var paragraph = (JSObject)document.Invoke("createElement", "p");
             paragraph.SetObjectProperty("innerHTML", text);
             body.Invoke("appendChild", paragraph);
-        }
-
-        /// <summary>
-        /// Adds a button the current html site
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="text"></param>
-        public static void AddButton(string id, string text)
-        {
-            using (var document = (JSObject)Runtime.GetGlobalObject("document"))
-            using (var body = (JSObject)document.GetObjectProperty("body"))
-            using (var button = (JSObject)document.Invoke("createElement", "button"))
-            {
-                button.SetObjectProperty("innerHTML", text);
-                button.SetObjectProperty("id", id);
-                body.Invoke("appendChild", button);
-            }
-        }
-
-        /// <summary>
-        /// Attaches an onClick event to the button with the given id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="onClickAction"></param>
-        public static void AttachButtonOnClickEvent(string id, Action<JSObject> onClickAction)
-        {
-            using var document = (JSObject)Runtime.GetGlobalObject("document");
-            using var button = (JSObject)document.Invoke("getElementById", id);
-            button.SetObjectProperty("onclick", onClickAction);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
     public class RenderCanvasInputDriverImp : IInputDriverImp
     {
         /// <summary>
-        /// Constructor. Use this in platform specific application projects. 
+        /// Constructor. Use this in platform specific application projects.
         /// </summary>
         /// <param name="renderCanvas">The render canvas to provide mouse and keyboard input for.</param>
         public RenderCanvasInputDriverImp(IRenderCanvasImp renderCanvas)
@@ -23,7 +23,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 throw new ArgumentNullException(nameof(renderCanvas));
 
             if (!(renderCanvas is RenderCanvasImp))
-                throw new ArgumentException("renderCanvas must be of type RenderCanvasImp", "renderCanvas");
+                throw new ArgumentException("renderCanvas must be of type RenderCanvasImp", nameof(renderCanvas));
 
             _canvas = ((RenderCanvasImp)renderCanvas)._canvas;
             if (_canvas == null)
@@ -54,7 +54,6 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 yield return _keyboard;
                 yield return _touch;
                 yield return _gamePad;
-
             }
         }
 
@@ -64,7 +63,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public string DriverDesc => "WebAsm Mouse, Keyboard, Gamepad and Touch input driver";
 
         /// <summary>
-        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the 
+        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the
         /// full class name (including namespace).
         /// </summary>
         public string DriverId => GetType().FullName;
@@ -92,23 +91,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             if (!disposedValue)
             {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
                 disposedValue = true;
             }
         }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~RenderCanvasInputDriverImp() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
 
         // This code added to correctly implement the disposable pattern.
         /// <summary>
@@ -116,10 +101,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// </summary>
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
         #endregion
     }
@@ -130,21 +112,10 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
     public class GamePadDeviceImp : IInputDeviceImp
     {
         private ButtonImpDescription _btnADesc, _btnXDesc, _btnYDesc, _btnBDesc, _btnStartDesc, _btnSelectDesc, _dpadUpDesc, _dpadDownDesc, _dpadLeftDesc, _dpadRightDesc, _btnLeftDesc, _btnRightDesc, _btnL3Desc, _btnR3Desc;
-        private readonly JSObject _window;
-        private readonly JSObject navigtor;
         private readonly int DeviceID;
-        #region JSExternals
 
-
-        #endregion
-
-        #region Javascript callback code
-
-        #endregion
-
-        internal GamePadDeviceImp(JSObject Window, int deviceID = 1)
+        internal GamePadDeviceImp(JSObject _, int deviceID = 1)
         {
-            var _window = Window;
             DeviceID = deviceID;
 
             _btnADesc = new ButtonImpDescription
@@ -276,7 +247,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         }
 
         /// <summary>
-        /// Returns the ID of the current contoller
+        /// Returns the ID of the current controller
         /// </summary>
         public string Id
         {
@@ -307,7 +278,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                         {
                             var _index = (string)Gamepad.GetObjectProperty("id");
                             {
-                                Index = _index.ToString();
+                                Index = _index;
                             }
                         }
                     }
@@ -443,36 +414,25 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>A float value between -1 and 1 determining the offset of the axis.</returns>
         public float GetAxis(int iAxisId)
         {
-            float Axis;
             JSObject _GamePad;
             JSObject Axes;
             using (var navigator = (JSObject)Runtime.GetGlobalObject("navigator"))
             {
-                using (var Gamepads = (JSObject)navigator.Invoke("getGamepads"))
+                using var Gamepads = (JSObject)navigator.Invoke("getGamepads");
+                using (_GamePad = (JSObject)Gamepads.GetObjectProperty(DeviceID.ToString()))
                 {
-                    using (_GamePad = (JSObject)Gamepads.GetObjectProperty(DeviceID.ToString()))
+                    if (_GamePad != null)
                     {
-                        if (_GamePad != null)
+                        using (Axes = (JSObject)_GamePad.GetObjectProperty("axes"))
                         {
-                            using (Axes = (JSObject)_GamePad.GetObjectProperty("axes"))
+                            return iAxisId switch
                             {
-                                switch (iAxisId)
-                                {
-                                    case 0:
-                                        Axis = (float)Axes.GetObjectProperty("[0]");
-                                        return Axis;
-                                    case 1:
-                                        Axis = (float)Axes.GetObjectProperty("[1]");
-                                        return Axis;
-                                    case 2:
-                                        Axis = (float)Axes.GetObjectProperty("[2]");
-                                        return Axis;
-                                    case 3:
-                                        Axis = (float)Axes.GetObjectProperty("[3]");
-                                        return Axis;
-                                }
-                                throw new InvalidOperationException($"Unsupported axis {iAxisId}.");
-                            }
+                                0 => (float)Axes.GetObjectProperty("[0]"),
+                                1 => (float)Axes.GetObjectProperty("[1]"),
+                                2 => (float)Axes.GetObjectProperty("[2]"),
+                                3 => (float)Axes.GetObjectProperty("[3]"),
+                                _ => throw new InvalidOperationException($"Unsupported axis {iAxisId}."),
+                            };
                         }
                     }
                 }
@@ -480,81 +440,45 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             return 0;
         }
 
-
-
-
-
         /// <summary>
         /// All buttons on this device are polled.
         /// </summary>
         /// <param name="iButtonId">The button to be polled.</param>
-        /// <returns>A Boolean value determining wether the button is pressed or not.</returns>
+        /// <returns>A Boolean value determining whether the button is pressed or not.</returns>
         public bool GetButton(int iButtonId)
         {
-            bool retval;
             JSObject _GamePad;
             JSObject Buttons;
             using (var navigator = (JSObject)Runtime.GetGlobalObject("navigator"))
+            using (var Gamepads = (JSObject)navigator.Invoke("getGamepads"))
+            using (_GamePad = (JSObject)Gamepads.GetObjectProperty(DeviceID.ToString()))
             {
-                using (var Gamepads = (JSObject)navigator.Invoke("getGamepads"))
+                if (_GamePad != null)
                 {
-                    using (_GamePad = (JSObject)Gamepads.GetObjectProperty(DeviceID.ToString()))
+                    using (Buttons = (JSObject)_GamePad.GetObjectProperty("buttons"))
                     {
-                        if (_GamePad != null)
+                        return iButtonId switch
                         {
-                            using (Buttons = (JSObject)_GamePad.GetObjectProperty("buttons"))
-                            {
-                                switch (iButtonId)
-                                {
-                                    case 0:
-                                        retval = ((int)Buttons.GetObjectProperty("[0]")) == 0 ? false : true;
-                                        return retval;
-                                    case 1:
-                                        retval = ((int)Buttons.GetObjectProperty("[1]")) == 0 ? false : true;
-                                        return retval;
-                                    case 2:
-                                        retval = ((int)Buttons.GetObjectProperty("[2]")) == 0 ? false : true;
-                                        return retval;
-                                    case 3:
-                                        retval = ((int)Buttons.GetObjectProperty("[3]")) == 0 ? false : true;
-                                        return retval;
-                                    case 4:
-                                        retval = ((int)Buttons.GetObjectProperty("[4]")) == 0 ? false : true;
-                                        return retval;
-                                    case 5:
-                                        retval = ((int)Buttons.GetObjectProperty("[5]")) == 0 ? false : true;
-                                        return retval;
-                                    case 6:
-                                        retval = ((int)Buttons.GetObjectProperty("[6]")) == 0 ? false : true;
-                                        return retval;
-                                    case 7:
-                                        retval = ((int)Buttons.GetObjectProperty("[7]")) == 0 ? false : true;
-                                        return retval;
-                                    case 8:
-                                        retval = ((int)Buttons.GetObjectProperty("[8]")) == 0 ? false : true;
-                                        return retval;
-                                    case 9:
-                                        retval = ((int)Buttons.GetObjectProperty("[9]")) == 0 ? false : true;
-                                        return retval;
-                                    case 10:
-                                        retval = ((int)Buttons.GetObjectProperty("[10]")) == 0 ? false : true;
-                                        return retval;
-                                    case 11:
-                                        retval = ((int)Buttons.GetObjectProperty("[11]")) == 0 ? false : true;
-                                        return retval;
-                                    case 12:
-                                        retval = ((int)Buttons.GetObjectProperty("[12]")) == 0 ? false : true;
-                                        return retval;
-                                    case 13:
-                                        retval = ((int)Buttons.GetObjectProperty("[13]")) == 0 ? false : true;
-                                        return retval;
-                                }
-                                throw new InvalidOperationException($"Unsupported button {iButtonId}.");
-                            }
-                        }
+                            0 => ((int)Buttons.GetObjectProperty("[0]")) != 0,
+                            1 => ((int)Buttons.GetObjectProperty("[1]")) != 0,
+                            2 => ((int)Buttons.GetObjectProperty("[2]")) != 0,
+                            3 => ((int)Buttons.GetObjectProperty("[3]")) != 0,
+                            4 => ((int)Buttons.GetObjectProperty("[4]")) != 0,
+                            5 => ((int)Buttons.GetObjectProperty("[5]")) != 0,
+                            6 => ((int)Buttons.GetObjectProperty("[6]")) != 0,
+                            7 => ((int)Buttons.GetObjectProperty("[7]")) != 0,
+                            8 => ((int)Buttons.GetObjectProperty("[8]")) != 0,
+                            9 => ((int)Buttons.GetObjectProperty("[9]")) != 0,
+                            10 => ((int)Buttons.GetObjectProperty("[10]")) != 0,
+                            11 => ((int)Buttons.GetObjectProperty("[11]")) != 0,
+                            12 => ((int)Buttons.GetObjectProperty("[12]")) != 0,
+                            13 => ((int)Buttons.GetObjectProperty("[13]")) != 0,
+                            _ => throw new InvalidOperationException($"Unsupported button {iButtonId}."),
+                        };
                     }
                 }
             }
+
             return false;
         }
     }
@@ -565,18 +489,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
     public class KeyboardDeviceImp : IInputDeviceImp
     {
         private readonly Dictionary<int, ButtonDescription> _keyDescriptions;
-        private readonly JSObject _canvas;
 
         #region JS Connectors
 
-        // [JSExternal]
         private void ConnectCanvasEvents()
         {
-            using (var document = (JSObject)Runtime.GetGlobalObject("document"))
-            {
-                document.SetObjectProperty("onkeydown", new Action<JSObject>(evt => OnCanvasKeyDown((int)evt.GetObjectProperty("keyCode"))));
-                document.SetObjectProperty("onkeyup", new Action<JSObject>(evt => OnCanvasKeyUp((int)evt.GetObjectProperty("keyCode"))));
-            }
+            using var document = (JSObject)Runtime.GetGlobalObject("document");
+            document.SetObjectProperty("onkeydown", new Action<JSObject>(evt => OnCanvasKeyDown((int)evt.GetObjectProperty("keyCode"))));
+            document.SetObjectProperty("onkeyup", new Action<JSObject>(evt => OnCanvasKeyUp((int)evt.GetObjectProperty("keyCode"))));
         }
         #endregion
 
@@ -602,18 +522,18 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <summary>
         /// Should be called by the driver only.
         /// </summary>
-        /// <param name="canvas">The JavaScript canvas.</param>
-        internal KeyboardDeviceImp(JSObject canvas)
+        /// <param name="_">The JavaScript canvas.</param>
+        internal KeyboardDeviceImp(JSObject _)
         {
             _keyDescriptions = new Dictionary<int, ButtonDescription>();
             var enumName = Enum.GetNames(typeof(KeyCodes)).GetEnumerator();
             var enumValue = Enum.GetValues(typeof(KeyCodes)).GetEnumerator();
-            while (enumValue.MoveNext() & enumName.MoveNext())
+
+            while (enumValue.MoveNext() && enumName.MoveNext())
             {
                 _keyDescriptions[(int)enumValue.Current] = new ButtonDescription { Id = (int)enumValue.Current, Name = (string)enumName.Current };
             }
 
-            _canvas = canvas;
             ConnectCanvasEvents();
         }
 
@@ -660,8 +580,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public string Desc => "Standard WebAsm Keyboard implementation.";
 
         /// <summary>
-        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the 
-        /// full class name (including namespace).
+        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the
+        /// full class name (including name space).
         /// </summary>
         public string Id => GetType().FullName;
 
@@ -706,7 +626,6 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         private float _currentMouseWheel;
 
         #region JSExternals
-        // [JSExternal]
         private void ConnectCanvasEvents()
         {
             _canvas.SetObjectProperty("onmousedown", new Action<JSObject>(evt => OnCanvasMouseDown((int)evt.GetObjectProperty("button"))));
@@ -718,8 +637,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             // var FU_is_edge = navigator.appVersion.toLowerCase().indexOf('edge') > -1;
             // var FU_is_firefox = !FU_is_edge && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
             //        // Firefox reports event.deltaY == 3 and deltaMode == 1 (DOM_DELTA_LINE)
-            //        // Edge reports event.deltaY == 256 and deltaMode == 0 (DOM_DELTA_PIXEL) 
-            //        // Chrome reports event.deltaY == 100 and deltaMode == 0 (DOM_DELTA_PIXEL) 
+            //        // Edge reports event.deltaY == 256 and deltaMode == 0 (DOM_DELTA_PIXEL)
+            //        // Chrome reports event.deltaY == 100 and deltaMode == 0 (DOM_DELTA_PIXEL)
             //        var _pixelsPerLine = 33;
             //var _browserFactor = (FU_is_edge) ? (100.0 / 256.0) : 1;
 
@@ -738,14 +657,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         private float GetWindowWidth()
         {
-            using (var w = (JSObject)Runtime.GetGlobalObject("window"))
-                return (int)w.GetObjectProperty("innerWidth");
+            using var w = (JSObject)Runtime.GetGlobalObject("window");
+            return (int)w.GetObjectProperty("innerWidth");
         }
 
         private float GetWindowHeight()
         {
-            using (var w = (JSObject)Runtime.GetGlobalObject("window"))
-                return (int)w.GetObjectProperty("innerHeight");
+            using var w = (JSObject)Runtime.GetGlobalObject("window");
+            return (int)w.GetObjectProperty("innerHeight");
         }
         #endregion
 
@@ -1008,8 +927,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public string Desc => "WebAsm standard Mouse implementation.";
 
         /// <summary>
-        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the 
-        /// full class name (including namespace).
+        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the
+        /// full class name (including name space).
         /// </summary>
         public string Id => GetType().FullName;
 
@@ -1065,7 +984,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
     /// <summary>
     /// Touch input device implementation for the Web platforms. This implementation uses the HTML5 touch api
-    /// which doesn't seem to provide a value how many simultaneous touchpoints are supported. Thus we 
+    /// which doesn't seem to provide a value how many simultaneous touchpoints are supported. Thus we
     /// assume 5.
     /// </summary>
     public class TouchDeviceImp : IInputDeviceImp
@@ -1083,16 +1002,13 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns></returns>
         public static float P2F(object o)
         {
-            switch (o)
+            return o switch
             {
-                case double d:
-                    return (float)d;
-                case int i:
-                    return i;
-                case string s:
-                    return float.Parse(s);
-            }
-            return 0;
+                double d => (float)d,
+                int i => i,
+                string s => float.Parse(s),
+                _ => 0,
+            };
         }
 
 
@@ -1100,74 +1016,62 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         private void ConnectCanvasEvents()
         {
             _canvas.Invoke("addEventListener", new object[] { "touchstart", new Action<JSObject>(
-                delegate(JSObject evt)
-                {
+                (JSObject evt) => {
                     evt.Invoke("preventDefault");
-                    using(var touches = (JSObject) evt.GetObjectProperty("changedTouches"))
-                    {
-                        var nTouches = touches.Length;
+                    using var touches = (JSObject) evt.GetObjectProperty("changedTouches"); var nTouches = touches.Length;
                         for (var i = 0; i < nTouches; i++)
                         {
-                            using(var touch = (JSObject) touches.GetObjectProperty(i.ToString()))
-                            {
-                                OnCanvasTouchStart((int)touch.GetObjectProperty("identifier"), P2F(touch.GetObjectProperty("pageX")), P2F(touch.GetObjectProperty("pageY")));
-                            }
+                            using var touch = (JSObject) touches.GetObjectProperty(i.ToString());
+                            OnCanvasTouchStart(
+                                (int)touch.GetObjectProperty("identifier"),
+                                P2F(touch.GetObjectProperty("pageX")),
+                                P2F(touch.GetObjectProperty("pageY")));
                         }
-                    }
                 }
             )});
 
             _canvas.Invoke("addEventListener", new object[] { "touchmove", new Action<JSObject>(
-                delegate(JSObject evt)
-                {
+                (JSObject evt) => {
                     evt.Invoke("preventDefault");
-                    using(var touches = (JSObject) evt.GetObjectProperty("changedTouches"))
-                    {
-                        var nTouches = touches.Length;
+                    using var touches = (JSObject) evt.GetObjectProperty("changedTouches"); var nTouches = touches.Length;
                         for (var i = 0; i < nTouches; i++)
                         {
-                            using(var touch = (JSObject) touches.GetObjectProperty(i.ToString()))
-                            {
-                                OnCanvasTouchMove((int)touch.GetObjectProperty("identifier"), P2F(touch.GetObjectProperty("pageX")), P2F(touch.GetObjectProperty("pageY")));
-                            }
+                            using var touch = (JSObject) touches.GetObjectProperty(i.ToString());
+                        OnCanvasTouchMove(
+                            (int)touch.GetObjectProperty("identifier"),
+                            P2F(touch.GetObjectProperty("pageX")),
+                            P2F(touch.GetObjectProperty("pageY")));
                         }
-                    }
                 }
             )});
 
             _canvas.Invoke("addEventListener", new object[] { "touchend", new Action<JSObject>(
-                delegate(JSObject evt)
-                {
+                (JSObject evt) => {
                     evt.Invoke("preventDefault");
-                    using (var touches = (JSObject) evt.GetObjectProperty("changedTouches"))
-                    {
-                        var nTouches = touches.Length;
+                    using var touches = (JSObject) evt.GetObjectProperty("changedTouches"); var nTouches = touches.Length;
                         for (var i = 0; i < nTouches; i++)
                         {
-                            using(var touch = (JSObject) touches.GetObjectProperty(i.ToString()))
-                            {
-                                OnCanvasTouchEnd((int)touch.GetObjectProperty("identifier"), P2F(touch.GetObjectProperty("pageX")), P2F(touch.GetObjectProperty("pageY")));
-                            }
+                            using var touch = (JSObject) touches.GetObjectProperty(i.ToString());
+                        OnCanvasTouchEnd(
+                            (int)touch.GetObjectProperty("identifier"),
+                            P2F(touch.GetObjectProperty("pageX")),
+                            P2F(touch.GetObjectProperty("pageY")));
                         }
-                    }
                 }
             )});
 
             _canvas.Invoke("addEventListener", new object[] { "touchcancel", new Action<JSObject>(
-                delegate(JSObject evt)
-                {
+                (JSObject evt) => {
                     evt.Invoke("preventDefault");
-                    using (var touches = (JSObject) evt.GetObjectProperty("changedTouches"))
-                    {
-                        var nTouches = touches.Length;
+                    using var touches = (JSObject) evt.GetObjectProperty("changedTouches"); var nTouches = touches.Length;
                         for (var i = 0; i < nTouches; i++)
                         {
-                            using(var touch = (JSObject) touches.GetObjectProperty(i.ToString()))
-                            {
-                                OnCanvasTouchCancel((int)touch.GetObjectProperty("identifier"), P2F(touch.GetObjectProperty("pageX")), P2F(touch.GetObjectProperty("pageY")));
-                            }
+                            using var touch = (JSObject) touches.GetObjectProperty(i.ToString());
+                        OnCanvasTouchCancel(
+                            (int)touch.GetObjectProperty("identifier"),
+                            P2F(touch.GetObjectProperty("pageX")),
+                            P2F(touch.GetObjectProperty("pageY")));
                         }
-                    }
                 }
             )});
         }
@@ -1175,14 +1079,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         private float GetWindowWidth()
         {
-            using (var w = (JSObject)Runtime.GetGlobalObject("window"))
-                return (int)w.GetObjectProperty("innerWidth");
+            using var w = (JSObject)Runtime.GetGlobalObject("window");
+            return (int)w.GetObjectProperty("innerWidth");
         }
 
         private float GetWindowHeight()
         {
-            using (var w = (JSObject)Runtime.GetGlobalObject("window"))
-                return (int)w.GetObjectProperty("innerHeight");
+            using var w = (JSObject)Runtime.GetGlobalObject("window");
+            return (int)w.GetObjectProperty("innerHeight");
         }
         #endregion
 
@@ -1191,8 +1095,10 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             get
             {
                 for (var i = 0; i < _nTouchPointsSupported; i++)
+                {
                     if (!_activeTouchpoints.Values.Contains(i))
                         return i;
+                }
 
                 return -1;
             }
@@ -1210,8 +1116,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             _activeTouchpoints[id] = inx;
             ButtonValueChanged?.Invoke(this, new ButtonValueChangedArgs { Button = _tpButtonDescs[(int)TouchPoints.Touchpoint_0 + inx].ButtonDesc, Pressed = true });
-            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_X + 2 * inx].AxisDesc, Value = x });
-            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_Y + 2 * inx].AxisDesc, Value = y });
+            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_X + (2 * inx)].AxisDesc, Value = x });
+            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_Y + (2 * inx)].AxisDesc, Value = y });
         }
 
         internal void OnCanvasTouchMove(int id, float x, float y)
@@ -1219,19 +1125,20 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             if (!_activeTouchpoints.TryGetValue(id, out var inx))
                 return;
 
-            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_X + 2 * inx].AxisDesc, Value = x });
-            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_Y + 2 * inx].AxisDesc, Value = y });
+            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_X + (2 * inx)].AxisDesc, Value = x });
+            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_Y + (2 * inx)].AxisDesc, Value = y });
         }
         internal void OnCanvasTouchEnd(int id, float x, float y)
         {
             if (!_activeTouchpoints.TryGetValue(id, out var inx))
                 return;
 
-            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_X + 2 * inx].AxisDesc, Value = x });
-            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_Y + 2 * inx].AxisDesc, Value = y });
+            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_X + (2 * inx)].AxisDesc, Value = x });
+            AxisValueChanged?.Invoke(this, new AxisValueChangedArgs { Axis = _tpAxisDescs[(int)TouchAxes.Touchpoint_0_Y + (2 * inx)].AxisDesc, Value = y });
             ButtonValueChanged?.Invoke(this, new ButtonValueChangedArgs { Button = _tpButtonDescs[(int)TouchPoints.Touchpoint_0 + inx].ButtonDesc, Pressed = false });
             _activeTouchpoints.Remove(id);
         }
+
         internal void OnCanvasTouchCancel(int id, float x, float y)
         {
             if (!_activeTouchpoints.TryGetValue(id, out var inx))
@@ -1249,14 +1156,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             _canvas = canvas;
             ConnectCanvasEvents();
-            _tpAxisDescs = new Dictionary<int, AxisImpDescription>(_nTouchPointsSupported * 2 + 5);
+            _tpAxisDescs = new Dictionary<int, AxisImpDescription>((_nTouchPointsSupported * 2) + 5);
             _activeTouchpoints = new Dictionary<int, int>(_nTouchPointsSupported);
 
             _tpAxisDescs[(int)TouchAxes.ActiveTouchpoints] = new AxisImpDescription
             {
                 AxisDesc = new AxisDescription
                 {
-                    Name = $"Active Touchpoints",
+                    Name = "Active Touchpoints",
                     Id = (int)TouchAxes.ActiveTouchpoints,
                     Direction = AxisDirection.Unknown,
                     Nature = AxisNature.Unknown,
@@ -1323,7 +1230,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             for (var i = 0; i < _nTouchPointsSupported; i++)
             {
-                var id = 2 * i + (int)TouchAxes.Touchpoint_0_X;
+                var id = (2 * i) + (int)TouchAxes.Touchpoint_0_X;
                 _tpAxisDescs[id] = new AxisImpDescription
                 {
                     AxisDesc = new AxisDescription
@@ -1377,7 +1284,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public string Desc => "Web browser standard Touch implementation.";
 
         /// <summary>
-        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the 
+        /// Returns a (hopefully) unique ID for this driver. Uniqueness is granted by using the
         /// full class name (including namespace).
         /// </summary>
         public string Id => GetType().FullName;
@@ -1398,14 +1305,14 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// </summary>
         public DeviceCategory Category => DeviceCategory.Touch;
         /// <summary>
-        /// Returns the number of axes. Up to five touchpoints (with two axes (X and Y) per Touchpoint plus 
+        /// Returns the number of axes. Up to five touchpoints (with two axes (X and Y) per touchpoint plus
         /// one axis carrying the number of currently touched touchpoints plus four axes describing the minimum and
         /// maximum X and Y values.
         /// </summary>
         /// <value>
         /// The axes count.
         /// </value>
-        public int AxesCount => _nTouchPointsSupported * 2 + 5;
+        public int AxesCount => (_nTouchPointsSupported * 2) + 5;
 
         /// <summary>
         /// Returns description information for all axes.
@@ -1420,20 +1327,15 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>The value at the given axis.</returns>
         public float GetAxis(int iAxisId)
         {
-            switch (iAxisId)
+            return iAxisId switch
             {
-                case (int)TouchAxes.ActiveTouchpoints:
-                    return _activeTouchpoints.Count;
-                case (int)TouchAxes.MinX:
-                    return 0;
-                case (int)TouchAxes.MaxX:
-                    return GetWindowWidth();
-                case (int)TouchAxes.MinY:
-                    return 0;
-                case (int)TouchAxes.MaxY:
-                    return GetWindowHeight();
-            }
-            throw new InvalidOperationException($"Unknown axis {iAxisId}.  Probably an event based axis or unsupported by this device.");
+                (int)TouchAxes.ActiveTouchpoints => _activeTouchpoints.Count,
+                (int)TouchAxes.MinX => 0,
+                (int)TouchAxes.MaxX => GetWindowWidth(),
+                (int)TouchAxes.MinY => 0,
+                (int)TouchAxes.MaxY => GetWindowHeight(),
+                _ => throw new InvalidOperationException($"Unknown axis {iAxisId}.  Probably an event based axis or unsupported by this device."),
+            };
         }
 
         /// <summary>

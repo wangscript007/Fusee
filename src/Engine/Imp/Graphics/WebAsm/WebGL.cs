@@ -46,7 +46,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             get => (bool)Handle.GetObjectProperty("preferLowPowerToHighPerformance");
             set => Handle.SetObjectProperty("preferLowPowerToHighPerformance", value);
-        }    
+        }
 
         public bool FailIfMajorPerformanceCaveat
         {
@@ -717,320 +717,781 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         public const uint BROWSER_DEFAULT_WEBGL = 0x9244;
 
-        public object Canvas => (object)Handle.GetObjectProperty("canvas");
+        public object Canvas => Handle.GetObjectProperty("canvas");
 
         public int DrawingBufferWidth => (int)Handle.GetObjectProperty("drawingBufferWidth");
 
         public int DrawingBufferHeight => (int)Handle.GetObjectProperty("drawingBufferHeight");
 
-        public WebGLContextAttributes GetContextAttributes() => Invoke<WebGLContextAttributes>("getContextAttributes");
-
-        public bool IsContextLost() => InvokeForBasicType<bool>("isContextLost");
-
-        public string[] GetSupportedExtensions() => InvokeForArray<string>("getSupportedExtensions");
-
-        public object GetExtension(string name) => Invoke("getExtension", name);
-
-        public void ActiveTexture(uint texture) => Invoke("activeTexture", texture);
-
-        public void AttachShader(WebGLProgram program, WebGLShader shader) => Invoke("attachShader", program, shader);
-
-        public void BindAttribLocation(WebGLProgram program, uint index, string name) => Invoke("bindAttribLocation", program, index, name);
-
-        public void BindBuffer(uint target, WebGLBuffer buffer) => Invoke("bindBuffer", target, buffer);
-
-        public void BindFramebuffer(uint target, WebGLFramebuffer framebuffer) => Invoke("bindFramebuffer", target, framebuffer);
-
-        public void BindRenderbuffer(uint target, WebGLRenderbuffer renderbuffer) => Invoke("bindRenderbuffer", target, renderbuffer);
-
-        public void BindTexture(uint target, WebGLTexture texture) => Invoke("bindTexture", target, texture);
-
-        public void BlendColor(float red, float green, float blue, float alpha) => Invoke("blendColor", red, green, blue, alpha);
-
-        public void BlendEquation(uint mode) => Invoke("blendEquation", mode);
-
-        public void BlendEquationSeparate(uint modeRGB, uint modeAlpha) => Invoke("blendEquationSeparate", modeRGB, modeAlpha);
-
-        public void BlendFunc(uint sfactor, uint dfactor) => Invoke("blendFunc", sfactor, dfactor);
-
-        public void BlendFuncSeparate(uint srcRGB, uint dstRGB, uint srcAlpha, uint dstAlpha) => Invoke("blendFuncSeparate", srcRGB, dstRGB, srcAlpha, dstAlpha);
-
-        public void BufferData(uint target, double size, uint usage) => Invoke("bufferData", target, size, usage);
-
-        public void BufferData(uint target, System.Array data, uint usage) => Invoke("bufferData", target, data, usage);
-
-        public void BufferSubData(uint target, uint offset, System.Array data) => Invoke("bufferSubData", target, offset, data);
-
-        public uint CheckFramebufferStatus(uint target) => (uint)InvokeForBasicType<int>("checkFramebufferStatus", target);
-
-        public void Clear(uint mask) => Invoke("clear", mask);
-
-        public void ClearColor(float red, float green, float blue, float alpha) => Invoke("clearColor", red, green, blue, alpha);
-
-        public void ClearDepth(float depth) => Invoke("clearDepth", depth);
-
-        public void ClearStencil(int s) => Invoke("clearStencil", s);
-
-        public void ColorMask(bool red, bool green, bool blue, bool alpha) => Invoke("colorMask", red, green, blue, alpha);
-
-        public void CompileShader(WebGLShader shader) => Invoke("compileShader", shader);
-
-        public void CompressedTexImage2D(uint target, int level, uint internalformat, int width, int height, int border, ITypedArray data) => Invoke("compressedTexImage2D", target, level, internalformat, width, height, border, data);
-
-        public void CompressedTexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, ITypedArray data) => Invoke("compressedTexSubImage2D", target, level, xoffset, yoffset, width, height, format, data);
-
-        public void CopyTexImage2D(uint target, int level, uint internalformat, int x, int y, int width, int height, int border) => Invoke("copyTexImage2D", target, level, internalformat, x, y, width, height, border);
-
-        public void CopyTexSubImage2D(uint target, int level, int xoffset, int yoffset, int x, int y, int width, int height) => Invoke("copyTexSubImage2D", target, level, xoffset, yoffset, x, y, width, height);
-
-        public WebGLBuffer CreateBuffer() => Invoke<WebGLBuffer>("createBuffer");
-
-        public WebGLFramebuffer CreateFramebuffer() => Invoke<WebGLFramebuffer>("createFramebuffer");
-
-        public WebGLProgram CreateProgram() => Invoke<WebGLProgram>("createProgram");
-
-        public WebGLRenderbuffer CreateRenderbuffer() => Invoke<WebGLRenderbuffer>("createRenderbuffer");
-
-        public WebGLShader CreateShader(uint type) => Invoke<WebGLShader>("createShader", type);
-
-        public WebGLTexture CreateTexture() => Invoke<WebGLTexture>("createTexture");
-
-        public void CullFace(uint mode) => Invoke("cullFace", mode);
-
-        public void DeleteBuffer(WebGLBuffer buffer) => Invoke("deleteBuffer", buffer);
-
-        public void DeleteFramebuffer(WebGLFramebuffer framebuffer) => Invoke("deleteFramebuffer", framebuffer);
-
-        public void DeleteProgram(WebGLProgram program) => Invoke("deleteProgram", program);
-
-        public void DeleteRenderbuffer(WebGLRenderbuffer renderbuffer) => Invoke("deleteRenderbuffer", renderbuffer);
-
-        public void DeleteShader(WebGLShader shader) => Invoke("deleteShader", shader);
-
-        public void DeleteTexture(WebGLTexture texture) => Invoke("deleteTexture", texture);
-
-        public void DepthFunc(uint func) => Invoke("depthFunc", func);
-
-        public void DepthMask(bool flag) => Invoke("depthMask", flag);
-
-        public void DepthRange(float zNear, float zFar) => Invoke("depthRange", zNear, zFar);
-
-        public void DetachShader(WebGLProgram program, WebGLShader shader) => Invoke("detachShader", program, shader);
-
-        public void Disable(uint cap) => Invoke("disable", cap);
-
-        public void DisableVertexAttribArray(uint index) => Invoke("disableVertexAttribArray", index);
-
-        public void DrawArrays(uint mode, int first, int count) => Invoke("drawArrays", mode, first, count);
-
-        public void DrawElements(uint mode, int count, uint type, uint offset) => Invoke("drawElements", mode, count, type, offset);
-
-        public void Enable(uint cap) => Invoke("enable", cap);
-
-        public void EnableVertexAttribArray(uint index) => Invoke("enableVertexAttribArray", index);
-
-        public void Finish() => Invoke("finish");
-
-        public void Flush() => Invoke("flush");
-
-        public void FramebufferRenderbuffer(uint target, uint attachment, uint renderbuffertarget, WebGLRenderbuffer renderbuffer) => Invoke("framebufferRenderbuffer", target, attachment, renderbuffertarget, renderbuffer);
-
-        public void FramebufferTexture2D(uint target, uint attachment, uint textarget, WebGLTexture texture, int level) => Invoke("framebufferTexture2D", target, attachment, textarget, texture, level);
-
-        public void FrontFace(uint mode) => Invoke("frontFace", mode);
-
-        public void GenerateMipmap(uint target) => Invoke("generateMipmap", target);
-
-        public WebGLActiveInfo GetActiveAttrib(WebGLProgram program, uint index) => Invoke<WebGLActiveInfo>("getActiveAttrib", program, index);
-
-        public WebGLActiveInfo GetActiveUniform(WebGLProgram program, uint index) => Invoke<WebGLActiveInfo>("getActiveUniform", program, index);
-
-        public WebGLShader[] GetAttachedShaders(WebGLProgram program) => InvokeForJavaScriptArray<WebGLShader>("getAttachedShaders", program);
-
-        public int GetAttribLocation(WebGLProgram program, string name) => InvokeForBasicType<int>("getAttribLocation", program, name);
-
-        public object GetBufferParameter(uint target, uint pname) => Invoke("getBufferParameter", target, pname);
-
-        public object GetParameter(uint pname) => Invoke("getParameter", pname);
-
-        public uint GetError() => (uint)InvokeForBasicType<int>("getError");
-
-        public object GetFramebufferAttachmentParameter(uint target, uint attachment, uint pname) => Invoke("getFramebufferAttachmentParameter", target, attachment, pname);
-
-        public object GetProgramParameter(WebGLProgram program, uint pname) => Invoke("getProgramParameter", program, pname);
-
-        public string GetProgramInfoLog(WebGLProgram program) => InvokeForBasicType<string>("getProgramInfoLog", program);
-
-        public object GetRenderbufferParameter(uint target, uint pname) => Invoke("getRenderbufferParameter", target, pname);
-
-        public object GetShaderParameter(WebGLShader shader, uint pname) => Invoke("getShaderParameter", shader, pname);
-
-        public WebGLShaderPrecisionFormat GetShaderPrecisionFormat(uint shadertype, uint precisiontype) => Invoke<WebGLShaderPrecisionFormat>("getShaderPrecisionFormat", shadertype, precisiontype);
-
-        public string GetShaderInfoLog(WebGLShader shader) => InvokeForBasicType<string>("getShaderInfoLog", shader);
-
-        public string GetShaderSource(WebGLShader shader) => InvokeForBasicType<string>("getShaderSource", shader);
-
-        public object GetTexParameter(uint target, uint pname) => Invoke("getTexParameter", target, pname);
-
-        public object GetUniform(WebGLProgram program, WebGLUniformLocation location) => Invoke("getUniform", program, location);
-
-        public WebGLUniformLocation GetUniformLocation(WebGLProgram program, string name) => Invoke<WebGLUniformLocation>("getUniformLocation", program, name);
-
-        public object GetVertexAttrib(uint index, uint pname) => Invoke("getVertexAttrib", index, pname);
-
-        public double GetVertexAttribOffset(uint index, uint pname) => InvokeForBasicType<double>("getVertexAttribOffset", index, pname);
-
-        public void Hint(uint target, uint mode) => Invoke("hint", target, mode);
-
-        public bool IsBuffer(WebGLBuffer buffer) => InvokeForBasicType<bool>("isBuffer", buffer);
-
-        public bool IsEnabled(uint cap) => InvokeForBasicType<bool>("isEnabled", cap);
-
-        public bool IsFramebuffer(WebGLFramebuffer framebuffer) => InvokeForBasicType<bool>("isFramebuffer", framebuffer);
-
-        public bool IsProgram(WebGLProgram program) => InvokeForBasicType<bool>("isProgram", program);
-
-        public bool IsRenderbuffer(WebGLRenderbuffer renderbuffer) => InvokeForBasicType<bool>("isRenderbuffer", renderbuffer);
-
-        public bool IsShader(WebGLShader shader) => InvokeForBasicType<bool>("isShader", shader);
-
-        public bool IsTexture(WebGLTexture texture) => InvokeForBasicType<bool>("isTexture", texture);
-
-        public void LineWidth(float width) => Invoke("lineWidth", width);
-
-        public void LinkProgram(WebGLProgram program) => Invoke("linkProgram", program);
-
-        public void PixelStorei(uint pname, int param) => Invoke("pixelStorei", pname, param);
-
-        public void PolygonOffset(float factor, float units) => Invoke("polygonOffset", factor, units);
-
-        public void ReadPixels(int x, int y, int width, int height, uint format, uint type, ITypedArray pixels) => Invoke("readPixels", x, y, width, height, format, type, pixels);
-
-        public void RenderbufferStorage(uint target, uint internalformat, int width, int height) => Invoke("renderbufferStorage", target, internalformat, width, height);
-
-        public void SampleCoverage(float value, bool invert) => Invoke("sampleCoverage", value, invert);
-
-        public void Scissor(int x, int y, int width, int height) => Invoke("scissor", x, y, width, height);
-
-        public void ShaderSource(WebGLShader shader, string source) => Invoke("shaderSource", shader, source);
-
-        public void StencilFunc(uint func, int @ref, uint mask) => Invoke("stencilFunc", func, @ref, mask);
-
-        public void StencilFuncSeparate(uint face, uint func, int @ref, uint mask) => Invoke("stencilFuncSeparate", face, func, @ref, mask);
-
-        public void StencilMask(uint mask) => Invoke("stencilMask", mask);
-
-        public void StencilMaskSeparate(uint face, uint mask) => Invoke("stencilMaskSeparate", face, mask);
-
-        public void StencilOp(uint fail, uint zfail, uint zpass) => Invoke("stencilOp", fail, zfail, zpass);
-
-        public void StencilOpSeparate(uint face, uint fail, uint zfail, uint zpass) => Invoke("stencilOpSeparate", face, fail, zfail, zpass);
-
-        public void TexImage2D(uint target, int level, uint internalformat, int width, int height, int border, uint format, uint type, ITypedArray pixels) => Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, pixels);
-
-        public void TexImage2D(uint target, int level, uint internalformat, uint format, uint type, object source) => Invoke("texImage2D", target, level, internalformat, format, type, source);
-
-        public void TexParameterf(uint target, uint pname, float param) => Invoke("texParameterf", target, pname, param);
-
-        public void TexParameteri(uint target, uint pname, int param) => Invoke("texParameteri", target, pname, param);
-
-        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, ITypedArray pixels) => Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, pixels);
-
-        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, uint format, uint type, object source) => Invoke("texSubImage2D", target, level, xoffset, yoffset, format, type, source);
-
-        public void Uniform1f(WebGLUniformLocation location, float x) => Invoke("uniform1f", location, x);
-
-        public void Uniform1fv(WebGLUniformLocation location, Float32Array v) => Invoke("uniform1fv", location, v);
-
-        public void Uniform1fv(WebGLUniformLocation location, float[] v) => Invoke("uniform1fv", location, v);
-
-        public void Uniform1i(WebGLUniformLocation location, int x) => Invoke("uniform1i", location, x);
-
-        public void Uniform1iv(WebGLUniformLocation location, Int32Array v) => Invoke("uniform1iv", location, v);
-
-        public void Uniform1iv(WebGLUniformLocation location, long[] v) => Invoke("uniform1iv", location, v);
-
-        public void Uniform2f(WebGLUniformLocation location, float x, float y) => Invoke("uniform2f", location, x, y);
-
-        public void Uniform2fv(WebGLUniformLocation location, Float32Array v) => Invoke("uniform2fv", location, v);
-
-        public void Uniform2fv(WebGLUniformLocation location, float[] v) => Invoke("uniform2fv", location, v);
-
-        public void Uniform2i(WebGLUniformLocation location, int x, int y) => Invoke("uniform2i", location, x, y);
-
-        public void Uniform2iv(WebGLUniformLocation location, Int32Array v) => Invoke("uniform2iv", location, v);
-
-        public void Uniform2iv(WebGLUniformLocation location, long[] v) => Invoke("uniform2iv", location, v);
-
-        public void Uniform3f(WebGLUniformLocation location, float x, float y, float z) => Invoke("uniform3f", location, x, y, z);
-
-        public void Uniform3fv(WebGLUniformLocation location, Float32Array v) => Invoke("uniform3fv", location, v);
-
-        public void Uniform3fv(WebGLUniformLocation location, float[] v) => Invoke("uniform3fv", location, v);
-
-        public void Uniform3i(WebGLUniformLocation location, int x, int y, int z) => Invoke("uniform3i", location, x, y, z);
-
-        public void Uniform3iv(WebGLUniformLocation location, Int32Array v) => Invoke("uniform3iv", location, v);
-
-        public void Uniform3iv(WebGLUniformLocation location, long[] v) => Invoke("uniform3iv", location, v);
-
-        public void Uniform4f(WebGLUniformLocation location, float x, float y, float z, float w) => Invoke("uniform4f", location, x, y, z, w);
-
-        public void Uniform4fv(WebGLUniformLocation location, Float32Array v) => Invoke("uniform4fv", location, v);
-
-        public void Uniform4fv(WebGLUniformLocation location, float[] v) => Invoke("uniform4fv", location, v);
-
-        public void Uniform4i(WebGLUniformLocation location, int x, int y, int z, int w) => Invoke("uniform4i", location, x, y, z, w);
-
-        public void Uniform4iv(WebGLUniformLocation location, Int32Array v) => Invoke("uniform4iv", location, v);
-
-        public void Uniform4iv(WebGLUniformLocation location, long[] v) => Invoke("uniform4iv", location, v);
-
-        public void UniformMatrix2fv(WebGLUniformLocation location, bool transpose, Float32Array value) => Invoke("uniformMatrix2fv", location, transpose, value);
-
-        public void UniformMatrix2fv(WebGLUniformLocation location, bool transpose, float[] value) => Invoke("uniformMatrix2fv", location, transpose, value);
-
-        public void UniformMatrix3fv(WebGLUniformLocation location, bool transpose, Float32Array value) => Invoke("uniformMatrix3fv", location, transpose, value);
-
-        public void UniformMatrix3fv(WebGLUniformLocation location, bool transpose, float[] value) => Invoke("uniformMatrix3fv", location, transpose, value);
-
-        public void UniformMatrix4fv(WebGLUniformLocation location, bool transpose, Float32Array value) => Invoke("uniformMatrix4fv", location, transpose, value);
-
-        public void UniformMatrix4fv(WebGLUniformLocation location, bool transpose, float[] value) => Invoke("uniformMatrix4fv", location, transpose, value);
-
-        public void UseProgram(WebGLProgram program) => Invoke("useProgram", program);
-
-        public void ValidateProgram(WebGLProgram program) => Invoke("validateProgram", program);
-
-        public void VertexAttrib1f(uint indx, float x) => Invoke("vertexAttrib1f", indx, x);
-
-        public void VertexAttrib1fv(uint indx, Float32Array values) => Invoke("vertexAttrib1fv", indx, values);
-
-        public void VertexAttrib1fv(uint indx, float[] values) => Invoke("vertexAttrib1fv", indx, values);
-
-        public void VertexAttrib2f(uint indx, float x, float y) => Invoke("vertexAttrib2f", indx, x, y);
-
-        public void VertexAttrib2fv(uint indx, Float32Array values) => Invoke("vertexAttrib2fv", indx, values);
-
-        public void VertexAttrib2fv(uint indx, float[] values) => Invoke("vertexAttrib2fv", indx, values);
-
-        public void VertexAttrib3f(uint indx, float x, float y, float z) => Invoke("vertexAttrib3f", indx, x, y, z);
-
-        public void VertexAttrib3fv(uint indx, Float32Array values) => Invoke("vertexAttrib3fv", indx, values);
-
-        public void VertexAttrib3fv(uint indx, float[] values) => Invoke("vertexAttrib3fv", indx, values);
-
-        public void VertexAttrib4f(uint indx, float x, float y, float z, float w) => Invoke("vertexAttrib4f", indx, x, y, z, w);
-
-        public void VertexAttrib4fv(uint indx, Float32Array values) => Invoke("vertexAttrib4fv", indx, values);
-
-        public void VertexAttrib4fv(uint indx, float[] values) => Invoke("vertexAttrib4fv", indx, values);
-
-        public void VertexAttribPointer(uint indx, int size, uint type, bool normalized, int stride, uint offset) => Invoke("vertexAttribPointer", indx, size, type, normalized, stride, offset);
-
-        public void Viewport(int x, int y, int width, int height) => Invoke("viewport", x, y, width, height);
-
+        public WebGLContextAttributes GetContextAttributes()
+        {
+            return Invoke<WebGLContextAttributes>("getContextAttributes");
+        }
+
+        public bool IsContextLost()
+        {
+            return InvokeForBasicType<bool>("isContextLost");
+        }
+
+        public string[] GetSupportedExtensions()
+        {
+            return InvokeForArray<string>("getSupportedExtensions");
+        }
+
+        public object GetExtension(string name)
+        {
+            return Invoke("getExtension", name);
+        }
+
+        public void ActiveTexture(uint texture)
+        {
+            Invoke("activeTexture", texture);
+        }
+
+        public void AttachShader(WebGLProgram program, WebGLShader shader)
+        {
+            Invoke("attachShader", program, shader);
+        }
+
+        public void BindAttribLocation(WebGLProgram program, uint index, string name)
+        {
+            Invoke("bindAttribLocation", program, index, name);
+        }
+
+        public void BindBuffer(uint target, WebGLBuffer buffer)
+        {
+            Invoke("bindBuffer", target, buffer);
+        }
+
+        public void BindFramebuffer(uint target, WebGLFramebuffer framebuffer)
+        {
+            Invoke("bindFramebuffer", target, framebuffer);
+        }
+
+        public void BindRenderbuffer(uint target, WebGLRenderbuffer renderbuffer)
+        {
+            Invoke("bindRenderbuffer", target, renderbuffer);
+        }
+
+        public void BindTexture(uint target, WebGLTexture texture)
+        {
+            Invoke("bindTexture", target, texture);
+        }
+
+        public void BlendColor(float red, float green, float blue, float alpha)
+        {
+            Invoke("blendColor", red, green, blue, alpha);
+        }
+
+        public void BlendEquation(uint mode)
+        {
+            Invoke("blendEquation", mode);
+        }
+
+        public void BlendEquationSeparate(uint modeRGB, uint modeAlpha)
+        {
+            Invoke("blendEquationSeparate", modeRGB, modeAlpha);
+        }
+
+        public void BlendFunc(uint sfactor, uint dfactor)
+        {
+            Invoke("blendFunc", sfactor, dfactor);
+        }
+
+        public void BlendFuncSeparate(uint srcRGB, uint dstRGB, uint srcAlpha, uint dstAlpha)
+        {
+            Invoke("blendFuncSeparate", srcRGB, dstRGB, srcAlpha, dstAlpha);
+        }
+
+        public void BufferData(uint target, double size, uint usage)
+        {
+            Invoke("bufferData", target, size, usage);
+        }
+
+        public void BufferData(uint target, System.Array data, uint usage)
+        {
+            Invoke("bufferData", target, data, usage);
+        }
+
+        public void BufferSubData(uint target, uint offset, System.Array data)
+        {
+            Invoke("bufferSubData", target, offset, data);
+        }
+
+        public uint CheckFramebufferStatus(uint target)
+        {
+            return (uint)InvokeForBasicType<int>("checkFramebufferStatus", target);
+        }
+
+        public void Clear(uint mask)
+        {
+            Invoke("clear", mask);
+        }
+
+        public void ClearColor(float red, float green, float blue, float alpha)
+        {
+            Invoke("clearColor", red, green, blue, alpha);
+        }
+
+        public void ClearDepth(float depth)
+        {
+            Invoke("clearDepth", depth);
+        }
+
+        public void ClearStencil(int s)
+        {
+            Invoke("clearStencil", s);
+        }
+
+        public void ColorMask(bool red, bool green, bool blue, bool alpha)
+        {
+            Invoke("colorMask", red, green, blue, alpha);
+        }
+
+        public void CompileShader(WebGLShader shader)
+        {
+            Invoke("compileShader", shader);
+        }
+
+        public void CompressedTexImage2D(uint target, int level, uint internalformat, int width, int height, int border, ITypedArray data)
+        {
+            Invoke("compressedTexImage2D", target, level, internalformat, width, height, border, data);
+        }
+
+        public void CompressedTexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, ITypedArray data)
+        {
+            Invoke("compressedTexSubImage2D", target, level, xoffset, yoffset, width, height, format, data);
+        }
+
+        public void CopyTexImage2D(uint target, int level, uint internalformat, int x, int y, int width, int height, int border)
+        {
+            Invoke("copyTexImage2D", target, level, internalformat, x, y, width, height, border);
+        }
+
+        public void CopyTexSubImage2D(uint target, int level, int xoffset, int yoffset, int x, int y, int width, int height)
+        {
+            Invoke("copyTexSubImage2D", target, level, xoffset, yoffset, x, y, width, height);
+        }
+
+        public WebGLBuffer CreateBuffer()
+        {
+            return Invoke<WebGLBuffer>("createBuffer");
+        }
+
+        public WebGLFramebuffer CreateFramebuffer()
+        {
+            return Invoke<WebGLFramebuffer>("createFramebuffer");
+        }
+
+        public WebGLProgram CreateProgram()
+        {
+            return Invoke<WebGLProgram>("createProgram");
+        }
+
+        public WebGLRenderbuffer CreateRenderbuffer()
+        {
+            return Invoke<WebGLRenderbuffer>("createRenderbuffer");
+        }
+
+        public WebGLShader CreateShader(uint type)
+        {
+            return Invoke<WebGLShader>("createShader", type);
+        }
+
+        public WebGLTexture CreateTexture()
+        {
+            return Invoke<WebGLTexture>("createTexture");
+        }
+
+        public void CullFace(uint mode)
+        {
+            Invoke("cullFace", mode);
+        }
+
+        public void DeleteBuffer(WebGLBuffer buffer)
+        {
+            Invoke("deleteBuffer", buffer);
+        }
+
+        public void DeleteFramebuffer(WebGLFramebuffer framebuffer)
+        {
+            Invoke("deleteFramebuffer", framebuffer);
+        }
+
+        public void DeleteProgram(WebGLProgram program)
+        {
+            Invoke("deleteProgram", program);
+        }
+
+        public void DeleteRenderbuffer(WebGLRenderbuffer renderbuffer)
+        {
+            Invoke("deleteRenderbuffer", renderbuffer);
+        }
+
+        public void DeleteShader(WebGLShader shader)
+        {
+            Invoke("deleteShader", shader);
+        }
+
+        public void DeleteTexture(WebGLTexture texture)
+        {
+            Invoke("deleteTexture", texture);
+        }
+
+        public void DepthFunc(uint func)
+        {
+            Invoke("depthFunc", func);
+        }
+
+        public void DepthMask(bool flag)
+        {
+            Invoke("depthMask", flag);
+        }
+
+        public void DepthRange(float zNear, float zFar)
+        {
+            Invoke("depthRange", zNear, zFar);
+        }
+
+        public void DetachShader(WebGLProgram program, WebGLShader shader)
+        {
+            Invoke("detachShader", program, shader);
+        }
+
+        public void Disable(uint cap)
+        {
+            Invoke("disable", cap);
+        }
+
+        public void DisableVertexAttribArray(uint index)
+        {
+            Invoke("disableVertexAttribArray", index);
+        }
+
+        public void DrawArrays(uint mode, int first, int count)
+        {
+            Invoke("drawArrays", mode, first, count);
+        }
+
+        public void DrawElements(uint mode, int count, uint type, uint offset)
+        {
+            Invoke("drawElements", mode, count, type, offset);
+        }
+
+        public void Enable(uint cap)
+        {
+            Invoke("enable", cap);
+        }
+
+        public void EnableVertexAttribArray(uint index)
+        {
+            Invoke("enableVertexAttribArray", index);
+        }
+
+        public void Finish()
+        {
+            Invoke("finish");
+        }
+
+        public void Flush()
+        {
+            Invoke("flush");
+        }
+
+        public void FramebufferRenderbuffer(uint target, uint attachment, uint renderbuffertarget, WebGLRenderbuffer renderbuffer)
+        {
+            Invoke("framebufferRenderbuffer", target, attachment, renderbuffertarget, renderbuffer);
+        }
+
+        public void FramebufferTexture2D(uint target, uint attachment, uint textarget, WebGLTexture texture, int level)
+        {
+            Invoke("framebufferTexture2D", target, attachment, textarget, texture, level);
+        }
+
+        public void FrontFace(uint mode)
+        {
+            Invoke("frontFace", mode);
+        }
+
+        public void GenerateMipmap(uint target)
+        {
+            Invoke("generateMipmap", target);
+        }
+
+        public WebGLActiveInfo GetActiveAttrib(WebGLProgram program, uint index)
+        {
+            return Invoke<WebGLActiveInfo>("getActiveAttrib", program, index);
+        }
+
+        public WebGLActiveInfo GetActiveUniform(WebGLProgram program, uint index)
+        {
+            return Invoke<WebGLActiveInfo>("getActiveUniform", program, index);
+        }
+
+        public WebGLShader[] GetAttachedShaders(WebGLProgram program)
+        {
+            return InvokeForJavaScriptArray<WebGLShader>("getAttachedShaders", program);
+        }
+
+        public int GetAttribLocation(WebGLProgram program, string name)
+        {
+            return InvokeForBasicType<int>("getAttribLocation", program, name);
+        }
+
+        public object GetBufferParameter(uint target, uint pname)
+        {
+            return Invoke("getBufferParameter", target, pname);
+        }
+
+        public object GetParameter(uint pname)
+        {
+            return Invoke("getParameter", pname);
+        }
+
+        public uint GetError()
+        {
+            return (uint)InvokeForBasicType<int>("getError");
+        }
+
+        public object GetFramebufferAttachmentParameter(uint target, uint attachment, uint pname)
+        {
+            return Invoke("getFramebufferAttachmentParameter", target, attachment, pname);
+        }
+
+        public object GetProgramParameter(WebGLProgram program, uint pname)
+        {
+            return Invoke("getProgramParameter", program, pname);
+        }
+
+        public string GetProgramInfoLog(WebGLProgram program)
+        {
+            return InvokeForBasicType<string>("getProgramInfoLog", program);
+        }
+
+        public object GetRenderbufferParameter(uint target, uint pname)
+        {
+            return Invoke("getRenderbufferParameter", target, pname);
+        }
+
+        public object GetShaderParameter(WebGLShader shader, uint pname)
+        {
+            return Invoke("getShaderParameter", shader, pname);
+        }
+
+        public WebGLShaderPrecisionFormat GetShaderPrecisionFormat(uint shadertype, uint precisiontype)
+        {
+            return Invoke<WebGLShaderPrecisionFormat>("getShaderPrecisionFormat", shadertype, precisiontype);
+        }
+
+        public string GetShaderInfoLog(WebGLShader shader)
+        {
+            return InvokeForBasicType<string>("getShaderInfoLog", shader);
+        }
+
+        public string GetShaderSource(WebGLShader shader)
+        {
+            return InvokeForBasicType<string>("getShaderSource", shader);
+        }
+
+        public object GetTexParameter(uint target, uint pname)
+        {
+            return Invoke("getTexParameter", target, pname);
+        }
+
+        public object GetUniform(WebGLProgram program, WebGLUniformLocation location)
+        {
+            return Invoke("getUniform", program, location);
+        }
+
+        public WebGLUniformLocation GetUniformLocation(WebGLProgram program, string name)
+        {
+            return Invoke<WebGLUniformLocation>("getUniformLocation", program, name);
+        }
+
+        public object GetVertexAttrib(uint index, uint pname)
+        {
+            return Invoke("getVertexAttrib", index, pname);
+        }
+
+        public double GetVertexAttribOffset(uint index, uint pname)
+        {
+            return InvokeForBasicType<double>("getVertexAttribOffset", index, pname);
+        }
+
+        public void Hint(uint target, uint mode)
+        {
+            Invoke("hint", target, mode);
+        }
+
+        public bool IsBuffer(WebGLBuffer buffer)
+        {
+            return InvokeForBasicType<bool>("isBuffer", buffer);
+        }
+
+        public bool IsEnabled(uint cap)
+        {
+            return InvokeForBasicType<bool>("isEnabled", cap);
+        }
+
+        public bool IsFramebuffer(WebGLFramebuffer framebuffer)
+        {
+            return InvokeForBasicType<bool>("isFramebuffer", framebuffer);
+        }
+
+        public bool IsProgram(WebGLProgram program)
+        {
+            return InvokeForBasicType<bool>("isProgram", program);
+        }
+
+        public bool IsRenderbuffer(WebGLRenderbuffer renderbuffer)
+        {
+            return InvokeForBasicType<bool>("isRenderbuffer", renderbuffer);
+        }
+
+        public bool IsShader(WebGLShader shader)
+        {
+            return InvokeForBasicType<bool>("isShader", shader);
+        }
+
+        public bool IsTexture(WebGLTexture texture)
+        {
+            return InvokeForBasicType<bool>("isTexture", texture);
+        }
+
+        public void LineWidth(float width)
+        {
+            Invoke("lineWidth", width);
+        }
+
+        public void LinkProgram(WebGLProgram program)
+        {
+            Invoke("linkProgram", program);
+        }
+
+        public void PixelStorei(uint pname, int param)
+        {
+            Invoke("pixelStorei", pname, param);
+        }
+
+        public void PolygonOffset(float factor, float units)
+        {
+            Invoke("polygonOffset", factor, units);
+        }
+
+        public void ReadPixels(int x, int y, int width, int height, uint format, uint type, ITypedArray pixels)
+        {
+            Invoke("readPixels", x, y, width, height, format, type, pixels);
+        }
+
+        public void RenderbufferStorage(uint target, uint internalformat, int width, int height)
+        {
+            Invoke("renderbufferStorage", target, internalformat, width, height);
+        }
+
+        public void SampleCoverage(float value, bool invert)
+        {
+            Invoke("sampleCoverage", value, invert);
+        }
+
+        public void Scissor(int x, int y, int width, int height)
+        {
+            Invoke("scissor", x, y, width, height);
+        }
+
+        public void ShaderSource(WebGLShader shader, string source)
+        {
+            Invoke("shaderSource", shader, source);
+        }
+
+        public void StencilFunc(uint func, int @ref, uint mask)
+        {
+            Invoke("stencilFunc", func, @ref, mask);
+        }
+
+        public void StencilFuncSeparate(uint face, uint func, int @ref, uint mask)
+        {
+            Invoke("stencilFuncSeparate", face, func, @ref, mask);
+        }
+
+        public void StencilMask(uint mask)
+        {
+            Invoke("stencilMask", mask);
+        }
+
+        public void StencilMaskSeparate(uint face, uint mask)
+        {
+            Invoke("stencilMaskSeparate", face, mask);
+        }
+
+        public void StencilOp(uint fail, uint zfail, uint zpass)
+        {
+            Invoke("stencilOp", fail, zfail, zpass);
+        }
+
+        public void StencilOpSeparate(uint face, uint fail, uint zfail, uint zpass)
+        {
+            Invoke("stencilOpSeparate", face, fail, zfail, zpass);
+        }
+
+        public void TexImage2D(uint target, int level, uint internalformat, int width, int height, int border, uint format, uint type, ITypedArray pixels)
+        {
+            Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, pixels);
+        }
+
+        public void TexImage2D(uint target, int level, uint internalformat, uint format, uint type, object source)
+        {
+            Invoke("texImage2D", target, level, internalformat, format, type, source);
+        }
+
+        public void TexParameterf(uint target, uint pname, float param)
+        {
+            Invoke("texParameterf", target, pname, param);
+        }
+
+        public void TexParameteri(uint target, uint pname, int param)
+        {
+            Invoke("texParameteri", target, pname, param);
+        }
+
+        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, ITypedArray pixels)
+        {
+            Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, pixels);
+        }
+
+        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, uint format, uint type, object source)
+        {
+            Invoke("texSubImage2D", target, level, xoffset, yoffset, format, type, source);
+        }
+
+        public void Uniform1f(WebGLUniformLocation location, float x)
+        {
+            Invoke("uniform1f", location, x);
+        }
+
+        public void Uniform1fv(WebGLUniformLocation location, Float32Array v)
+        {
+            Invoke("uniform1fv", location, v);
+        }
+
+        public void Uniform1fv(WebGLUniformLocation location, float[] v)
+        {
+            Invoke("uniform1fv", location, v);
+        }
+
+        public void Uniform1i(WebGLUniformLocation location, int x)
+        {
+            Invoke("uniform1i", location, x);
+        }
+
+        public void Uniform1iv(WebGLUniformLocation location, Int32Array v)
+        {
+            Invoke("uniform1iv", location, v);
+        }
+
+        public void Uniform1iv(WebGLUniformLocation location, long[] v)
+        {
+            Invoke("uniform1iv", location, v);
+        }
+
+        public void Uniform2f(WebGLUniformLocation location, float x, float y)
+        {
+            Invoke("uniform2f", location, x, y);
+        }
+
+        public void Uniform2fv(WebGLUniformLocation location, Float32Array v)
+        {
+            Invoke("uniform2fv", location, v);
+        }
+
+        public void Uniform2fv(WebGLUniformLocation location, float[] v)
+        {
+            Invoke("uniform2fv", location, v);
+        }
+
+        public void Uniform2i(WebGLUniformLocation location, int x, int y)
+        {
+            Invoke("uniform2i", location, x, y);
+        }
+
+        public void Uniform2iv(WebGLUniformLocation location, Int32Array v)
+        {
+            Invoke("uniform2iv", location, v);
+        }
+
+        public void Uniform2iv(WebGLUniformLocation location, long[] v)
+        {
+            Invoke("uniform2iv", location, v);
+        }
+
+        public void Uniform3f(WebGLUniformLocation location, float x, float y, float z)
+        {
+            Invoke("uniform3f", location, x, y, z);
+        }
+
+        public void Uniform3fv(WebGLUniformLocation location, Float32Array v)
+        {
+            Invoke("uniform3fv", location, v);
+        }
+
+        public void Uniform3fv(WebGLUniformLocation location, float[] v)
+        {
+            Invoke("uniform3fv", location, v);
+        }
+
+        public void Uniform3i(WebGLUniformLocation location, int x, int y, int z)
+        {
+            Invoke("uniform3i", location, x, y, z);
+        }
+
+        public void Uniform3iv(WebGLUniformLocation location, Int32Array v)
+        {
+            Invoke("uniform3iv", location, v);
+        }
+
+        public void Uniform3iv(WebGLUniformLocation location, long[] v)
+        {
+            Invoke("uniform3iv", location, v);
+        }
+
+        public void Uniform4f(WebGLUniformLocation location, float x, float y, float z, float w)
+        {
+            Invoke("uniform4f", location, x, y, z, w);
+        }
+
+        public void Uniform4fv(WebGLUniformLocation location, Float32Array v)
+        {
+            Invoke("uniform4fv", location, v);
+        }
+
+        public void Uniform4fv(WebGLUniformLocation location, float[] v)
+        {
+            Invoke("uniform4fv", location, v);
+        }
+
+        public void Uniform4i(WebGLUniformLocation location, int x, int y, int z, int w)
+        {
+            Invoke("uniform4i", location, x, y, z, w);
+        }
+
+        public void Uniform4iv(WebGLUniformLocation location, Int32Array v)
+        {
+            Invoke("uniform4iv", location, v);
+        }
+
+        public void Uniform4iv(WebGLUniformLocation location, long[] v)
+        {
+            Invoke("uniform4iv", location, v);
+        }
+
+        public void UniformMatrix2fv(WebGLUniformLocation location, bool transpose, Float32Array value)
+        {
+            Invoke("uniformMatrix2fv", location, transpose, value);
+        }
+
+        public void UniformMatrix2fv(WebGLUniformLocation location, bool transpose, float[] value)
+        {
+            Invoke("uniformMatrix2fv", location, transpose, value);
+        }
+
+        public void UniformMatrix3fv(WebGLUniformLocation location, bool transpose, Float32Array value)
+        {
+            Invoke("uniformMatrix3fv", location, transpose, value);
+        }
+
+        public void UniformMatrix3fv(WebGLUniformLocation location, bool transpose, float[] value)
+        {
+            Invoke("uniformMatrix3fv", location, transpose, value);
+        }
+
+        public void UniformMatrix4fv(WebGLUniformLocation location, bool transpose, Float32Array value)
+        {
+            Invoke("uniformMatrix4fv", location, transpose, value);
+        }
+
+        public void UniformMatrix4fv(WebGLUniformLocation location, bool transpose, float[] value)
+        {
+            Invoke("uniformMatrix4fv", location, transpose, value);
+        }
+
+        public void UseProgram(WebGLProgram program)
+        {
+            Invoke("useProgram", program);
+        }
+
+        public void ValidateProgram(WebGLProgram program)
+        {
+            Invoke("validateProgram", program);
+        }
+
+        public void VertexAttrib1f(uint indx, float x)
+        {
+            Invoke("vertexAttrib1f", indx, x);
+        }
+
+        public void VertexAttrib1fv(uint indx, Float32Array values)
+        {
+            Invoke("vertexAttrib1fv", indx, values);
+        }
+
+        public void VertexAttrib1fv(uint indx, float[] values)
+        {
+            Invoke("vertexAttrib1fv", indx, values);
+        }
+
+        public void VertexAttrib2f(uint indx, float x, float y)
+        {
+            Invoke("vertexAttrib2f", indx, x, y);
+        }
+
+        public void VertexAttrib2fv(uint indx, Float32Array values)
+        {
+            Invoke("vertexAttrib2fv", indx, values);
+        }
+
+        public void VertexAttrib2fv(uint indx, float[] values)
+        {
+            Invoke("vertexAttrib2fv", indx, values);
+        }
+
+        public void VertexAttrib3f(uint indx, float x, float y, float z)
+        {
+            Invoke("vertexAttrib3f", indx, x, y, z);
+        }
+
+        public void VertexAttrib3fv(uint indx, Float32Array values)
+        {
+            Invoke("vertexAttrib3fv", indx, values);
+        }
+
+        public void VertexAttrib3fv(uint indx, float[] values)
+        {
+            Invoke("vertexAttrib3fv", indx, values);
+        }
+
+        public void VertexAttrib4f(uint indx, float x, float y, float z, float w)
+        {
+            Invoke("vertexAttrib4f", indx, x, y, z, w);
+        }
+
+        public void VertexAttrib4fv(uint indx, Float32Array values)
+        {
+            Invoke("vertexAttrib4fv", indx, values);
+        }
+
+        public void VertexAttrib4fv(uint indx, float[] values)
+        {
+            Invoke("vertexAttrib4fv", indx, values);
+        }
+
+        public void VertexAttribPointer(uint indx, int size, uint type, bool normalized, int stride, uint offset)
+        {
+            Invoke("vertexAttribPointer", indx, size, type, normalized, stride, offset);
+        }
+
+        public void Viewport(int x, int y, int width, int height)
+        {
+            Invoke("viewport", x, y, width, height);
+        }
     }
 
     public partial class WebGLRenderingContext
@@ -1589,252 +2050,620 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         public const uint MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
 
-        public new void BufferData(uint target, double size, uint usage) => Invoke("bufferData", target, size, usage);
-
-        public void BufferData(uint target, ITypedArray srcData, uint usage) => Invoke("bufferData", target, srcData, usage);
-
-        public void BufferSubData(uint target, uint dstByteOffset, ITypedArray srcData) => Invoke("bufferSubData", target, dstByteOffset, srcData);
-
-        public void BufferData(uint target, ITypedArray srcData, uint usage, uint srcOffset, uint length) => Invoke("bufferData", target, srcData, usage, srcOffset, length);
-
-        public void BufferSubData(uint target, uint dstByteOffset, ITypedArray srcData, uint srcOffset, uint length) => Invoke("bufferSubData", target, dstByteOffset, srcData, srcOffset, length);
-
-        public void CopyBufferSubData(uint readTarget, uint writeTarget, uint readOffset, uint writeOffset, double size) => Invoke("copyBufferSubData", readTarget, writeTarget, readOffset, writeOffset, size);
-
-        public void GetBufferSubData(uint target, uint srcByteOffset, ITypedArray dstBuffer, uint dstOffset, uint length) => Invoke("getBufferSubData", target, srcByteOffset, dstBuffer, dstOffset, length);
-
-        public void BlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, uint mask, uint filter) => Invoke("blitFramebuffer", srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
-
-        public void FramebufferTextureLayer(uint target, uint attachment, WebGLTexture texture, int level, int layer) => Invoke("framebufferTextureLayer", target, attachment, texture, level, layer);
-
-        public void InvalidateFramebuffer(uint target, uint[] attachments) => Invoke("invalidateFramebuffer", target, attachments);
-
-        public void InvalidateSubFramebuffer(uint target, uint[] attachments, int x, int y, int width, int height) => Invoke("invalidateSubFramebuffer", target, attachments, x, y, width, height);
-
-        public void ReadBuffer(uint src) => Invoke("readBuffer", src);
-
-        public object GetInternalformatParameter(uint target, uint internalformat, uint pname) => Invoke("getInternalformatParameter", target, internalformat, pname);
-
-        public void RenderbufferStorageMultisample(uint target, int samples, uint internalformat, int width, int height) => Invoke("renderbufferStorageMultisample", target, samples, internalformat, width, height);
-
-        public void TexStorage2D(uint target, int levels, uint internalformat, int width, int height) => Invoke("texStorage2D", target, levels, internalformat, width, height);
-
-        public void TexStorage3D(uint target, int levels, uint internalformat, int width, int height, int depth) => Invoke("texStorage3D", target, levels, internalformat, width, height, depth);
-
-        public void TexImage2D(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, uint pboOffset) => Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, pboOffset);
-
-        public void TexImage2D(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, object source) => Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, source);
-
-        public void TexImage2D(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, ITypedArray srcData, uint srcOffset) => Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
-
-        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, uint pboOffset) => Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, pboOffset);
-
-        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, object source) => Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, source);
-
-        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, ITypedArray srcData) => Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, srcData);
-
-        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, ITypedArray srcData, uint srcOffset) => Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
-
-        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, uint pboOffset) => Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, pboOffset);
-
-        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, object source) => Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, source);
-
-        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, ITypedArray srcData, uint srcOffset) => Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
-
-        public void TexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, uint pboOffset) => Invoke("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pboOffset);
-
-        public void TexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, object source) => Invoke("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source);
-
-        public void TexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, ITypedArray srcData, uint srcOffset) => Invoke("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData, srcOffset);
-
-        public void CopyTexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height) => Invoke("copyTexSubImage3D", target, level, xoffset, yoffset, zoffset, x, y, width, height);
-
-        public void CompressedTexImage2D(uint target, int level, uint internalformat, int width, int height, int border, int imageSize, uint offset) => Invoke("compressedTexImage2D", target, level, internalformat, width, height, border, imageSize, offset);
-
-        public void CompressedTexImage2D(uint target, int level, uint internalformat, int width, int height, int border, ITypedArray srcData, uint srcOffset, uint srcLengthOverride) => Invoke("compressedTexImage2D", target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
-
-        public void CompressedTexImage3D(uint target, int level, uint internalformat, int width, int height, int depth, int border, int imageSize, uint offset) => Invoke("compressedTexImage3D", target, level, internalformat, width, height, depth, border, imageSize, offset);
-
-        public void CompressedTexImage3D(uint target, int level, uint internalformat, int width, int height, int depth, int border, ITypedArray srcData, uint srcOffset, uint srcLengthOverride) => Invoke("compressedTexImage3D", target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
-
-        public void CompressedTexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, int imageSize, uint offset) => Invoke("compressedTexSubImage2D", target, level, xoffset, yoffset, width, height, format, imageSize, offset);
-
-        public void CompressedTexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, ITypedArray srcData, uint srcOffset, uint srcLengthOverride) => Invoke("compressedTexSubImage2D", target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
-
-        public void CompressedTexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, int imageSize, uint offset) => Invoke("compressedTexSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, offset);
-
-        public void CompressedTexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, ITypedArray srcData, uint srcOffset, uint srcLengthOverride) => Invoke("compressedTexSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
-
-        public int GetFragDataLocation(WebGLProgram program, string name) => InvokeForBasicType<int>("getFragDataLocation", program, name);
-
-        public void Uniform1ui(WebGLUniformLocation location, uint v0) => Invoke("uniform1ui", location, v0);
-
-        public void Uniform2ui(WebGLUniformLocation location, uint v0, uint v1) => Invoke("uniform2ui", location, v0, v1);
-
-        public void Uniform3ui(WebGLUniformLocation location, uint v0, uint v1, uint v2) => Invoke("uniform3ui", location, v0, v1, v2);
-
-        public void Uniform4ui(WebGLUniformLocation location, uint v0, uint v1, uint v2, uint v3) => Invoke("uniform4ui", location, v0, v1, v2, v3);
-
-        public void Uniform1fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform1fv", location, data, srcOffset, srcLength);
-
-        public void Uniform2fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform2fv", location, data, srcOffset, srcLength);
-
-        public void Uniform3fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform3fv", location, data, srcOffset, srcLength);
-
-        public void Uniform4fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform4fv", location, data, srcOffset, srcLength);
-
-        public void Uniform1iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform1iv", location, data, srcOffset, srcLength);
-
-        public void Uniform2iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform2iv", location, data, srcOffset, srcLength);
-
-        public void Uniform3iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform3iv", location, data, srcOffset, srcLength);
-
-        public void Uniform4iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform4iv", location, data, srcOffset, srcLength);
-
-        public void Uniform1uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform1uiv", location, data, srcOffset, srcLength);
-
-        public void Uniform2uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform2uiv", location, data, srcOffset, srcLength);
-
-        public void Uniform3uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform3uiv", location, data, srcOffset, srcLength);
-
-        public void Uniform4uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength) => Invoke("uniform4uiv", location, data, srcOffset, srcLength);
-
-        public void UniformMatrix2fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix2fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix3x2fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix3x2fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix4x2fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix4x2fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix2x3fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix2x3fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix3fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix3fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix4x3fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix4x3fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix2x4fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix2x4fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix3x4fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix3x4fv", location, transpose, data, srcOffset, srcLength);
-
-        public void UniformMatrix4fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength) => Invoke("uniformMatrix4fv", location, transpose, data, srcOffset, srcLength);
-
-        public void VertexAttribI4i(uint index, int x, int y, int z, int w) => Invoke("vertexAttribI4i", index, x, y, z, w);
-
-        public void VertexAttribI4iv(uint index, object values) => Invoke("vertexAttribI4iv", index, values);
-
-        public void VertexAttribI4ui(uint index, uint x, uint y, uint z, uint w) => Invoke("vertexAttribI4ui", index, x, y, z, w);
-
-        public void VertexAttribI4uiv(uint index, object values) => Invoke("vertexAttribI4uiv", index, values);
-
-        public void VertexAttribIPointer(uint index, int size, uint type, int stride, uint offset) => Invoke("vertexAttribIPointer", index, size, type, stride, offset);
-
-        public void VertexAttribDivisor(uint index, uint divisor) => Invoke("vertexAttribDivisor", index, divisor);
-
-        public void DrawArraysInstanced(uint mode, int first, int count, int instanceCount) => Invoke("drawArraysInstanced", mode, first, count, instanceCount);
-
-        public void DrawElementsInstanced(uint mode, int count, uint type, uint offset, int instanceCount) => Invoke("drawElementsInstanced", mode, count, type, offset, instanceCount);
-
-        public void DrawRangeElements(uint mode, uint start, uint end, int count, uint type, uint offset) => Invoke("drawRangeElements", mode, start, end, count, type, offset);
-
-        public void ReadPixels(int x, int y, int width, int height, uint format, uint type, uint offset) => Invoke("readPixels", x, y, width, height, format, type, offset);
-
-        public void ReadPixels(int x, int y, int width, int height, uint format, uint type, ITypedArray dstData, uint dstOffset) => Invoke("readPixels", x, y, width, height, format, type, dstData, dstOffset);
-
-        public void DrawBuffers(uint[] buffers) => Invoke("drawBuffers", buffers);
-
-        public void ClearBufferfv(uint buffer, int drawbuffer, object values, uint srcOffset) => Invoke("clearBufferfv", buffer, drawbuffer, values, srcOffset);
-
-        public void ClearBufferiv(uint buffer, int drawbuffer, object values, uint srcOffset) => Invoke("clearBufferiv", buffer, drawbuffer, values, srcOffset);
-
-        public void ClearBufferuiv(uint buffer, int drawbuffer, object values, uint srcOffset) => Invoke("clearBufferuiv", buffer, drawbuffer, values, srcOffset);
-
-        public void ClearBufferfi(uint buffer, int drawbuffer, float depth, int stencil) => Invoke("clearBufferfi", buffer, drawbuffer, depth, stencil);
-
-        public WebGLQuery CreateQuery() => Invoke<WebGLQuery>("createQuery");
-
-        public void DeleteQuery(WebGLQuery query) => Invoke("deleteQuery", query);
-
-        public bool IsQuery(WebGLQuery query) => InvokeForBasicType<bool>("isQuery", query);
-
-        public void BeginQuery(uint target, WebGLQuery query) => Invoke("beginQuery", target, query);
-
-        public void EndQuery(uint target) => Invoke("endQuery", target);
-
-        public WebGLQuery GetQuery(uint target, uint pname) => Invoke<WebGLQuery>("getQuery", target, pname);
-
-        public object GetQueryParameter(WebGLQuery query, uint pname) => Invoke("getQueryParameter", query, pname);
-
-        public WebGLSampler CreateSampler() => Invoke<WebGLSampler>("createSampler");
-
-        public void DeleteSampler(WebGLSampler sampler) => Invoke("deleteSampler", sampler);
-
-        public bool IsSampler(WebGLSampler sampler) => InvokeForBasicType<bool>("isSampler", sampler);
-
-        public void BindSampler(uint unit, WebGLSampler sampler) => Invoke("bindSampler", unit, sampler);
-
-        public void SamplerParameteri(WebGLSampler sampler, uint pname, int param) => Invoke("samplerParameteri", sampler, pname, param);
-
-        public void SamplerParameterf(WebGLSampler sampler, uint pname, float param) => Invoke("samplerParameterf", sampler, pname, param);
-
-        public object GetSamplerParameter(WebGLSampler sampler, uint pname) => Invoke("getSamplerParameter", sampler, pname);
-
-        public WebGLSync FenceSync(uint condition, uint flags) => Invoke<WebGLSync>("fenceSync", condition, flags);
-
-        public bool IsSync(WebGLSync sync) => InvokeForBasicType<bool>("isSync", sync);
-
-        public void DeleteSync(WebGLSync sync) => Invoke("deleteSync", sync);
-
-        public uint ClientWaitSync(WebGLSync sync, uint flags, ulong timeout) => InvokeForBasicType<uint>("clientWaitSync", sync, flags, timeout);
-
-        public void WaitSync(WebGLSync sync, uint flags, long timeout) => Invoke("waitSync", sync, flags, timeout);
-
-        public object GetSyncParameter(WebGLSync sync, uint pname) => Invoke("getSyncParameter", sync, pname);
-
-        public WebGLTransformFeedback CreateTransformFeedback() => Invoke<WebGLTransformFeedback>("createTransformFeedback");
-
-        public void DeleteTransformFeedback(WebGLTransformFeedback tf) => Invoke("deleteTransformFeedback", tf);
-
-        public bool IsTransformFeedback(WebGLTransformFeedback tf) => InvokeForBasicType<bool>("isTransformFeedback", tf);
-
-        public void BindTransformFeedback(uint target, WebGLTransformFeedback tf) => Invoke("bindTransformFeedback", target, tf);
-
-        public void BeginTransformFeedback(uint primitiveMode) => Invoke("beginTransformFeedback", primitiveMode);
-
-        public void EndTransformFeedback() => Invoke("endTransformFeedback");
-
-        public void TransformFeedbackVaryings(WebGLProgram program, string[] varyings, uint bufferMode) => Invoke("transformFeedbackVaryings", program, varyings, bufferMode);
-
-        public WebGLActiveInfo GetTransformFeedbackVarying(WebGLProgram program, uint index) => Invoke<WebGLActiveInfo>("getTransformFeedbackVarying", program, index);
-
-        public void PauseTransformFeedback() => Invoke("pauseTransformFeedback");
-
-        public void ResumeTransformFeedback() => Invoke("resumeTransformFeedback");
-
-        public void BindBufferBase(uint target, uint index, WebGLBuffer buffer) => Invoke("bindBufferBase", target, index, buffer);
-
-        public void BindBufferRange(uint target, uint index, WebGLBuffer buffer, uint offset, double size) => Invoke("bindBufferRange", target, index, buffer, offset, size);
-
-        public object GetIndexedParameter(uint target, uint index) => Invoke("getIndexedParameter", target, index);
-
-        public uint[] GetUniformIndices(WebGLProgram program, string[] uniformNames) => InvokeForIntToUintArray("getUniformIndices", program, uniformNames);
-
-        public object GetActiveUniforms(WebGLProgram program, uint[] uniformIndices, uint pname) => Invoke("getActiveUniforms", program, uniformIndices, pname);
-
-        public uint GetUniformBlockIndex(WebGLProgram program, string uniformBlockName) => (uint)InvokeForBasicType<int>("getUniformBlockIndex", program, uniformBlockName);
-
-        public object GetActiveUniformBlockParameter(WebGLProgram program, uint uniformBlockIndex, uint pname) => Invoke("getActiveUniformBlockParameter", program, uniformBlockIndex, pname);
-
-        public string GetActiveUniformBlockName(WebGLProgram program, uint uniformBlockIndex) => InvokeForBasicType<string>("getActiveUniformBlockName", program, uniformBlockIndex);
-
-        public void UniformBlockBinding(WebGLProgram program, uint uniformBlockIndex, uint uniformBlockBinding) => Invoke("uniformBlockBinding", program, uniformBlockIndex, uniformBlockBinding);
-
-        public WebGLVertexArrayObject CreateVertexArray() => Invoke<WebGLVertexArrayObject>("createVertexArray");
-
-        public void DeleteVertexArray(WebGLVertexArrayObject vertexArray) => Invoke("deleteVertexArray", vertexArray);
-
-        public bool IsVertexArray(WebGLVertexArrayObject vertexArray) => InvokeForBasicType<bool>("isVertexArray", vertexArray);
-
-        public void BindVertexArray(WebGLVertexArrayObject array) => Invoke("bindVertexArray", array);
-
+        public new void BufferData(uint target, double size, uint usage)
+        {
+            Invoke("bufferData", target, size, usage);
+        }
+
+        public void BufferData(uint target, ITypedArray srcData, uint usage)
+        {
+            Invoke("bufferData", target, srcData, usage);
+        }
+
+        public void BufferSubData(uint target, uint dstByteOffset, ITypedArray srcData)
+        {
+            Invoke("bufferSubData", target, dstByteOffset, srcData);
+        }
+
+        public void BufferData(uint target, ITypedArray srcData, uint usage, uint srcOffset, uint length)
+        {
+            Invoke("bufferData", target, srcData, usage, srcOffset, length);
+        }
+
+        public void BufferSubData(uint target, uint dstByteOffset, ITypedArray srcData, uint srcOffset, uint length)
+        {
+            Invoke("bufferSubData", target, dstByteOffset, srcData, srcOffset, length);
+        }
+
+        public void CopyBufferSubData(uint readTarget, uint writeTarget, uint readOffset, uint writeOffset, double size)
+        {
+            Invoke("copyBufferSubData", readTarget, writeTarget, readOffset, writeOffset, size);
+        }
+
+        public void GetBufferSubData(uint target, uint srcByteOffset, ITypedArray dstBuffer, uint dstOffset, uint length)
+        {
+            Invoke("getBufferSubData", target, srcByteOffset, dstBuffer, dstOffset, length);
+        }
+
+        public void BlitFramebuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, uint mask, uint filter)
+        {
+            Invoke("blitFramebuffer", srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+        }
+
+        public void FramebufferTextureLayer(uint target, uint attachment, WebGLTexture texture, int level, int layer)
+        {
+            Invoke("framebufferTextureLayer", target, attachment, texture, level, layer);
+        }
+
+        public void InvalidateFramebuffer(uint target, uint[] attachments)
+        {
+            Invoke("invalidateFramebuffer", target, attachments);
+        }
+
+        public void InvalidateSubFramebuffer(uint target, uint[] attachments, int x, int y, int width, int height)
+        {
+            Invoke("invalidateSubFramebuffer", target, attachments, x, y, width, height);
+        }
+
+        public void ReadBuffer(uint src)
+        {
+            Invoke("readBuffer", src);
+        }
+
+        public object GetInternalformatParameter(uint target, uint internalformat, uint pname)
+        {
+            return Invoke("getInternalformatParameter", target, internalformat, pname);
+        }
+
+        public void RenderbufferStorageMultisample(uint target, int samples, uint internalformat, int width, int height)
+        {
+            Invoke("renderbufferStorageMultisample", target, samples, internalformat, width, height);
+        }
+
+        public void TexStorage2D(uint target, int levels, uint internalformat, int width, int height)
+        {
+            Invoke("texStorage2D", target, levels, internalformat, width, height);
+        }
+
+        public void TexStorage3D(uint target, int levels, uint internalformat, int width, int height, int depth)
+        {
+            Invoke("texStorage3D", target, levels, internalformat, width, height, depth);
+        }
+
+        public void TexImage2D(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, uint pboOffset)
+        {
+            Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, pboOffset);
+        }
+
+        public void TexImage2D(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, object source)
+        {
+            Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, source);
+        }
+
+        public void TexImage2D(uint target, int level, int internalformat, int width, int height, int border, uint format, uint type, ITypedArray srcData, uint srcOffset)
+        {
+            Invoke("texImage2D", target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+        }
+
+        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, uint pboOffset)
+        {
+            Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, pboOffset);
+        }
+
+        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, object source)
+        {
+            Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, source);
+        }
+
+        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, ITypedArray srcData)
+        {
+            Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, srcData);
+        }
+
+        public void TexImage3D(uint target, int level, int internalformat, int width, int height, int depth, int border, uint format, uint type, ITypedArray srcData, uint srcOffset)
+        {
+            Invoke("texImage3D", target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
+        }
+
+        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, uint pboOffset)
+        {
+            Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, pboOffset);
+        }
+
+        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, object source)
+        {
+            Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, source);
+        }
+
+        public void TexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, uint type, ITypedArray srcData, uint srcOffset)
+        {
+            Invoke("texSubImage2D", target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+        }
+
+        public void TexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, uint pboOffset)
+        {
+            Invoke("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pboOffset);
+        }
+
+        public void TexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, object source)
+        {
+            Invoke("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source);
+        }
+
+        public void TexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, uint type, ITypedArray srcData, uint srcOffset)
+        {
+            Invoke("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData, srcOffset);
+        }
+
+        public void CopyTexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height)
+        {
+            Invoke("copyTexSubImage3D", target, level, xoffset, yoffset, zoffset, x, y, width, height);
+        }
+
+        public void CompressedTexImage2D(uint target, int level, uint internalformat, int width, int height, int border, int imageSize, uint offset)
+        {
+            Invoke("compressedTexImage2D", target, level, internalformat, width, height, border, imageSize, offset);
+        }
+
+        public void CompressedTexImage2D(uint target, int level, uint internalformat, int width, int height, int border, ITypedArray srcData, uint srcOffset, uint srcLengthOverride)
+        {
+            Invoke("compressedTexImage2D", target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+        }
+
+        public void CompressedTexImage3D(uint target, int level, uint internalformat, int width, int height, int depth, int border, int imageSize, uint offset)
+        {
+            Invoke("compressedTexImage3D", target, level, internalformat, width, height, depth, border, imageSize, offset);
+        }
+
+        public void CompressedTexImage3D(uint target, int level, uint internalformat, int width, int height, int depth, int border, ITypedArray srcData, uint srcOffset, uint srcLengthOverride)
+        {
+            Invoke("compressedTexImage3D", target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
+        }
+
+        public void CompressedTexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, int imageSize, uint offset)
+        {
+            Invoke("compressedTexSubImage2D", target, level, xoffset, yoffset, width, height, format, imageSize, offset);
+        }
+
+        public void CompressedTexSubImage2D(uint target, int level, int xoffset, int yoffset, int width, int height, uint format, ITypedArray srcData, uint srcOffset, uint srcLengthOverride)
+        {
+            Invoke("compressedTexSubImage2D", target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+        }
+
+        public void CompressedTexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, int imageSize, uint offset)
+        {
+            Invoke("compressedTexSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, offset);
+        }
+
+        public void CompressedTexSubImage3D(uint target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, uint format, ITypedArray srcData, uint srcOffset, uint srcLengthOverride)
+        {
+            Invoke("compressedTexSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
+        }
+
+        public int GetFragDataLocation(WebGLProgram program, string name)
+        {
+            return InvokeForBasicType<int>("getFragDataLocation", program, name);
+        }
+
+        public void Uniform1ui(WebGLUniformLocation location, uint v0)
+        {
+            Invoke("uniform1ui", location, v0);
+        }
+
+        public void Uniform2ui(WebGLUniformLocation location, uint v0, uint v1)
+        {
+            Invoke("uniform2ui", location, v0, v1);
+        }
+
+        public void Uniform3ui(WebGLUniformLocation location, uint v0, uint v1, uint v2)
+        {
+            Invoke("uniform3ui", location, v0, v1, v2);
+        }
+
+        public void Uniform4ui(WebGLUniformLocation location, uint v0, uint v1, uint v2, uint v3)
+        {
+            Invoke("uniform4ui", location, v0, v1, v2, v3);
+        }
+
+        public void Uniform1fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform1fv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform2fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform2fv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform3fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform3fv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform4fv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform4fv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform1iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform1iv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform2iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform2iv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform3iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform3iv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform4iv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform4iv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform1uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform1uiv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform2uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform2uiv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform3uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform3uiv", location, data, srcOffset, srcLength);
+        }
+
+        public void Uniform4uiv(WebGLUniformLocation location, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniform4uiv", location, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix2fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix2fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix3x2fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix3x2fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix4x2fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix4x2fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix2x3fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix2x3fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix3fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix3fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix4x3fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix4x3fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix2x4fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix2x4fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix3x4fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix3x4fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void UniformMatrix4fv(WebGLUniformLocation location, bool transpose, object data, uint srcOffset, uint srcLength)
+        {
+            Invoke("uniformMatrix4fv", location, transpose, data, srcOffset, srcLength);
+        }
+
+        public void VertexAttribI4i(uint index, int x, int y, int z, int w)
+        {
+            Invoke("vertexAttribI4i", index, x, y, z, w);
+        }
+
+        public void VertexAttribI4iv(uint index, object values)
+        {
+            Invoke("vertexAttribI4iv", index, values);
+        }
+
+        public void VertexAttribI4ui(uint index, uint x, uint y, uint z, uint w)
+        {
+            Invoke("vertexAttribI4ui", index, x, y, z, w);
+        }
+
+        public void VertexAttribI4uiv(uint index, object values)
+        {
+            Invoke("vertexAttribI4uiv", index, values);
+        }
+
+        public void VertexAttribIPointer(uint index, int size, uint type, int stride, uint offset)
+        {
+            Invoke("vertexAttribIPointer", index, size, type, stride, offset);
+        }
+
+        public void VertexAttribDivisor(uint index, uint divisor)
+        {
+            Invoke("vertexAttribDivisor", index, divisor);
+        }
+
+        public void DrawArraysInstanced(uint mode, int first, int count, int instanceCount)
+        {
+            Invoke("drawArraysInstanced", mode, first, count, instanceCount);
+        }
+
+        public void DrawElementsInstanced(uint mode, int count, uint type, uint offset, int instanceCount)
+        {
+            Invoke("drawElementsInstanced", mode, count, type, offset, instanceCount);
+        }
+
+        public void DrawRangeElements(uint mode, uint start, uint end, int count, uint type, uint offset)
+        {
+            Invoke("drawRangeElements", mode, start, end, count, type, offset);
+        }
+
+        public void ReadPixels(int x, int y, int width, int height, uint format, uint type, uint offset)
+        {
+            Invoke("readPixels", x, y, width, height, format, type, offset);
+        }
+
+        public void ReadPixels(int x, int y, int width, int height, uint format, uint type, ITypedArray dstData, uint dstOffset)
+        {
+            Invoke("readPixels", x, y, width, height, format, type, dstData, dstOffset);
+        }
+
+        public void DrawBuffers(uint[] buffers)
+        {
+            Invoke("drawBuffers", buffers);
+        }
+
+        public void ClearBufferfv(uint buffer, int drawbuffer, object values, uint srcOffset)
+        {
+            Invoke("clearBufferfv", buffer, drawbuffer, values, srcOffset);
+        }
+
+        public void ClearBufferiv(uint buffer, int drawbuffer, object values, uint srcOffset)
+        {
+            Invoke("clearBufferiv", buffer, drawbuffer, values, srcOffset);
+        }
+
+        public void ClearBufferuiv(uint buffer, int drawbuffer, object values, uint srcOffset)
+        {
+            Invoke("clearBufferuiv", buffer, drawbuffer, values, srcOffset);
+        }
+
+        public void ClearBufferfi(uint buffer, int drawbuffer, float depth, int stencil)
+        {
+            Invoke("clearBufferfi", buffer, drawbuffer, depth, stencil);
+        }
+
+        public WebGLQuery CreateQuery()
+        {
+            return Invoke<WebGLQuery>("createQuery");
+        }
+
+        public void DeleteQuery(WebGLQuery query)
+        {
+            Invoke("deleteQuery", query);
+        }
+
+        public bool IsQuery(WebGLQuery query)
+        {
+            return InvokeForBasicType<bool>("isQuery", query);
+        }
+
+        public void BeginQuery(uint target, WebGLQuery query)
+        {
+            Invoke("beginQuery", target, query);
+        }
+
+        public void EndQuery(uint target)
+        {
+            Invoke("endQuery", target);
+        }
+
+        public WebGLQuery GetQuery(uint target, uint pname)
+        {
+            return Invoke<WebGLQuery>("getQuery", target, pname);
+        }
+
+        public object GetQueryParameter(WebGLQuery query, uint pname)
+        {
+            return Invoke("getQueryParameter", query, pname);
+        }
+
+        public WebGLSampler CreateSampler()
+        {
+            return Invoke<WebGLSampler>("createSampler");
+        }
+
+        public void DeleteSampler(WebGLSampler sampler)
+        {
+            Invoke("deleteSampler", sampler);
+        }
+
+        public bool IsSampler(WebGLSampler sampler)
+        {
+            return InvokeForBasicType<bool>("isSampler", sampler);
+        }
+
+        public void BindSampler(uint unit, WebGLSampler sampler)
+        {
+            Invoke("bindSampler", unit, sampler);
+        }
+
+        public void SamplerParameteri(WebGLSampler sampler, uint pname, int param)
+        {
+            Invoke("samplerParameteri", sampler, pname, param);
+        }
+
+        public void SamplerParameterf(WebGLSampler sampler, uint pname, float param)
+        {
+            Invoke("samplerParameterf", sampler, pname, param);
+        }
+
+        public object GetSamplerParameter(WebGLSampler sampler, uint pname)
+        {
+            return Invoke("getSamplerParameter", sampler, pname);
+        }
+
+        public WebGLSync FenceSync(uint condition, uint flags)
+        {
+            return Invoke<WebGLSync>("fenceSync", condition, flags);
+        }
+
+        public bool IsSync(WebGLSync sync)
+        {
+            return InvokeForBasicType<bool>("isSync", sync);
+        }
+
+        public void DeleteSync(WebGLSync sync)
+        {
+            Invoke("deleteSync", sync);
+        }
+
+        public uint ClientWaitSync(WebGLSync sync, uint flags, ulong timeout)
+        {
+            return InvokeForBasicType<uint>("clientWaitSync", sync, flags, timeout);
+        }
+
+        public void WaitSync(WebGLSync sync, uint flags, long timeout)
+        {
+            Invoke("waitSync", sync, flags, timeout);
+        }
+
+        public object GetSyncParameter(WebGLSync sync, uint pname)
+        {
+            return Invoke("getSyncParameter", sync, pname);
+        }
+
+        public WebGLTransformFeedback CreateTransformFeedback()
+        {
+            return Invoke<WebGLTransformFeedback>("createTransformFeedback");
+        }
+
+        public void DeleteTransformFeedback(WebGLTransformFeedback tf)
+        {
+            Invoke("deleteTransformFeedback", tf);
+        }
+
+        public bool IsTransformFeedback(WebGLTransformFeedback tf)
+        {
+            return InvokeForBasicType<bool>("isTransformFeedback", tf);
+        }
+
+        public void BindTransformFeedback(uint target, WebGLTransformFeedback tf)
+        {
+            Invoke("bindTransformFeedback", target, tf);
+        }
+
+        public void BeginTransformFeedback(uint primitiveMode)
+        {
+            Invoke("beginTransformFeedback", primitiveMode);
+        }
+
+        public void EndTransformFeedback()
+        {
+            Invoke("endTransformFeedback");
+        }
+
+        public void TransformFeedbackVaryings(WebGLProgram program, string[] varyings, uint bufferMode)
+        {
+            Invoke("transformFeedbackVaryings", program, varyings, bufferMode);
+        }
+
+        public WebGLActiveInfo GetTransformFeedbackVarying(WebGLProgram program, uint index)
+        {
+            return Invoke<WebGLActiveInfo>("getTransformFeedbackVarying", program, index);
+        }
+
+        public void PauseTransformFeedback()
+        {
+            Invoke("pauseTransformFeedback");
+        }
+
+        public void ResumeTransformFeedback()
+        {
+            Invoke("resumeTransformFeedback");
+        }
+
+        public void BindBufferBase(uint target, uint index, WebGLBuffer buffer)
+        {
+            Invoke("bindBufferBase", target, index, buffer);
+        }
+
+        public void BindBufferRange(uint target, uint index, WebGLBuffer buffer, uint offset, double size)
+        {
+            Invoke("bindBufferRange", target, index, buffer, offset, size);
+        }
+
+        public object GetIndexedParameter(uint target, uint index)
+        {
+            return Invoke("getIndexedParameter", target, index);
+        }
+
+        public uint[] GetUniformIndices(WebGLProgram program, string[] uniformNames)
+        {
+            return InvokeForIntToUintArray("getUniformIndices", program, uniformNames);
+        }
+
+        public object GetActiveUniforms(WebGLProgram program, uint[] uniformIndices, uint pname)
+        {
+            return Invoke("getActiveUniforms", program, uniformIndices, pname);
+        }
+
+        public uint GetUniformBlockIndex(WebGLProgram program, string uniformBlockName)
+        {
+            return (uint)InvokeForBasicType<int>("getUniformBlockIndex", program, uniformBlockName);
+        }
+
+        public object GetActiveUniformBlockParameter(WebGLProgram program, uint uniformBlockIndex, uint pname)
+        {
+            return Invoke("getActiveUniformBlockParameter", program, uniformBlockIndex, pname);
+        }
+
+        public string GetActiveUniformBlockName(WebGLProgram program, uint uniformBlockIndex)
+        {
+            return InvokeForBasicType<string>("getActiveUniformBlockName", program, uniformBlockIndex);
+        }
+
+        public void UniformBlockBinding(WebGLProgram program, uint uniformBlockIndex, uint uniformBlockBinding)
+        {
+            Invoke("uniformBlockBinding", program, uniformBlockIndex, uniformBlockBinding);
+        }
+
+        public WebGLVertexArrayObject CreateVertexArray()
+        {
+            return Invoke<WebGLVertexArrayObject>("createVertexArray");
+        }
+
+        public void DeleteVertexArray(WebGLVertexArrayObject vertexArray)
+        {
+            Invoke("deleteVertexArray", vertexArray);
+        }
+
+        public bool IsVertexArray(WebGLVertexArrayObject vertexArray)
+        {
+            return InvokeForBasicType<bool>("isVertexArray", vertexArray);
+        }
+
+        public void BindVertexArray(WebGLVertexArrayObject array)
+        {
+            Invoke("bindVertexArray", array);
+        }
     }
 
     public partial class WebGL2RenderingContext

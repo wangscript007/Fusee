@@ -2,7 +2,9 @@
 
 namespace Fusee.Engine.Imp.Graphics.WebAsm
 {
-    /// Type that sums up infos about the pixels OpenGl needs to create textures on the gpu.
+    /// <summary>
+    /// Type that sums up infos about the pixels OpenGl needs to create textures on the GPU.
+    /// </summary>
     internal struct TexturePixelInfo : ITexturePixelInfo
     {
         public uint InternalFormat;

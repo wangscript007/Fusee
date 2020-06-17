@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fusee.Base.Core;
+using System;
 using System.Text;
 using WebAssembly;
 using WebAssembly.Core;
@@ -54,12 +55,12 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
     public partial class WebGLRenderingContext : WebGLRenderingContextBase
     {
-        public WebGLRenderingContext(JSObject canvas) 
+        public WebGLRenderingContext(JSObject canvas)
             : base(canvas, "webgl")
         {
         }
 
-        public WebGLRenderingContext(JSObject canvas, WebGLContextAttributes contextAttributes) 
+        public WebGLRenderingContext(JSObject canvas, WebGLContextAttributes contextAttributes)
             : base(canvas, "webgl", contextAttributes)
         {
         }
@@ -72,17 +73,17 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         protected readonly JSObject gl;
 
         protected WebGLRenderingContextBase(
-            JSObject canvas, 
+            JSObject canvas,
             string contextType,
-            string windowPropertyName = WindowPropertyName) 
+            string windowPropertyName = WindowPropertyName)
             : this(canvas, contextType, null, windowPropertyName)
         {
         }
 
         protected WebGLRenderingContextBase(
-            JSObject canvas, 
-            string contextType, 
-            WebGLContextAttributes contextAttributes, 
+            JSObject canvas,
+            string contextType,
+            WebGLContextAttributes contextAttributes,
             string windowPropertyName = WindowPropertyName)
         {
             if (!CheckWindowPropertyExists(windowPropertyName))
@@ -98,35 +99,32 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         public static bool IsVerbosityEnabled { get; set; } = false;
 
-        public ITypedArray CastNativeArray(object managedArray)
+        public static ITypedArray CastNativeArray(object managedArray)
         {
             var arrayType = managedArray.GetType();
-            ITypedArray array;
 
             // Here are listed some JavaScript array types:
             // https://github.com/mono/mono/blob/a7f5952c69ae76015ccaefd4dfa8be2274498a21/sdks/wasm/bindings-test.cs
             if (arrayType == typeof(byte[]))
             {
-                array = Uint8Array.From((byte[])managedArray);
+                return Uint8Array.From((byte[])managedArray);
             }
             else if (arrayType == typeof(float[]))
             {
-                array = Float32Array.From((float[])managedArray);
+                return Float32Array.From((float[])managedArray);
             }
             else if (arrayType == typeof(ushort[]))
             {
-                array = Uint16Array.From((ushort[])managedArray);
+                return Uint16Array.From((ushort[])managedArray);
             }
             else if (arrayType == typeof(uint[]))
             {
-                array = Uint32Array.From((uint[])managedArray);
-            }
-            else
-            {
-                throw new NotImplementedException();
+                return Uint32Array.From((uint[])managedArray);
             }
 
-            return array;
+            var ex = new ArgumentException("Type {managedArray} not convertible!");
+            Diagnostics.Error("Error converting managed array to javascript array!", ex);
+            throw ex;
         }
 
         protected static bool CheckWindowPropertyExists(string property)
@@ -139,7 +137,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         private void DisposeArrayTypes(object[] args)
         {
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
 
@@ -166,7 +164,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             if (IsVerbosityEnabled)
             {
                 var dump = new StringBuilder();
-                dump.Append($"{method}(");
+                dump.Append(method).Append('(');
 
                 for (var i = 0; i < args.Length; i++)
                 {
@@ -179,7 +177,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     }
                 }
 
-                dump.Append($") = {Dump(result)}");
+                dump.Append(") = ").Append(Dump(result));
             }
 
             return result;
@@ -190,12 +188,10 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             var rawResult = Invoke(method, args);
 
-            var result = new T
+            return new T
             {
                 Handle = (JSObject)rawResult
             };
-
-            return result;
         }
 
         protected uint[] InvokeForIntToUintArray(string method, params object[] args)
@@ -209,7 +205,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             var result = new uint[temp.Length];
 
-            for (int i = 0; i < temp.Length; i++)
+            for (var i = 0; i < temp.Length; i++)
             {
                 result[i] = (uint)temp[i];
             }
@@ -228,10 +224,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         protected T[] InvokeForJavaScriptArray<T>(string method, params object[] args)
             where T : JSHandler, new()
         {
-            using (var rawResult = (WebAssembly.Core.Array)Invoke(method, args))
-            {
-                return rawResult.ToArray(item => new T { Handle = (JSObject)item });
-            }
+            using var rawResult = (WebAssembly.Core.Array)Invoke(method, args);
+            return rawResult.ToArray(item => new T { Handle = (JSObject)item });
         }
 
         protected T InvokeForBasicType<T>(string method, params object[] args)
@@ -242,13 +236,16 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             return (T)result;
         }
 
-        private string Dump(object @object) => $"{@object ?? "null"} ({@object?.GetType()})";
+        private string Dump(object @object)
+        {
+            return $"{@object ?? "null"} ({@object?.GetType()})";
+        }
 
         private object[] Translate(object[] args)
         {
             var actualArgs = new object[args.Length];
 
-            for (int i = 0; i < actualArgs.Length; i++)
+            for (var i = 0; i < actualArgs.Length; i++)
             {
                 var arg = args[i];
 
@@ -265,11 +262,13 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 else if (arg is System.Array array)
                 {
                     if (((System.Array)arg).GetType().GetElementType().IsPrimitive)
+                    {
                         arg = CastNativeArray(array);
+                    }
                     else
                     {
                         var argArray = new WebAssembly.Core.Array();
-                        foreach(var item in (System.Array)arg)
+                        foreach (var item in (System.Array)arg)
                         {
                             argArray.Push(item);
                         }
@@ -294,12 +293,12 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
     public partial class WebGL2RenderingContext : WebGL2RenderingContextBase
     {
-        public WebGL2RenderingContext(JSObject canvas) 
+        public WebGL2RenderingContext(JSObject canvas)
             : base(canvas, "webgl2")
-        { 
+        {
         }
 
-        public WebGL2RenderingContext(JSObject canvas, WebGLContextAttributes contextAttributes) 
+        public WebGL2RenderingContext(JSObject canvas, WebGLContextAttributes contextAttributes)
             : base(canvas, "webgl2", contextAttributes)
         {
         }
@@ -310,39 +309,37 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         private const string WindowPropertyName = "WebGL2RenderingContext";
 
         protected WebGL2RenderingContextBase(
-            JSObject canvas, 
+            JSObject canvas,
             string contextType,
-            string windowPropertyName = WindowPropertyName) 
+            string windowPropertyName = WindowPropertyName)
             : this(canvas, contextType, null, windowPropertyName)
         {
         }
 
         protected WebGL2RenderingContextBase(
-            JSObject canvas, 
-            string contextType, 
-            WebGLContextAttributes contextAttributes, 
-            string windowPropertyName = WindowPropertyName) 
+            JSObject canvas,
+            string contextType,
+            WebGLContextAttributes contextAttributes,
+            string windowPropertyName = WindowPropertyName)
             : base(canvas, contextType, contextAttributes, windowPropertyName)
         {
         }
 
-        public new static bool IsSupported => CheckWindowPropertyExists(WindowPropertyName);
+        public static new bool IsSupported => CheckWindowPropertyExists(WindowPropertyName);
 
         public void TexImage2D(
-            uint target, 
-            int level, 
-            int internalformat, 
-            int width, 
-            int height, 
-            int border, 
-            uint format, 
-            uint type, 
+            uint target,
+            int level,
+            int internalformat,
+            int width,
+            int height,
+            int border,
+            uint format,
+            uint type,
             ReadOnlySpan<byte> source)
         {
-            using (var nativeArray = Uint8Array.From(source))
-            {
-                TexImage2D(target, level, internalformat, width, height, border, format, type, nativeArray);
-            }
+            using var nativeArray = Uint8Array.From(source);
+            TexImage2D(target, level, internalformat, width, height, border, format, type, nativeArray);
         }
 
         public void TexImage3D(
@@ -357,10 +354,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             uint type,
             ReadOnlySpan<byte> source)
         {
-            using (var nativeArray = Uint8Array.From(source))
-            {
-                TexImage3D(target, level, internalformat, width, height, depth, border, format, type, nativeArray);
-            }
+            using var nativeArray = Uint8Array.From(source);
+            TexImage3D(target, level, internalformat, width, height, depth, border, format, type, nativeArray);
         }
 
         public void TexSubImage3D(
@@ -376,47 +371,43 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             uint type,
             ReadOnlySpan<byte> source)
         {
-            using (var nativeArray = Uint8Array.From(source))
-            {
-                TexSubImage3D(
-                    target, 
-                    level, 
-                    xoffset, 
-                    yoffset, 
-                    zoffset, 
-                    width, 
-                    height, 
-                    depth, 
-                    format, 
-                    type, 
-                    nativeArray);
-            }
+            using var nativeArray = Uint8Array.From(source);
+            TexSubImage3D(
+                target,
+                level,
+                xoffset,
+                yoffset,
+                zoffset,
+                width,
+                height,
+                depth,
+                format,
+                type,
+                nativeArray);
         }
 
         public void TexSubImage2D(
-            uint target, 
-            int level, 
-            int xoffset, 
-            int yoffset, 
-            int width, 
-            int height, 
-            uint format, 
-            uint type, 
+            uint target,
+            int level,
+            int xoffset,
+            int yoffset,
+            int width,
+            int height,
+            uint format,
+            uint type,
             ReadOnlySpan<byte> source)
         {
-            using (var nativeArray = Uint8Array.From(source))
-            {
-                TexSubImage2D(
-                    target,
-                    level,
-                    xoffset,
-                    yoffset,
-                    width,
-                    height,
-                    format,
-                    type,
-                    nativeArray);
-            }
+            using var nativeArray = Uint8Array.From(source);
+            TexSubImage2D(
+                target,
+                level,
+                xoffset,
+                yoffset,
+                width,
+                height,
+                format,
+                type,
+                nativeArray);
         }
     }
 

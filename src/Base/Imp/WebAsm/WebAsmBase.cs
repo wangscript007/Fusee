@@ -1,14 +1,11 @@
 ﻿using Fusee.Engine.Imp.Graphics.WebAsm;
 using Fusee.Math.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using WebAssembly;
 
 namespace Fusee.Base.Imp.WebAsm
 {
     /// <summary>
-    /// Base class for generation a Fusee wasm project
+    /// Base class for generation a Fusee WASM project
     /// </summary>
     public abstract class WebAsmBase
     {

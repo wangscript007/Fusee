@@ -9,11 +9,10 @@ namespace Fusee.Engine.Imp.WebAsm
     public class AttributeImp : IAttribImp
     {
         internal WebGLBuffer AttributeBufferObject;
-
     }
 
     /// <summary>
-    /// This is the implementation of the <see cref="IMeshImp" /> interface. 
+    /// This is the implementation of the <see cref="IMeshImp" /> interface.
     /// It is used to check the status of the informations of a mesh and flush informations if required.
     /// </summary>
     public class MeshImp : IMeshImp
@@ -45,7 +44,7 @@ namespace Fusee.Engine.Imp.WebAsm
         /// <value>
         ///   <c>true</c> if [vertices set]; otherwise, <c>false</c>.
         /// </value>
-        public bool VerticesSet { get { return VertexBufferObject != null; } }
+        public bool VerticesSet => VertexBufferObject != null;
 
         /// <summary>
         /// Invalidates the normals.
@@ -60,7 +59,7 @@ namespace Fusee.Engine.Imp.WebAsm
         /// <value>
         ///   <c>true</c> if [normals set]; otherwise, <c>false</c>.
         /// </value>
-        public bool NormalsSet { get { return NormalBufferObject != null; } }
+        public bool NormalsSet => NormalBufferObject != null;
 
         /// <summary>
         /// Implementation Tasks: Invalidates the colors, e.g. reset the ColorBufferObject of this instance by setting it to 0.
@@ -75,7 +74,7 @@ namespace Fusee.Engine.Imp.WebAsm
         /// <value>
         ///   <c>true</c> if [colors set]; otherwise, <c>false</c>.
         /// </value>
-        public bool ColorsSet { get { return ColorBufferObject != null; } }
+        public bool ColorsSet => ColorBufferObject != null;
 
         /// <summary>
         /// Gets a value indicating whether [u vs set].
@@ -83,7 +82,7 @@ namespace Fusee.Engine.Imp.WebAsm
         /// <value>
         ///   <c>true</c> if [u vs set]; otherwise, <c>false</c>.
         /// </value>
-        public bool UVsSet { get { return UVBufferObject != null; } }
+        public bool UVsSet => UVBufferObject != null;
 
         /// <summary>
         /// Invalidates the UV's.
@@ -94,18 +93,19 @@ namespace Fusee.Engine.Imp.WebAsm
         }
 
         /// <summary>
-        /// Gets a value indicating whether [boneindices set].
+        /// Gets a value indicating whether [bone indices set].
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [boneindices set]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [bone indices set]; otherwise, <c>false</c>.
         /// </value>
-        public bool BoneIndicesSet { get { return BoneIndexBufferObject != null; } }
+        public bool BoneIndicesSet => BoneIndexBufferObject != null;
         /// <summary>
         /// Returns whether the tangents have been set.
         /// </summary>
         public bool TangentsSet { get; }
+
         /// <summary>
-        /// Returns whether be bitangents have been set.
+        /// Returns whether be bi-tangents have been set.
         /// </summary>
         public bool BiTangentsSet { get; }
 
@@ -134,12 +134,12 @@ namespace Fusee.Engine.Imp.WebAsm
         }
 
         /// <summary>
-        /// Gets a value indicating whether [boneweights set].
+        /// Gets a value indicating whether [bone weights set].
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [boneweights set]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [bone weights set]; otherwise, <c>false</c>.
         /// </value>
-        public bool BoneWeightsSet { get { return BoneWeightBufferObject != null; } }
+        public bool BoneWeightsSet => BoneWeightBufferObject != null;
 
         /// <summary>
         /// Invalidates the BoneWeight's.
@@ -162,13 +162,12 @@ namespace Fusee.Engine.Imp.WebAsm
         /// <value>
         ///   <c>true</c> if [triangles set]; otherwise, <c>false</c>.
         /// </value>
-        public bool TrianglesSet { get { return ElementBufferObject != null; } }
+        public bool TrianglesSet => ElementBufferObject != null;
 
         /// <summary>
         /// Type of data of this mesh (e.g. Triangles, Points, Lines, etc.)
         /// </summary>
         public OpenGLPrimitiveType MeshType { get; set; }
-
 
         #endregion
     }

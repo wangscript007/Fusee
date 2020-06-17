@@ -16,7 +16,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderCanvasImp"/> class.
         /// </summary>
-        public RenderCanvasImp(JSObject canvas, /* TODO: remove rest of parameters */ WebGL2RenderingContextBase gl, int width, int height)
+        public RenderCanvasImp(JSObject canvas, WebGL2RenderingContextBase gl, int width, int height)
         {
             _canvas = canvas;
 
@@ -59,6 +59,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// Gets and sets a value indicating whether fullscreen is enabled.
         /// </summary>
         /// <remarks> Currently not implemented.</remarks>
+        /// <exception cref="NotImplementedException"></exception>
         public bool Fullscreen { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         }
 
         /// <summary>
-        /// Opens the given url in the user's standard browser. The link MUST start with "http://".
+        /// Opens the given URL in the user's standard browser. The link MUST start with "http://".
         /// </summary>
         /// <param name="link">The URL to open.</param>
         /// <remarks>Not needed in WebGL.</remarks>

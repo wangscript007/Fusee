@@ -1,7 +1,7 @@
-﻿using System.IO;
+﻿using Fusee.Base.Common;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using Fusee.Base.Common;
 
 namespace Fusee.Base.Imp.WebAsm
 {
@@ -20,7 +20,7 @@ namespace Fusee.Base.Imp.WebAsm
         /// </returns>
         public Stream StreamFromFile(string path, Common.FileMode mode)
         {
-            return new FileStream(path, (System.IO.FileMode) mode);
+            return new FileStream(path, (System.IO.FileMode)mode);
         }
     }
 
@@ -34,7 +34,7 @@ namespace Fusee.Base.Imp.WebAsm
         /// </summary>
         /// <param name="resourceName"></param>
         /// <param name="assembly"></param>
-        /// <returns></returns>
+        /// <returns>The stream specified by path.</returns>
         public static Stream Load(string resourceName, Assembly assembly = null)
         {
             if (assembly == null)

@@ -1,14 +1,13 @@
-using System.Collections.Generic;
-using System.IO;
 using Fusee.Base.Common;
 using Fusee.Base.Core;
 using Fusee.Math.Core;
-using System.Runtime.InteropServices;
 using SharpFontManaged;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Fusee.Base.Imp.WebAsm
 {
@@ -21,8 +20,6 @@ namespace Fusee.Base.Imp.WebAsm
     {
 
         internal FontFace _face;
-        private bool _useKerning;
-        private uint _pixelHeight;
 
         /// <summary>
         /// Font implementation for WebAsm
@@ -31,42 +28,25 @@ namespace Fusee.Base.Imp.WebAsm
         public FontImp(Stream stream)
         {
             _face = new FontFace(stream);
-            _pixelHeight = 18;
+            PixelHeight = 18;
             UseKerning = false;
         }
 
         /// <summary>
         /// Use kerning
         /// </summary>
-        public bool UseKerning
-        {
-            get { return _useKerning; }
-            set
-            {
-                _useKerning = value;
-            }
-        }
+        public bool UseKerning { get; set; }
 
         /// <summary>
         /// Gets and sets the currently used pixel height
         /// </summary>
-        public uint PixelHeight
-        {
-            get
-            {
-                return _pixelHeight;
-            }
-            set
-            {
-                _pixelHeight = value;
-            }
-        }
+        public uint PixelHeight { get; set; }
 
         /// <summary>
         /// Returns the glyph curve from a given char
         /// </summary>
         /// <param name="c"></param>
-        /// <returns></returns>
+        /// <exception cref="NotImplementedException">Throws not implemented exception when called with <see cref="PointType.Cubic"/></exception>
         public Curve GetGlyphCurve(uint c)
         {
 
@@ -90,22 +70,20 @@ namespace Fusee.Base.Imp.WebAsm
                         ptTypeAsByteArray.AddRange(new byte[] { 0 });
                         break;
                     case PointType.Cubic:
-                        throw new NotImplementedException("Cubic pattern not yet implemented and/or available (ttf)");
-                    default:
-                        break;
+                        throw new NotImplementedException("Cubic pattern not yet implemented and/or available (*.TTF)");
                 }
             }
 
             var pointTags = ptTypeAsByteArray.ToArray();
             if (orgPointCoords == null) return curve;
 
-            //Freetype contours are defined by their end points.
+            // Freetype contours are defined by their end points.
             var curvePartEndPoints = glyph.ContourEndpoints.Select(pt => (short)pt).ToArray();
 
             var partTags = new List<byte>();
             var partVerts = new List<float3>();
 
-            //Writes points of a freetyp contour into a CurvePart,
+            //Writes points of a freetype contour into a CurvePart,
             for (var i = 0; i <= orgPointCoords.Length; i++)
             {
                 //If a certain index of outline points is in array of contour end points - create new CurvePart and add it to Curve.CurveParts
@@ -136,7 +114,7 @@ namespace Fusee.Base.Imp.WebAsm
             GlyphInfo ret;
 
             var cp = new CodePoint((char)c);
-            var glyph = _face.GetGlyph(cp, _pixelHeight);
+            var glyph = _face.GetGlyph(cp, PixelHeight);
 
             if (glyph == null)
             {
@@ -176,8 +154,7 @@ namespace Fusee.Base.Imp.WebAsm
         {
             var unscaledGlyph = _face.GetGlyphUnscaled(new CodePoint((char)c));
 
-            var unscaledAdv = unscaledGlyph.Advance;
-            return unscaledAdv;
+            return unscaledGlyph.Advance;
         }
 
         /// <summary>
@@ -193,7 +170,7 @@ namespace Fusee.Base.Imp.WebAsm
         }
 
         /// <summary>
-        /// Renders a glpyh to an IImageData for further use
+        /// Renders a glyph to an IImageData for further use
         /// </summary>
         /// <param name="c"></param>
         /// <param name="bitmapLeft"></param>
@@ -218,11 +195,11 @@ namespace Fusee.Base.Imp.WebAsm
             {
                 var idx = 0;
 
-                for (int y = 0; y < surface.Height; y++)
+                for (var y = 0; y < surface.Height; y++)
                 {
                     var src = (byte*)surface.Bits + (y * surface.Pitch);
 
-                    for (int x = 0; x < surface.Width; x++)
+                    for (var x = 0; x < surface.Width; x++)
                     {
                         imgBytes[idx++] = *src++;
                     }
@@ -260,7 +237,7 @@ namespace Fusee.Base.Imp.WebAsm
 
             var stuff = (byte*)surface.Bits;
 
-            for (int i = 0; i < surface.Width * surface.Height; i++)
+            for (var i = 0; i < surface.Width * surface.Height; i++)
                 *stuff++ = 0;
 
             glyph.RenderTo(surface);
@@ -269,9 +246,10 @@ namespace Fusee.Base.Imp.WebAsm
         }
 
 
-        internal class SplitToCurvePartHelper
+        internal static class SplitToCurvePartHelper
         {
-            #region Methodes
+            #region Methods
+
             public static void CurvePartVertice(CurvePart cp, int j, PointF[] orgPointCoords, List<float3> partVerts)
             {
                 var vert = new float3(orgPointCoords[j].P.X, orgPointCoords[j].P.Y, 0);
@@ -287,7 +265,7 @@ namespace Fusee.Base.Imp.WebAsm
                     CurveSegments = new List<CurveSegment>()
                 };
 
-                //Marginal case - first contour ( 0 to contours[0] ). 
+                //Marginal case - first contour ( 0 to contours[0] ).
                 if (index == 0)
                 {
                     for (var j = 0; j <= i; j++)

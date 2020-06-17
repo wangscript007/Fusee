@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using Fusee.Base.Common;
+﻿using Fusee.Base.Common;
 using Fusee.Base.Core;
-using Fusee.Math.Core;
 using Fusee.Engine.Common;
-using static Fusee.Engine.Imp.Graphics.WebAsm.WebGLRenderingContextBase;
-using static Fusee.Engine.Imp.Graphics.WebAsm.WebGL2RenderingContextBase;
-using WebAssembly.Core;
-using System.Runtime.InteropServices;
-using Fusee.Engine.Imp.WebAsm;
-using System.Linq;
 using Fusee.Engine.Core.ShaderShards;
-using Fusee.Engine.Core;
+using Fusee.Engine.Imp.WebAsm;
+using Fusee.Math.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using WebAssembly.Core;
+using static Fusee.Engine.Imp.Graphics.WebAsm.WebGL2RenderingContextBase;
+using static Fusee.Engine.Imp.Graphics.WebAsm.WebGLRenderingContextBase;
 
 namespace Fusee.Engine.Imp.Graphics.WebAsm
 {
@@ -69,17 +68,12 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
         private uint GetTexComapreMode(TextureCompareMode compareMode)
         {
-            switch (compareMode)
+            return compareMode switch
             {
-                case TextureCompareMode.None:
-                    return (int)NONE;
-
-                case TextureCompareMode.CompareRefToTexture:
-                    return (int)COMPARE_REF_TO_TEXTURE;
-
-                default:
-                    throw new ArgumentException("Invalid compare mode.");
-            }
+                TextureCompareMode.None => (int)NONE,
+                TextureCompareMode.CompareRefToTexture => (int)COMPARE_REF_TO_TEXTURE,
+                _ => throw new ArgumentException("Invalid compare mode."),
+            };
         }
 
         private Tuple<int, int> GetMinMagFilter(TextureFilterMode filterMode)
@@ -93,8 +87,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     minFilter = (int)NEAREST;
                     magFilter = (int)NEAREST;
                     break;
+                // case TextureFilterMode.Linear:
                 default:
-                case TextureFilterMode.Linear:
                     minFilter = (int)LINEAR;
                     magFilter = (int)LINEAR;
                     break;
@@ -123,51 +117,31 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             switch (wrapMode)
             {
+                // case TextureWrapMode.Repeat:
                 default:
-                case TextureWrapMode.Repeat:
                     return (int)REPEAT;
                 case TextureWrapMode.MirroredRepeat:
                     return (int)MIRRORED_REPEAT;
+                case TextureWrapMode.ClampToBorder:
                 case TextureWrapMode.ClampToEdge:
                     return (int)CLAMP_TO_EDGE;
-                case TextureWrapMode.ClampToBorder:
-                    {
-                        return (int)CLAMP_TO_EDGE;
-                    }
             }
         }
 
         private uint GetDepthCompareFunc(Compare compareFunc)
         {
-            switch (compareFunc)
+            return compareFunc switch
             {
-                case Compare.Never:
-                    return NEVER;
-
-                case Compare.Less:
-                    return LESS;
-
-                case Compare.Equal:
-                    return EQUAL;
-
-                case Compare.LessEqual:
-                    return LEQUAL;
-
-                case Compare.Greater:
-                    return GREATER;
-
-                case Compare.NotEqual:
-                    return NOTEQUAL;
-
-                case Compare.GreaterEqual:
-                    return GEQUAL;
-
-                case Compare.Always:
-                    return ALWAYS;
-
-                default:
-                    throw new ArgumentOutOfRangeException("value");
-            }
+                Compare.Never => NEVER,
+                Compare.Less => LESS,
+                Compare.Equal => EQUAL,
+                Compare.LessEqual => LEQUAL,
+                Compare.Greater => GREATER,
+                Compare.NotEqual => NOTEQUAL,
+                Compare.GreaterEqual => GEQUAL,
+                Compare.Always => ALWAYS,
+                _ => throw new ArgumentOutOfRangeException("value"),
+            };
         }
 
         private TexturePixelInfo GetTexturePixelInfo(ITextureBase tex)
@@ -238,7 +212,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         private ITypedArray GetEmptyArray(ITextureBase tex)
         {
 
-            Diagnostics.Warn("GetEmptyArray", null, new object[] {tex});
+            Diagnostics.Warn("GetEmptyArray", null, new object[] { tex });
 
             switch (tex.PixelFormat.ColorFormat)
             {
@@ -256,7 +230,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     return new Uint8Array(tex.Width * tex.Height * 4);
                 case ColorFormat.fRGB32:
                 case ColorFormat.fRGB16:
-                  return new Float32Array(tex.Width * tex.Height * 3);
+                    return new Float32Array(tex.Width * tex.Height * 3);
                 default:
                     throw new ArgumentOutOfRangeException("CreateTexture: Image pixel format not supported");
             }
@@ -270,7 +244,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>An ITextureHandle that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
         public ITextureHandle CreateTexture(IWritableCubeMap img)
         {
-            WebGLTexture id = gl2.CreateTexture();
+            var id = gl2.CreateTexture();
             gl2.BindTexture(TEXTURE_CUBE_MAP, id);
 
             var glMinMagFilter = GetMinMagFilter(img.FilterMode);
@@ -280,16 +254,16 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             var glWrapMode = GetWrapMode(img.WrapMode);
             var pxInfo = GetTexturePixelInfo(img);
 
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
                 gl2.TexImage2D(TEXTURE_CUBE_MAP_POSITIVE_X + (uint)i, 0, (int)pxInfo.InternalFormat, img.Width, img.Height, 0, pxInfo.Format, pxInfo.PxType, IntPtr.Zero);
             }
 
-            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_MAG_FILTER, (int)magFilter);
-            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_MIN_FILTER, (int)minFilter);
-            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_WRAP_S, (int)glWrapMode);
-            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_WRAP_T, (int)glWrapMode);
-            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_WRAP_R, (int)glWrapMode);
+            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_MAG_FILTER, magFilter);
+            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_MIN_FILTER, minFilter);
+            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_WRAP_S, glWrapMode);
+            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_WRAP_T, glWrapMode);
+            gl2.TexParameteri(TEXTURE_CUBE_MAP, TEXTURE_WRAP_R, glWrapMode);
 
             ITextureHandle texID = new TextureHandle { TexHandle = id };
 
@@ -304,7 +278,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public ITextureHandle CreateTexture(ITexture img)
         {
 
-            WebGLTexture id = gl2.CreateTexture();
+            var id = gl2.CreateTexture();
             gl2.BindTexture(TEXTURE_2D, id);
 
             var glMinMagFilter = GetMinMagFilter(img.FilterMode);
@@ -320,11 +294,11 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             if (img.DoGenerateMipMaps)
                 gl2.GenerateMipmap(TEXTURE_2D);
 
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, (int)magFilter);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, (int)minFilter);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_S, (int)glWrapMode);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_T, (int)glWrapMode);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_R, (int)glWrapMode);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, magFilter);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, minFilter);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_S, glWrapMode);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_T, glWrapMode);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_R, glWrapMode);
 
             ITextureHandle texID = new TextureHandle { TexHandle = id };
 
@@ -338,7 +312,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>An ITextureHandle that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
         public ITextureHandle CreateTexture(IWritableTexture img)
         {
-            WebGLTexture id = gl2.CreateTexture();
+            var id = gl2.CreateTexture();
             gl2.BindTexture(TEXTURE_2D, id);
 
             var glMinMagFilter = GetMinMagFilter(img.FilterMode);
@@ -357,11 +331,11 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             gl2.TexParameteri(TEXTURE_2D, TEXTURE_COMPARE_MODE, (int)GetTexComapreMode(img.CompareMode));
             gl2.TexParameteri(TEXTURE_2D, TEXTURE_COMPARE_FUNC, (int)GetDepthCompareFunc(img.CompareFunc));
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, (int)magFilter);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, (int)minFilter);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_S, (int)glWrapMode);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_T, (int)glWrapMode);
-            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_R, (int)glWrapMode);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, magFilter);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, minFilter);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_S, glWrapMode);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_T, glWrapMode);
+            gl2.TexParameteri(TEXTURE_2D, TEXTURE_WRAP_R, glWrapMode);
 
             ITextureHandle texID = new TextureHandle { TexHandle = id };
 
@@ -381,13 +355,13 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <remarks> /// <remarks>Look at the VideoTextureExample for further information.</remarks></remarks>
         public void UpdateTextureRegion(ITextureHandle tex, ITexture img, int startX, int startY, int width, int height)
         {
-            uint pixelFormat = GetTexturePixelInfo(img).Format;
+            var pixelFormat = GetTexturePixelInfo(img).Format;
 
             // copy the bytes from image to GPU texture
-            int bytesTotal = width * height * img.PixelFormat.BytesPerPixel;
+            var bytesTotal = width * height * img.PixelFormat.BytesPerPixel;
             var scanlines = img.ScanLines(startX, startY, width, height);
-            byte[] bytes = new byte[bytesTotal];
-            int offset = 0;
+            var bytes = new byte[bytesTotal];
+            var offset = 0;
             do
             {
                 if (scanlines.Current != null)
@@ -433,7 +407,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <param name="textureHandle">The <see cref="ITextureHandle"/> which gpu allocated memory will be freed.</param>
         public void RemoveTextureHandle(ITextureHandle textureHandle)
         {
-            TextureHandle texHandle = (TextureHandle)textureHandle;
+            var texHandle = (TextureHandle)textureHandle;
 
             if (texHandle.FrameBufferHandle != null)
             {
@@ -479,8 +453,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             bool statusCode;
             string info;
 
-            WebGLShader vertexObject = gl2.CreateShader(VERTEX_SHADER);
-            WebGLShader fragmentObject = gl2.CreateShader(FRAGMENT_SHADER);
+            var vertexObject = gl2.CreateShader(VERTEX_SHADER);
+            var fragmentObject = gl2.CreateShader(FRAGMENT_SHADER);
 
             // Compile vertex shader
             gl2.ShaderSource(vertexObject, vs);
@@ -501,7 +475,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             if (!statusCode)
                 throw new ApplicationException(info);
 
-            WebGLProgram program = gl2.CreateProgram();
+            var program = gl2.CreateProgram();
             gl2.AttachShader(program, fragmentObject);
             gl2.AttachShader(program, vertexObject);
 
@@ -571,7 +545,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>The Shader parameter is returned if the name is found, otherwise null.</returns>
         public IShaderParam GetShaderParam(IShaderHandle shaderProgram, string paramName)
         {
-            WebGLUniformLocation h = gl2.GetUniformLocation(((ShaderHandleImp)shaderProgram).Handle, paramName);
+            var h = gl2.GetUniformLocation(((ShaderHandleImp)shaderProgram).Handle, paramName);
             return (h == null) ? null : new ShaderParam { handle = h };
         }
 
@@ -584,7 +558,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>The current parameter's value.</returns>
         public float GetParamValue(IShaderHandle program, IShaderParam param)
         {
-            float f = (float)gl2.GetUniform(((ShaderHandleImp)program).Handle, ((ShaderParam)param).handle);
+            var f = (float)gl2.GetUniform(((ShaderHandleImp)program).Handle, ((ShaderParam)param).handle);
             return f;
         }
 
@@ -600,48 +574,40 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             var sProg = (ShaderHandleImp)shaderProgram;
             var paramList = new List<ShaderParamInfo>();
 
-            int nParams;
-            nParams = (int)gl2.GetProgramParameter(sProg.Handle, ACTIVE_UNIFORMS);
+            var nParams = (int)gl2.GetProgramParameter(sProg.Handle, ACTIVE_UNIFORMS);
 
             for (uint i = 0; i < nParams; i++)
             {
-                WebGLActiveInfo activeInfo = gl2.GetActiveUniform(sProg.Handle, i);
+                var activeInfo = gl2.GetActiveUniform(sProg.Handle, i);
 
                 var paramInfo = new ShaderParamInfo
                 {
                     Name = activeInfo.Name,
                     Size = activeInfo.Size
                 };
-                uint uType = activeInfo.Type;//activeInfo.GlType;
+                var uType = activeInfo.Type;//activeInfo.GlType;
                 paramInfo.Handle = GetShaderParam(sProg, paramInfo.Name);
-
 
                 switch (uType)
                 {
                     case INT:
                         paramInfo.Type = typeof(int);
                         break;
-
                     case FLOAT:
                         paramInfo.Type = typeof(float);
                         break;
-
                     case FLOAT_VEC2:
                         paramInfo.Type = typeof(float2);
                         break;
-
                     case FLOAT_VEC3:
                         paramInfo.Type = typeof(float3);
                         break;
-
                     case FLOAT_VEC4:
                         paramInfo.Type = typeof(float4);
                         break;
-
                     case FLOAT_MAT4:
                         paramInfo.Type = typeof(float4x4);
                         break;
-
                     case SAMPLER_2D:
                     case UNSIGNED_INT_SAMPLER_2D:
                     case INT_SAMPLER_2D:
@@ -652,7 +618,6 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     case SAMPLER_CUBE:
                         paramInfo.Type = typeof(IWritableCubeMap);
                         break;
-
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -798,7 +763,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public void SetActiveAndBindTexture(IShaderParam param, ITextureHandle texId, TextureType texTarget)
         {
             var iParam = ((ShaderParam)param).handle;
-            if (!_shaderParam2TexUnit.TryGetValue(iParam, out int texUnit))
+            if (!_shaderParam2TexUnit.TryGetValue(iParam, out var texUnit))
             {
                 _textureCountPerShader++;
                 //texUnit = _textureCountPerShader;
@@ -839,9 +804,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         public void SetActiveAndBindTextureArray(IShaderParam param, ITextureHandle[] texIds, TextureType texTarget)
         {
             var iParam = ((ShaderParam)param).handle;
-            int[] texUnitArray = new int[texIds.Length];
+            var texUnitArray = new int[texIds.Length];
 
-            if (!_shaderParam2TexUnit.TryGetValue(iParam, out int firstTexUnit))
+            if (!_shaderParam2TexUnit.TryGetValue(iParam, out var firstTexUnit))
             {
                 _textureCountPerShader++;
                 firstTexUnit = _textureCountPerShader;
@@ -849,7 +814,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 _shaderParam2TexUnit[iParam] = firstTexUnit;
             }
 
-            for (int i = 0; i < texIds.Length; i++)
+            for (var i = 0; i < texIds.Length; i++)
             {
                 texUnitArray[i] = firstTexUnit + i;
 
@@ -870,7 +835,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             var iParam = ((ShaderParam)param).handle;
             texUnitArray = new int[texIds.Length];
 
-            if (!_shaderParam2TexUnit.TryGetValue(iParam, out int firstTexUnit))
+            if (!_shaderParam2TexUnit.TryGetValue(iParam, out var firstTexUnit))
             {
                 _textureCountPerShader++;
                 firstTexUnit = _textureCountPerShader;
@@ -878,7 +843,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 _shaderParam2TexUnit[iParam] = firstTexUnit;
             }
 
-            for (int i = 0; i < texIds.Length; i++)
+            for (var i = 0; i < texIds.Length; i++)
             {
                 texUnitArray[i] = firstTexUnit + i;
 
@@ -895,7 +860,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <param name="texTarget">The texture type, describing to which texture target the texture gets bound to.</param>
         public void SetShaderParamTexture(IShaderParam param, ITextureHandle texId, TextureType texTarget)
         {
-            SetActiveAndBindTexture(param, texId, texTarget, out int texUnit);
+            SetActiveAndBindTexture(param, texId, texTarget, out var texUnit);
             gl2.Uniform1i(((ShaderParam)param).handle, texUnit);
         }
 
@@ -907,7 +872,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <param name="texTarget">The texture type, describing to which texture target the texture gets bound to.</param>
         public unsafe void SetShaderParamTextureArray(IShaderParam param, ITextureHandle[] texIds, TextureType texTarget)
         {
-            SetActiveAndBindTextureArray(param, texIds, texTarget, out int[] texUnitArray);
+            SetActiveAndBindTextureArray(param, texIds, texTarget, out var texUnitArray);
             gl2.Uniform1i(((ShaderParam)param).handle, texUnitArray[0]);
         }
 
@@ -925,7 +890,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         {
             get
             {
-                var ret =(Float32Array)gl2.GetParameter(COLOR_CLEAR_VALUE);
+                var ret = (Float32Array)gl2.GetParameter(COLOR_CLEAR_VALUE);
                 //var ret = new float[4];
                 //ret[0] = (c & 0xff000000) >> 32;
                 //ret[1] = (c & 0x00ff0000) >> 16;
@@ -934,7 +899,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 var retArr = ret.ToArray();
                 return new float4(retArr[0], retArr[1], retArr[2], retArr[3]);
             }
-            set { gl2.ClearColor(value.x, value.y, value.z, value.w); }
+            set => gl2.ClearColor(value.x, value.y, value.z, value.w);
         }
 
         /// <summary>
@@ -945,11 +910,8 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// </value>
         public float ClearDepth
         {
-            get
-            {
-                return (float)gl2.GetParameter(DEPTH_CLEAR_VALUE);
-            }
-            set { gl2.ClearDepth(value); }
+            get => (float)gl2.GetParameter(DEPTH_CLEAR_VALUE);
+            set => gl2.ClearDepth(value);
         }
 
         /// <summary>
@@ -1016,16 +978,19 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int vertsBytes = attributes.Length * 3 * sizeof(float);
+            var vertsBytes = attributes.Length * 3 * sizeof(float);
             var handle = gl2.CreateBuffer();
 
             gl2.BindBuffer(ARRAY_BUFFER, handle);
             gl2.BufferData(ARRAY_BUFFER, attributes, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != vertsBytes)
-                throw new ApplicationException(String.Format(
+            {
+                throw new ApplicationException(string.Format(
                     "Problem uploading attribute buffer to VBO ('{2}'). Tried to upload {0} bytes, uploaded {1}.",
                     vertsBytes, vboBytes, attributeName));
+            }
+
             gl2.BindBuffer(ARRAY_BUFFER, null);
 
             return new AttributeImp { AttributeBufferObject = handle };
@@ -1064,7 +1029,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int vertsBytes = vertices.Length * 3 * sizeof(float);
+            var vertsBytes = vertices.Length * 3 * sizeof(float);
             if (((MeshImp)mr).VertexBufferObject == null)
                 ((MeshImp)mr).VertexBufferObject = gl2.CreateBuffer();
 
@@ -1082,7 +1047,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != vertsBytes)
-                throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.", vertsBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.", vertsBytes, vboBytes));
 
         }
 
@@ -1101,7 +1066,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int tangentBytes = tangents.Length * 4 * sizeof(float);
+            var tangentBytes = tangents.Length * 4 * sizeof(float);
             if (((MeshImp)mr).TangentBufferObject == null)
                 ((MeshImp)mr).TangentBufferObject = gl2.CreateBuffer(); ;
 
@@ -1119,7 +1084,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ARRAY_BUFFER, tangentsFlat, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != tangentBytes)
-                throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (tangents). Tried to upload {0} bytes, uploaded {1}.", tangentBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading vertex buffer to VBO (tangents). Tried to upload {0} bytes, uploaded {1}.", tangentBytes, vboBytes));
 
         }
 
@@ -1138,7 +1103,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int bitangentBytes = bitangents.Length * 3 * sizeof(float);
+            var bitangentBytes = bitangents.Length * 3 * sizeof(float);
             if (((MeshImp)mr).BitangentBufferObject == null)
                 ((MeshImp)mr).BitangentBufferObject = gl2.CreateBuffer();
 
@@ -1156,7 +1121,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ARRAY_BUFFER, bitangentsFlat, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != bitangentBytes)
-                throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (bitangents). Tried to upload {0} bytes, uploaded {1}.", bitangentBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading vertex buffer to VBO (bitangents). Tried to upload {0} bytes, uploaded {1}.", bitangentBytes, vboBytes));
         }
 
         /// <summary>
@@ -1174,7 +1139,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int normsBytes = normals.Length * 3 * sizeof(float);
+            var normsBytes = normals.Length * 3 * sizeof(float);
             if (((MeshImp)mr).NormalBufferObject == null)
                 ((MeshImp)mr).NormalBufferObject = gl2.CreateBuffer();
 
@@ -1193,7 +1158,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
 
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != normsBytes)
-                throw new ApplicationException(String.Format("Problem uploading normal buffer to VBO (normals). Tried to upload {0} bytes, uploaded {1}.", normsBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading normal buffer to VBO (normals). Tried to upload {0} bytes, uploaded {1}.", normsBytes, vboBytes));
         }
 
         /// <summary>
@@ -1211,7 +1176,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int indicesBytes = boneIndices.Length * 4 * sizeof(float);
+            var indicesBytes = boneIndices.Length * 4 * sizeof(float);
             if (((MeshImp)mr).BoneIndexBufferObject == null)
                 ((MeshImp)mr).BoneIndexBufferObject = gl2.CreateBuffer();
 
@@ -1229,7 +1194,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ARRAY_BUFFER, boneIndicesFlat, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != indicesBytes)
-                throw new ApplicationException(String.Format("Problem uploading bone indices buffer to VBO (bone indices). Tried to upload {0} bytes, uploaded {1}.", indicesBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading bone indices buffer to VBO (bone indices). Tried to upload {0} bytes, uploaded {1}.", indicesBytes, vboBytes));
         }
 
         /// <summary>
@@ -1247,7 +1212,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int weightsBytes = boneWeights.Length * 4 * sizeof(float);
+            var weightsBytes = boneWeights.Length * 4 * sizeof(float);
             if (((MeshImp)mr).BoneWeightBufferObject == null)
                 ((MeshImp)mr).BoneWeightBufferObject = gl2.CreateBuffer();
 
@@ -1265,7 +1230,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ARRAY_BUFFER, boneWeightsFlat, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != weightsBytes)
-                throw new ApplicationException(String.Format("Problem uploading bone weights buffer to VBO (bone weights). Tried to upload {0} bytes, uploaded {1}.", weightsBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading bone weights buffer to VBO (bone weights). Tried to upload {0} bytes, uploaded {1}.", weightsBytes, vboBytes));
 
         }
 
@@ -1284,7 +1249,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int uvsBytes = uvs.Length * 2 * sizeof(float);
+            var uvsBytes = uvs.Length * 2 * sizeof(float);
             if (((MeshImp)mr).UVBufferObject == null)
                 ((MeshImp)mr).UVBufferObject = gl2.CreateBuffer();
 
@@ -1302,7 +1267,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ARRAY_BUFFER, uvsFlat, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != uvsBytes)
-                throw new ApplicationException(String.Format("Problem uploading uv buffer to VBO (uvs). Tried to upload {0} bytes, uploaded {1}.", uvsBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading uv buffer to VBO (uvs). Tried to upload {0} bytes, uploaded {1}.", uvsBytes, vboBytes));
 
         }
 
@@ -1321,7 +1286,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
 
             int vboBytes;
-            int colsBytes = colors.Length * sizeof(uint);
+            var colsBytes = colors.Length * sizeof(uint);
             if (((MeshImp)mr).ColorBufferObject == null)
                 ((MeshImp)mr).ColorBufferObject = gl2.CreateBuffer();
 
@@ -1329,7 +1294,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ARRAY_BUFFER, colors, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != colsBytes)
-                throw new ApplicationException(String.Format("Problem uploading color buffer to VBO (colors). Tried to upload {0} bytes, uploaded {1}.", colsBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading color buffer to VBO (colors). Tried to upload {0} bytes, uploaded {1}.", colsBytes, vboBytes));
         }
 
         /// <summary>
@@ -1347,7 +1312,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             }
             ((MeshImp)mr).NElements = triangleIndices.Length;
             int vboBytes;
-            int trisBytes = triangleIndices.Length * sizeof(short);
+            var trisBytes = triangleIndices.Length * sizeof(short);
 
             if (((MeshImp)mr).ElementBufferObject == null)
                 ((MeshImp)mr).ElementBufferObject = gl2.CreateBuffer();
@@ -1356,7 +1321,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             gl2.BufferData(ELEMENT_ARRAY_BUFFER, triangleIndices, STATIC_DRAW);
             vboBytes = (int)gl2.GetBufferParameter(ELEMENT_ARRAY_BUFFER, BUFFER_SIZE);
             if (vboBytes != trisBytes)
-                throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (offsets). Tried to upload {0} bytes, uploaded {1}.", trisBytes, vboBytes));
+                throw new ApplicationException(string.Format("Problem uploading vertex buffer to VBO (offsets). Tried to upload {0} bytes, uploaded {1}.", trisBytes, vboBytes));
 
         }
 
@@ -1641,25 +1606,25 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             switch (blend)
             {
                 case Blend.Zero:
-                    return (uint)(int)ZERO;
+                    return (int)ZERO;
                 case Blend.One:
-                    return (uint)(int)ONE;
+                    return (int)ONE;
                 case Blend.SourceColor:
-                    return (uint)(int)SRC_COLOR;
+                    return (int)SRC_COLOR;
                 case Blend.InverseSourceColor:
-                    return (uint)(int)ONE_MINUS_SRC_COLOR;
+                    return (int)ONE_MINUS_SRC_COLOR;
                 case Blend.SourceAlpha:
-                    return (uint)(int)SRC_ALPHA;
+                    return (int)SRC_ALPHA;
                 case Blend.InverseSourceAlpha:
-                    return (uint)(int)ONE_MINUS_SRC_ALPHA;
+                    return (int)ONE_MINUS_SRC_ALPHA;
                 case Blend.DestinationAlpha:
-                    return (uint)(int)DST_ALPHA;
+                    return (int)DST_ALPHA;
                 case Blend.InverseDestinationAlpha:
-                    return (uint)(int)ONE_MINUS_DST_ALPHA;
+                    return (int)ONE_MINUS_DST_ALPHA;
                 case Blend.DestinationColor:
-                    return (uint)(int)DST_COLOR;
+                    return (int)DST_COLOR;
                 case Blend.InverseDestinationColor:
-                    return (uint)(int)ONE_MINUS_DST_COLOR;
+                    return (int)ONE_MINUS_DST_COLOR;
                 case Blend.BlendFactor:
                     return (uint)(int)((isForAlpha) ? CONSTANT_ALPHA : CONSTANT_COLOR);
                 case Blend.InverseBlendFactor:
@@ -1747,7 +1712,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                         {
                             case Cull.None:
                                 gl2.FrontFace(NONE);
-                                    gl2.Disable(CULL_FACE);
+                                gl2.Disable(CULL_FACE);
                                 if (_isCullEnabled)
                                 {
                                     _isCullEnabled = false;
@@ -1784,7 +1749,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     break;
                 case RenderState.ZFunc:
                     {
-                        uint df = GetDepthCompareFunc((Compare)value);
+                        var df = GetDepthCompareFunc((Compare)value);
                         gl2.DepthFunc(df);
                     }
                     break;
@@ -1872,7 +1837,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                         uint cullFace;
                         cullFace = (uint)(int)gl2.GetParameter(CULL_FACE);
                         if (cullFace == 0)
-                            return (uint)(int)Cull.None;
+                            return (int)Cull.None;
                         uint frontFace;
                         frontFace = (uint)(int)gl2.GetParameter(FRONT_FACE);
                         if (frontFace == CW)
@@ -1922,19 +1887,19 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     {
                         uint depTest;
                         depTest = (uint)(int)gl2.GetParameter(DEPTH_TEST);
-                        return (uint)(depTest);
+                        return depTest;
                     }
                 case RenderState.ZWriteEnable:
                     {
                         uint depWriteMask;
                         depWriteMask = (uint)(int)gl2.GetParameter(DEPTH_WRITEMASK);
-                        return (uint)(depWriteMask);
+                        return depWriteMask;
                     }
                 case RenderState.AlphaBlendEnable:
                     {
                         uint blendEnable;
                         blendEnable = (uint)(int)gl2.GetParameter(BLEND);
-                        return (uint)(blendEnable);
+                        return blendEnable;
                     }
                 case RenderState.BlendOperation:
                     {
@@ -1976,7 +1941,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                     {
                         var col = (float[])gl2.GetParameter(BLEND_COLOR);
                         var uintCol = new ColorUint(col);
-                        return (uint)(int)uintCol.ToRgba();
+                        return (uint)uintCol.ToRgba();
                     }
                 default:
                     throw new ArgumentOutOfRangeException("renderState");
@@ -2012,7 +1977,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 }
             }
             else
+            {
                 gl2.BindFramebuffer(FRAMEBUFFER, ((TextureHandle)texHandle).FrameBufferHandle);
+            }
 
             if (gl2.CheckFramebufferStatus(FRAMEBUFFER) != FRAMEBUFFER_COMPLETE)
                 throw new Exception($"Error creating RenderTarget: {gl2.GetError()}, {gl2.CheckFramebufferStatus(FRAMEBUFFER)}; Pixelformat: {tex.PixelFormat}");
@@ -2049,7 +2016,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 }
             }
             else
+            {
                 gl2.BindFramebuffer(FRAMEBUFFER, ((TextureHandle)texHandle).FrameBufferHandle);
+            }
 
             if (gl2.CheckFramebufferStatus(FRAMEBUFFER) != FRAMEBUFFER_COMPLETE)
                 throw new Exception($"Error creating RenderTarget: {gl2.GetError()}, {gl2.CheckFramebufferStatus(FRAMEBUFFER)}; Pixelformat: {tex.PixelFormat}");
@@ -2127,7 +2096,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
             var gBuffer = gl2.CreateFramebuffer();
             gl2.BindFramebuffer(FRAMEBUFFER, gBuffer);
 
-            int depthCnt = 0;
+            var depthCnt = 0;
 
             var depthTexPos = (int)RenderTargetTextureTypes.Depth;
 
@@ -2136,7 +2105,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                 var attachments = new List<uint>();
 
                 //Textures
-                for (int i = 0; i < texHandles.Length; i++)
+                for (var i = 0; i < texHandles.Length; i++)
                 {
 
                     var texHandle = texHandles[i];
@@ -2148,7 +2117,9 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
                         depthCnt++;
                     }
                     else
+                    {
                         gl2.FramebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0 + (uint)(i - depthCnt), TEXTURE_2D, ((TextureHandle)texHandle).TexHandle, 0);
+                    }
 
                     attachments.Add(COLOR_ATTACHMENT0 + (uint)i);
 
@@ -2314,7 +2285,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>The specified sub-image</returns>
         public IImageData GetPixelColor(int x, int y, int w = 1, int h = 1)
         {
-            Fusee.Base.Core.ImageData image = Fusee.Base.Core.ImageData.CreateImage(w, h, ColorUint.Black);
+            var image = Fusee.Base.Core.ImageData.CreateImage(w, h, ColorUint.Black);
             var pixelDataTA = Uint8Array.From(image.PixelData);
             gl2.ReadPixels(x, y, w, h, RGB /* yuk, yuk ??? */, UNSIGNED_BYTE, pixelDataTA);
             return image;
@@ -2328,7 +2299,7 @@ namespace Fusee.Engine.Imp.Graphics.WebAsm
         /// <returns>The Z value at (x, y).</returns>
         public float GetPixelDepth(int x, int y)
         {
-            float[] depth = new float[1];
+            var depth = new float[1];
             var depthTA = Float32Array.From(depth);
             gl2.ReadPixels(x, y, 1, 1, DEPTH_COMPONENT, UNSIGNED_BYTE, depthTA);
 
