@@ -18,6 +18,8 @@ namespace Fusee.Examples.Simple.Core
     [FuseeApplication(Name = "FUSEE Simple Example", Description = "A very simple example.")]
     public class Simple : RenderCanvas
     {
+        public bool IsInitialized = false;
+
         // angle variables
         private static float _angleHorz = M.PiOver3, _angleVert = -M.PiOver6 * 0.5f, _angleVelHorz, _angleVelVert;
 
@@ -55,6 +57,8 @@ namespace Fusee.Examples.Simple.Core
             // Wrap a SceneRenderer around the model.
             _sceneRenderer = new SceneRendererForward(_rocketScene);
             _guiRenderer = new SceneRendererForward(_gui);
+
+            IsInitialized = true;
         }
 
         // RenderAFrame is called once a frame
