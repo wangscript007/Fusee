@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
     <DefineConstants>$(DefineConstants);PLATFORM_DESKTOP</DefineConstants>
     <Description>Fusee Base Imp Desktop</Description>
     <OutputPath>$(BaseOutputPath)\Libraries</OutputPath>
