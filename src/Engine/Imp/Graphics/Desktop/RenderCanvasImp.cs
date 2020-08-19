@@ -491,9 +491,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </summary>
         /// <param name="appIcon">The icon for the render window.</param>
         public RenderCanvasImp(Icon appIcon)
-        {            
+        {
             const int width = 1280;
-            var height =  720;
+            var height = 720;
 
             try
             {
@@ -526,10 +526,10 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 _gameWindow = new RenderCanvasGameWindow(this, width, height, false);
             }
             //_gameWindow.Visible = false;
-            _gameWindow.MakeCurrent();            
+            _gameWindow.MakeCurrent();
 
-            _gameWindow.Size  = new Vector2i(0,0);
-            
+            _gameWindow.Size = new Vector2i(0, 0);
+
         }
 
         /// <summary>
@@ -550,8 +550,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 _gameWindow.WindowBorder = _windowBorderHidden ? WindowBorder.Hidden : WindowBorder.Resizable;
                 //_gameWindow.Bounds = new System.Drawing.Rectangle(BaseLeft, BaseTop, BaseWidth, BaseHeight);
-                
-                _gameWindow.Bounds = new Box2i(BaseLeft, BaseTop - BaseHeight, BaseLeft + BaseWidth, BaseTop );
+
+                _gameWindow.Bounds = new Box2i(BaseLeft, BaseTop - BaseHeight, BaseLeft + BaseWidth, BaseTop);
             }
             else
             {
@@ -906,9 +906,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             //if (Keyboard[OpenTK.Input.Key.Escape])
             //this.Exit();
 
-           
+
             //if (OpenTK.Input.Keyboard.GetState()[OpenTK.Input.Key.F11])
-            if(KeyboardState[Key.F11])
+            if (KeyboardState[Key.F11])
                 WindowState = (WindowState != WindowState.Fullscreen) ? WindowState.Fullscreen : WindowState.Normal;
         }
 
