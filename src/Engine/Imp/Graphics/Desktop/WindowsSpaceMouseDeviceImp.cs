@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Fusee.Engine.Common;
-using OpenTK;
+using OpenToolkit.Windowing.Desktop;
 using Fusee.Base.Core;
 using Fusee.Engine.Imp.Graphics.Desktop._3DconnexionDriver;
 
@@ -229,12 +229,12 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         private float GetWindowWidth()
         {
-            return _gameWindow.Width;
+            return _gameWindow.Size.X;
         }
 
         private float GetWindowHeight()
         {
-            return _gameWindow.Height;
+            return _gameWindow.Size.Y;
         }
         #endregion
 

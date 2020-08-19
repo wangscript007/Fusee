@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Fusee.Engine.Common;
-using OpenTK;
+using OpenToolkit.Windowing.Desktop;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -352,12 +352,12 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         private float GetWindowWidth()
         {
-            return _gameWindow.Width;
+            return _gameWindow.Size.X;
         }
 
         private float GetWindowHeight()
         {
-            return _gameWindow.Height;
+            return _gameWindow.Size.Y;
         }
         #endregion
 

@@ -2,12 +2,14 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using SDPixelFormat = System.Drawing.Imaging.PixelFormat;
-using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Platform;
+using PixelFormat = OpenToolkit.Graphics.OpenGL.PixelFormat;
+using OpenToolkit.Graphics.OpenGL;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
+using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Mathematics;
 using Fusee.Engine.Common;
+
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -164,40 +166,40 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <param name="windowHandle">The window handle.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        protected RenderCanvasWindowImp(IntPtr windowHandle, int width, int height)
-        {
-            _major = 1;
-            _minor = 0;
+        //protected RenderCanvasWindowImp(IntPtr windowHandle, int width, int height)
+        //{
+        //    _major = 1;
+        //    _minor = 0;
 
-            _flags = GraphicsContextFlags.Default;
-            _wi = Utilities.CreateWindowsWindowInfo(windowHandle);
+        //    _flags = GraphicsContextFlags.Default;
+        //    _wi = Utilities.CreateWindowsWindowInfo(windowHandle);
 
-            try
-            {
-                _mode = new GraphicsMode(32, 24, 0, 8);
-                _context = new GraphicsContext(_mode, _wi, _major, _minor, _flags);
-            }
-            catch
-            {
-                _mode = new GraphicsMode(32, 24, 0, 8);
-                _context = new GraphicsContext(_mode, _wi, _major, _minor, _flags);
-            }
+        //    try
+        //    {
+        //        _mode = new GraphicsMode(32, 24, 0, 8);
+        //        _context = new GraphicsContext(_mode, _wi, _major, _minor, _flags);
+        //    }
+        //    catch
+        //    {
+        //        _mode = new GraphicsMode(32, 24, 0, 8);
+        //        _context = new GraphicsContext(_mode, _wi, _major, _minor, _flags);
+        //    }
 
-            _context.MakeCurrent(_wi);
-            ((IGraphicsContextInternal)_context).LoadAll();
+        //    _context.MakeCurrent(_wi);
+        //    ((IGraphicsContextInternal)_context).LoadAll();
 
-            GL.ClearColor(Color.MidnightBlue);
+        //    GL.ClearColor(Color.MidnightBlue);
 
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
+        //    GL.Enable(EnableCap.DepthTest);
+        //    GL.Enable(EnableCap.CullFace);
 
-            // Use VSync!
-            _context.SwapInterval = 1;
-            _lastTimeTick = Timer;
+        //    // Use VSync!
+        //    _context.SwapInterval = 1;
+        //    _lastTimeTick = Timer;
 
-            BaseWidth = width;
-            BaseHeight = height;
-        }
+        //    BaseWidth = width;
+        //    BaseHeight = height;
+        //}
         #endregion
 
         #region Members
@@ -288,7 +290,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                     // Free other state (managed objects).
                 }
 
-                // Free your own state (unmanaged objects).
+                //Free your own state(unmanaged objects).
                 if (_context != null)
                 {
                     _context.Dispose();
@@ -340,7 +342,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             get { return BaseWidth; }
             set
             {
-                _gameWindow.Width = value;
+                _gameWindow.Size = new Vector2i(value, _gameWindow.Size.Y);
                 BaseWidth = value;
                 ResizeWindow();
             }
@@ -357,7 +359,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             get { return BaseHeight; }
             set
             {
-                _gameWindow.Height = value;
+                _gameWindow.Size = new Vector2i(_gameWindow.Size.X, value);
                 BaseHeight = value;
                 ResizeWindow();
             }
@@ -402,8 +404,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </value>
         public bool VerticalSync
         {
-            get { return (_gameWindow != null) && _gameWindow.Context.SwapInterval == 1; }
-            set { if (_gameWindow != null) _gameWindow.Context.SwapInterval = (value) ? 1 : 0; }
+            get { return (_gameWindow != null) && (_gameWindow.VSync == VSyncMode.On || _gameWindow.VSync == VSyncMode.Adaptive); }
+            set { if (_gameWindow != null) _gameWindow.VSync = VSyncMode.On; }
         }
 
         /// <summary>
@@ -438,10 +440,10 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <value>
         ///   <c>true</c> if [focused]; otherwise, <c>false</c>.
         /// </value>
-        public bool Focused
-        {
-            get { return _gameWindow.Focused; }
-        }
+        //public bool Focused
+        //{
+        //    get { return _gameWindow.Focused; }
+        //}
 
         // Some tryptichon related Fields.
 
@@ -489,9 +491,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </summary>
         /// <param name="appIcon">The icon for the render window.</param>
         public RenderCanvasImp(Icon appIcon)
-        {
+        {            
             const int width = 1280;
-            var height = System.Math.Min(DisplayDevice.Default.Bounds.Height - 100, 720);
+            var height =  720;
 
             try
             {
@@ -502,10 +504,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 _gameWindow = new RenderCanvasGameWindow(this, width, height, false);
             }
             if (appIcon != null)
-                _gameWindow.Icon = appIcon;
+                _gameWindow.Icon = new WindowIcon(); //appIcon
 
-            _gameWindow.X = (DisplayDevice.Default.Bounds.Width - width) / 2;
-            _gameWindow.Y = (DisplayDevice.Default.Bounds.Height - height) / 2;
+            _gameWindow.Size = new Vector2i(width, height);
         }
 
         /// <summary>
@@ -524,11 +525,11 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 _gameWindow = new RenderCanvasGameWindow(this, width, height, false);
             }
-            _gameWindow.Visible = false;
-            _gameWindow.MakeCurrent();
+            //_gameWindow.Visible = false;
+            _gameWindow.MakeCurrent();            
 
-            _gameWindow.X = 0;
-            _gameWindow.Y = 0;
+            _gameWindow.Size  = new Vector2i(0,0);
+            
         }
 
         /// <summary>
@@ -548,20 +549,24 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             if (!_videoWallMode)
             {
                 _gameWindow.WindowBorder = _windowBorderHidden ? WindowBorder.Hidden : WindowBorder.Resizable;
-                _gameWindow.Bounds = new System.Drawing.Rectangle(BaseLeft, BaseTop, BaseWidth, BaseHeight);
+                //_gameWindow.Bounds = new System.Drawing.Rectangle(BaseLeft, BaseTop, BaseWidth, BaseHeight);
+                
+                _gameWindow.Bounds = new Box2i(BaseLeft, BaseTop - BaseHeight, BaseLeft + BaseWidth, BaseTop );
             }
             else
             {
-                var oneScreenWidth = DisplayDevice.Default.Bounds.Width + 16; // TODO: Fix this. This +16 is strange behavior. Border should not make an impact to the width.
-                var oneScreenHeight = DisplayDevice.Default.Bounds.Height;
 
-                var width = oneScreenWidth * _videoWallMonitorsHor;
-                var height = oneScreenHeight * _videoWallMonitorsVert;
+                throw new System.NotImplementedException("Resize window is not implemented for video wall.");
+                //var oneScreenWidth = DisplayDevice.Default.Bounds.Width + 16; // TODO: Fix this. This +16 is strange behavior. Border should not make an impact to the width.
+                //var oneScreenHeight = DisplayDevice.Default.Bounds.Height;
 
-                _gameWindow.Bounds = new System.Drawing.Rectangle(0, 0, width, height);
+                //var width = oneScreenWidth * _videoWallMonitorsHor;
+                //var height = oneScreenHeight * _videoWallMonitorsVert;
 
-                if (_windowBorderHidden)
-                    _gameWindow.WindowBorder = WindowBorder.Hidden;
+                //_gameWindow.Bounds = new System.Drawing.Rectangle(0, 0, width, height);
+
+                //if (_windowBorderHidden)
+                //    _gameWindow.WindowBorder = WindowBorder.Hidden;
             }
         }
 
@@ -595,8 +600,11 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             BaseWidth = width;
             BaseHeight = height;
 
-            BaseLeft = (posx == -1) ? DisplayDevice.Default.Bounds.Width / 2 - width / 2 : posx;
-            BaseTop = (posy == -1) ? DisplayDevice.Default.Bounds.Height / 2 - height / 2 : posy;
+            //BaseLeft = (posx == -1) ? DisplayDevice.Default.Bounds.Width / 2 - width / 2 : posx;
+            //BaseTop = (posy == -1) ? DisplayDevice.Default.Bounds.Height / 2 - height / 2 : posy;
+
+            BaseLeft = (posx == -1) ? 0 : posx;
+            BaseTop = (posy == -1) ? 0 : posy;
 
             _windowBorderHidden = borderHidden;
 
@@ -612,7 +620,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         public void CloseGameWindow()
         {
             if (_gameWindow != null)
-                _gameWindow.Exit();
+                _gameWindow.Close();
         }
 
         /// <summary>
@@ -658,7 +666,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         public void Run()
         {
             if (_gameWindow != null)
-                _gameWindow.Run(30.0, 0.0);
+                _gameWindow.Run();
         }
 
         /// <summary>
@@ -730,7 +738,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <summary>
         /// Occurs when [resize].
         /// </summary>
-        public event EventHandler<ResizeEventArgs> Resize;
+        public event EventHandler<Common.ResizeEventArgs> Resize;
 
         #endregion
 
@@ -769,7 +777,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         internal protected void DoResize(int width, int height)
         {
             if (Resize != null)
-                Resize(this, new ResizeEventArgs(width, height));
+                Resize(this, new Common.ResizeEventArgs(width, height));
         }
 
         #endregion
@@ -826,19 +834,24 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <param name="height">The height.</param>
         /// <param name="antiAliasing">if set to <c>true</c> [anti aliasing] is on.</param>
         public RenderCanvasGameWindow(RenderCanvasImp renderCanvasImp, int width, int height, bool antiAliasing)
-            : base(width, height, new GraphicsMode(32, 24, 0, (antiAliasing) ? 8 : 0) /*GraphicsMode.Default*/, "Fusee Engine")
+            : base(GameWindowSettings.Default, new NativeWindowSettings()
+            {
+                Size = new Vector2i(width, height),
+                Title = "Fusee Engine",
+
+            })
         {
             _renderCanvasImp = renderCanvasImp;
 
-            _renderCanvasImp.BaseWidth = Width;
-            _renderCanvasImp.BaseHeight = Height;
+            _renderCanvasImp.BaseWidth = Size.X;
+            _renderCanvasImp.BaseHeight = Size.Y;
         }
 
         #endregion
 
         #region Overrides
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad()
         {
             // Check for necessary capabilities
             string version = GL.GetString(StringName.Version);
@@ -857,24 +870,25 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             GL.Enable(EnableCap.CullFace);
 
             // Use VSync!
-            Context.SwapInterval = 1;
+            VSync = VSyncMode.On;
+            //Context.SwapInterval = 1;
 
             _renderCanvasImp.DoInit();
         }
 
-        protected override void OnUnload(EventArgs e)
+        protected override void OnUnload()
         {
             _renderCanvasImp.DoUnLoad();
             _renderCanvasImp.Dispose();
         }
 
-        protected override void OnResize(EventArgs e)
+        protected override void OnResize(OpenToolkit.Windowing.Common.ResizeEventArgs e)
         {
             if (_renderCanvasImp != null)
             {
-                _renderCanvasImp.BaseWidth = Width;
-                _renderCanvasImp.BaseHeight = Height;
-                _renderCanvasImp.DoResize(Width, Height);
+                _renderCanvasImp.BaseWidth = Size.X;
+                _renderCanvasImp.BaseHeight = Size.Y;
+                _renderCanvasImp.DoResize(Size.X, Size.Y);
             }
 
             /*
@@ -892,7 +906,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             //if (Keyboard[OpenTK.Input.Key.Escape])
             //this.Exit();
 
-            if (OpenTK.Input.Keyboard.GetState()[OpenTK.Input.Key.F11])
+           
+            //if (OpenTK.Input.Keyboard.GetState()[OpenTK.Input.Key.F11])
+            if(KeyboardState[Key.F11])
                 WindowState = (WindowState != WindowState.Fullscreen) ? WindowState.Fullscreen : WindowState.Normal;
         }
 

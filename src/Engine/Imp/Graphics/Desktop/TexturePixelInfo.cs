@@ -1,5 +1,5 @@
 ﻿using Fusee.Engine.Common;
-using OpenTK.Graphics.OpenGL;
+using OpenToolkit.Graphics.OpenGL;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {

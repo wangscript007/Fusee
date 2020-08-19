@@ -1,10 +1,14 @@
 using System;
-using OpenTK;
-using OpenTK.Input;
+using OpenToolkit.Graphics.OpenGL;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
+using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using Fusee.Engine.Common;
 using System.Collections.Generic;
 using System.Linq;
 using Fusee.Base.Core;
+using MouseButton = OpenToolkit.Windowing.Common.Input.MouseButton;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
