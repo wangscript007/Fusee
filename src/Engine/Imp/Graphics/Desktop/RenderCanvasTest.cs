@@ -10,7 +10,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         public static void ExecFusApp()
         {
-            System.Drawing.Icon appIcon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);      
+            System.Drawing.Icon appIcon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
 
             Console.WriteLine("Icon created? " + appIcon != null);
 
