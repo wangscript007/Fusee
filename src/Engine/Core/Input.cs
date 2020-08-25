@@ -290,6 +290,8 @@ namespace Fusee.Engine.Core
             RegisterInputDeviceType(imp => imp.Category == DeviceCategory.Keyboard, imp => new KeyboardDevice(imp));
             RegisterInputDeviceType(imp => imp.Category == DeviceCategory.Touch, imp => new TouchDevice(imp));
             // Users can register additional devices.
+            //ToDo OpenTK 4.0 - why are registering four game controllers by default?
+
             RegisterInputDeviceType(imp => imp.Category == DeviceCategory.SixDOF, imp => new SixDOFDevice(imp));
             RegisterInputDeviceType(imp => imp.Category == DeviceCategory.GameController, imp => new GamePadDevice(imp));
             RegisterInputDeviceType(imp => imp.Category == DeviceCategory.GameController, imp => new GamePadDevice(imp));

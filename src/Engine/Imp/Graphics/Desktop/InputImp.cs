@@ -298,10 +298,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </summary>
         public string Id
         {
-
             get
             {
-                return GamePad.GetName(DeviceID);
+                return _gameWindow.JoystickStates[DeviceID].Name; //GamePad.GetName(DeviceID);
             }
         }
         /// <summary>
@@ -478,6 +477,14 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <returns>The value at the given axis.</returns>
         public float GetAxis(int iAxisId)
         {
+            //ToDo OpenTk4.0 - Seems not to be quite right.... check if a device is connected beforehand?
+            JoystickState state = _gameWindow.JoystickStates[DeviceID];
+            if (state.Name != null)
+                return _gameWindow.JoystickStates[DeviceID].GetAxis(iAxisId);
+
+            return 0; 
+
+            /*
             var currentThumbSticks = GamePad.GetState(DeviceID).ThumbSticks;
             var currentTrigger = GamePad.GetState(DeviceID).Triggers;
 
@@ -509,6 +516,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                     return currentTrigger.Right;
 
             }
+            */
             throw new InvalidOperationException($"Unknown axis {iAxisId}. Cannot get value for unknown axis.");
         }
 
@@ -517,40 +525,49 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </summary>
         public bool GetButton(int iButtonId)
         {
+            //ToDo OpenTk4.0 - Seems not to be quite right.... check if a device is connected beforehand?
+            JoystickState state = _gameWindow.JoystickStates[DeviceID];
+            if (state.Name != null)
+                return _gameWindow.JoystickStates[DeviceID].IsButtonDown(iButtonId);
+
+            return false;
+
+            /*
             var GPB = GamePad.GetState(DeviceID).Buttons;
             var Dpad = GamePad.GetState(DeviceID).DPad;
 
             switch (iButtonId)
             {
                 case 0:
-                    return GPB.A == ButtonState.Pressed;
+                    return GPB.A == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;
                 case 1:
-                    return GPB.X == ButtonState.Pressed;
+                    return GPB.X == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 2:
-                    return GPB.Y == ButtonState.Pressed;
+                    return GPB.Y == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 3:
-                    return GPB.B == ButtonState.Pressed;
+                    return GPB.B == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 4:
-                    return GPB.Start == ButtonState.Pressed;
+                    return GPB.Start == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 5:
-                    return GPB.Back == ButtonState.Pressed;
+                    return GPB.Back == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 6:
-                    return GPB.LeftShoulder == ButtonState.Pressed;
+                    return GPB.LeftShoulder == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 7:
-                    return GPB.RightShoulder == ButtonState.Pressed;
+                    return GPB.RightShoulder == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 8:
-                    return GPB.LeftStick == ButtonState.Pressed;
+                    return GPB.LeftStick == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 9:
-                    return GPB.RightStick == ButtonState.Pressed;
+                    return GPB.RightStick == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 10:
-                    return Dpad.Up == ButtonState.Pressed;
+                    return Dpad.Up == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 11:
-                    return Dpad.Down == ButtonState.Pressed;
+                    return Dpad.Down == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 12:
-                    return Dpad.Left == ButtonState.Pressed;
+                    return Dpad.Left == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
                 case 13:
-                    return Dpad.Right == ButtonState.Pressed;
+                    return Dpad.Right == OpenToolkit.Windowing.Common.InputAction.Press;// ButtonState.Pressed;ButtonState.Pressed;
             }
+            */
             throw new InvalidOperationException($"Unknown button {iButtonId}. Cannot get value for unknown button.");
         }
     }
@@ -571,8 +588,12 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         {
             _gameWindow = gameWindow;
             _keymapper = new Keymapper();
-            _gameWindow.KeyDown += OnGameWinKeyDown;
-            _gameWindow.KeyUp += OnGameWinKeyUp;
+
+            Action<KeyboardKeyEventArgs> keyDownDel = OnGameWinKeyDown;
+            _gameWindow.KeyDown += keyDownDel;
+
+            Action<KeyboardKeyEventArgs> keyUpDel = OnGameWinKeyUp;
+            _gameWindow.KeyUp += keyUpDel;
         }
 
         /// <summary>
@@ -670,9 +691,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <summary>
         /// Called when keyboard button is pressed down.
         /// </summary>
-        /// <param name="sender">The sender.</param>
         /// <param name="key">The <see cref="KeyboardKeyEventArgs"/> instance containing the event data.</param>
-        protected void OnGameWinKeyDown(object sender, KeyboardKeyEventArgs key)
+        protected void OnGameWinKeyDown(KeyboardKeyEventArgs key)
         {
             ButtonDescription btnDesc;
             if (ButtonValueChanged != null && _keymapper.TryGetValue(key.Key, out btnDesc))
@@ -688,9 +708,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <summary>
         /// Called when keyboard button is released.
         /// </summary>
-        /// <param name="sender">The sender.</param>
         /// <param name="key">The <see cref="KeyboardKeyEventArgs"/> instance containing the event data.</param>
-        protected void OnGameWinKeyUp(object sender, KeyboardKeyEventArgs key)
+        protected void OnGameWinKeyUp(KeyboardKeyEventArgs key)
         {
             ButtonDescription btnDesc;
             if (ButtonValueChanged != null && _keymapper.TryGetValue(key.Key, out btnDesc))
@@ -732,7 +751,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
     {
         private GameWindow _gameWindow;
         private ButtonImpDescription _btnLeftDesc, _btnRightDesc, _btnMiddleDesc;
-
+        
         /// <summary>
         /// Creates a new mouse input device instance using an existing <see cref="OpenTK.GameWindow"/>.
         /// </summary>
@@ -740,11 +759,14 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         public MouseDeviceImp(GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
+            Action <MouseMoveEventArgs> mouseMoveDel = OnMouseMove;
+            _gameWindow.MouseMove += mouseMoveDel;
 
-            _gameWindow.MouseMove += OnMouseMove;
+            Action<MouseButtonEventArgs> mouseDownDel = OnGameWinMouseDown;
+            _gameWindow.MouseDown += mouseDownDel;
 
-            _gameWindow.MouseDown += OnGameWinMouseDown;
-            _gameWindow.MouseUp += OnGameWinMouseUp;
+            Action<MouseButtonEventArgs> mouseUpDel = OnGameWinMouseUp;
+            _gameWindow.MouseUp += mouseUpDel;
 
             _btnLeftDesc = new ButtonImpDescription
             {
@@ -942,15 +964,15 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             switch (iAxisId)
             {
                 case (int)MouseAxes.Wheel:
-                    return OpenTK.Input.Mouse.GetCursorState().WheelPrecise;
+                    return 0;//ToDo: OpenTK4.0 - how to get this value? //return OpenTK.Input.Mouse.GetCursorState().WheelPrecise;
                 case (int)MouseAxes.MinX:
                     return 0;
                 case (int)MouseAxes.MaxX:
-                    return _gameWindow.Width;
+                    return _gameWindow.Size.X;
                 case (int)MouseAxes.MinY:
                     return 0;
                 case (int)MouseAxes.MaxY:
-                    return _gameWindow.Height;
+                    return _gameWindow.Size.Y;
             }
             throw new InvalidOperationException($"Unknown axis {iAxisId}. Cannot get value for unknown axis.");
         }
@@ -958,9 +980,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <summary>
         /// Called when the game window's mouse is moved.
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="mouseArgs">The <see cref="MouseMoveEventArgs"/> instance containing the event data.</param>
-        protected void OnMouseMove(object sender, MouseMoveEventArgs mouseArgs)
+        // <param name="mouseArgs">The <see cref="MouseMoveEventArgs"/> instance containing the event data.</param>
+        protected void OnMouseMove(MouseMoveEventArgs mouseArgs)
         {
             if (AxisValueChanged != null)
             {
@@ -983,10 +1004,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         /// <summary>
         /// Called when the game window's mouse is pressed down.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// </summary>        
         /// <param name="mouseArgs">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
-        protected void OnGameWinMouseDown(object sender, MouseButtonEventArgs mouseArgs)
+        protected void OnGameWinMouseDown(MouseButtonEventArgs mouseArgs)
         {
             if (ButtonValueChanged != null)
             {
@@ -1016,10 +1036,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         /// <summary>
         /// Called when the game window's mouse is released.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// </summary>        
         /// <param name="mouseArgs">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
-        protected void OnGameWinMouseUp(object sender, MouseButtonEventArgs mouseArgs)
+        protected void OnGameWinMouseUp(MouseButtonEventArgs mouseArgs)
         {
             if (ButtonValueChanged != null)
             {

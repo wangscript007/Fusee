@@ -13,6 +13,8 @@ using Fusee.Engine.Common;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
+    /* RenderCanvasWindowImp isn't working with OpenTk 4.0 right now
+
     /// <summary>
     /// Use this class as a base class for implementing connectivity to whatever windows system you intend to support.
     /// Inherit from this class, make sure to call the constructor with the window handle to render on, implement the
@@ -317,6 +319,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         }
         #endregion
     }
+    */
 
     /// <summary>
     /// This is a default render canvas implementation creating its own rendering window.
@@ -776,8 +779,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </summary>
         internal protected void DoResize(int width, int height)
         {
-            if (Resize != null)
-                Resize(this, new Common.ResizeEventArgs(width, height));
+            Resize?.Invoke(this, new Common.ResizeEventArgs(width, height));
         }
 
         #endregion
@@ -886,9 +888,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         {
             if (_renderCanvasImp != null)
             {
-                _renderCanvasImp.BaseWidth = Size.X;
-                _renderCanvasImp.BaseHeight = Size.Y;
-                _renderCanvasImp.DoResize(Size.X, Size.Y);
+                _renderCanvasImp.BaseWidth = e.Width;
+                _renderCanvasImp.BaseHeight = e.Height;
+                _renderCanvasImp.DoResize(e.Width, e.Height);
             }
 
             /*

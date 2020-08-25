@@ -433,7 +433,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         public WindowsTouchInputDeviceImp(GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
-            _handle = new HandleRef(_gameWindow, _gameWindow.WindowInfo.Handle);
+            _handle = new HandleRef(_gameWindow, new IntPtr()/*_gameWindow.WindowInfo.Handle*/); //ToDo: OpenTK4.0 - How to get the WindowHandle
             ConnectWindowsEvents();
             _tpAxisDescs = new Dictionary<int, AxisImpDescription>(_nTouchPointsSupported * 2 + 5);
             _activeTouchpoints = new Dictionary<int, int>(_nTouchPointsSupported);

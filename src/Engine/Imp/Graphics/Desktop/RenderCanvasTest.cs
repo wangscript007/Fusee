@@ -26,7 +26,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 Size = new Vector2i(800, 600),
                 Title = "Fusee Engine",
 
-            });
+            });           
 
             Console.WriteLine("Game Window created?");
             Console.WriteLine(gameWindow != null);

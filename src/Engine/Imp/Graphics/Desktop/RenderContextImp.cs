@@ -5,6 +5,7 @@ using Fusee.Engine.Core.ShaderShards;
 using Fusee.Math.Core;
 using OpenToolkit.Graphics.OpenGL;
 using OpenToolkit.Mathematics;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -37,6 +38,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <param name="renderCanvas">The render canvas interface.</param>
         public RenderContextImp(IRenderCanvasImp renderCanvas)
         {
+            GL.LoadBindings(new GLFWBindingsContext());
+
             _textureCountPerShader = 0;
             _shaderParam2TexUnit = new Dictionary<int, int>();
 
