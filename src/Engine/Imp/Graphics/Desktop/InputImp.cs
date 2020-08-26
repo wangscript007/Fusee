@@ -482,7 +482,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             if (state.Name != null)
                 return _gameWindow.JoystickStates[DeviceID].GetAxis(iAxisId);
 
-            return 0; 
+            return 0;
 
             /*
             var currentThumbSticks = GamePad.GetState(DeviceID).ThumbSticks;
@@ -751,7 +751,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
     {
         private GameWindow _gameWindow;
         private ButtonImpDescription _btnLeftDesc, _btnRightDesc, _btnMiddleDesc;
-        
+
         /// <summary>
         /// Creates a new mouse input device instance using an existing <see cref="OpenTK.GameWindow"/>.
         /// </summary>
@@ -759,7 +759,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         public MouseDeviceImp(GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
-            Action <MouseMoveEventArgs> mouseMoveDel = OnMouseMove;
+            Action<MouseMoveEventArgs> mouseMoveDel = OnMouseMove;
             _gameWindow.MouseMove += mouseMoveDel;
 
             Action<MouseButtonEventArgs> mouseDownDel = OnGameWinMouseDown;
