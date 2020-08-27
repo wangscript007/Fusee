@@ -25,6 +25,7 @@ namespace Fusee.Engine.Imp.Graphics.Android
         #region Internal Fields
 
         internal int VertexBufferObject;
+        internal int VertexArrayObject;
         internal int NormalBufferObject;
         internal int ColorBufferObject;
         internal int UVBufferObject;

@@ -1024,12 +1024,24 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("Vertices must not be null or empty");
             }
 
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+
+            // 3. Generate VBO if needed
             int vertsBytes = vertices.Length * 3 * sizeof(float);
             if (((MeshImp)mr).VertexBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).VertexBufferObject);
 
+            // 4. copy our vertices array in a buffer for OpenGL to use
             GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).VertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertsBytes), vertices, BufferUsageHint.StaticDraw);
+
+            // Attrib Pointers will be set in Render()
+
             GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int vboBytes);
             if (vboBytes != vertsBytes)
                 throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.", vertsBytes, vboBytes));
@@ -1048,6 +1060,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 throw new ArgumentException("Tangents must not be null or empty");
             }
+
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int tangentBytes = tangents.Length * 4 * sizeof(float);
             if (((MeshImp)mr).TangentBufferObject == 0)
@@ -1074,6 +1093,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("BiTangents must not be null or empty");
             }
 
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+
             int bitangentBytes = bitangents.Length * 3 * sizeof(float);
             if (((MeshImp)mr).BitangentBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).BitangentBufferObject);
@@ -1098,6 +1124,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 throw new ArgumentException("Normals must not be null or empty");
             }
+
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int normsBytes = normals.Length * 3 * sizeof(float);
             if (((MeshImp)mr).NormalBufferObject == 0)
@@ -1124,6 +1157,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("BoneIndices must not be null or empty");
             }
 
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+
             int indicesBytes = boneIndices.Length * 4 * sizeof(float);
             if (((MeshImp)mr).BoneIndexBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).BoneIndexBufferObject);
@@ -1148,6 +1188,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 throw new ArgumentException("BoneWeights must not be null or empty");
             }
+
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int weightsBytes = boneWeights.Length * 4 * sizeof(float);
             if (((MeshImp)mr).BoneWeightBufferObject == 0)
@@ -1174,6 +1221,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("UVs must not be null or empty");
             }
 
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+
             int uvsBytes = uvs.Length * 2 * sizeof(float);
             if (((MeshImp)mr).UVBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).UVBufferObject);
@@ -1199,6 +1253,13 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("colors must not be null or empty");
             }
 
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+
             int colsBytes = colors.Length * sizeof(uint);
             if (((MeshImp)mr).ColorBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).ColorBufferObject);
@@ -1223,11 +1284,20 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 throw new ArgumentException("triangleIndices must not be null or empty");
             }
+
+            // 1. Generate VAO if needed
+            if (((MeshImp)mr).VertexArrayObject == 0)
+                ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
+
+            // 2. Bind VAO
+            GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+
             ((MeshImp)mr).NElements = triangleIndices.Length;
             int trisBytes = triangleIndices.Length * sizeof(short);
 
             if (((MeshImp)mr).ElementBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).ElementBufferObject);
+
             // Upload the index buffer (elements inside the vertex buffer, not color indices as per the IndexPointer function!)
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((MeshImp)mr).ElementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(trisBytes), triangleIndices, BufferUsageHint.StaticDraw);
@@ -1242,6 +1312,8 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <param name="mr">The mesh which buffer respectively GPU memory should be deleted.</param>
         public void RemoveVertices(IMeshImp mr)
         {
+            GL.BindVertexArray(0);
+            GL.DeleteVertexArray(((MeshImp)mr).VertexArrayObject);
             GL.DeleteBuffer(((MeshImp)mr).VertexBufferObject);
             ((MeshImp)mr).InvalidateVertices();
         }
@@ -1332,17 +1404,24 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <param name="mr">The <see cref="IMeshImp" /> instance.</param>
         public void Render(IMeshImp mr)
         {
+            if (((MeshImp)mr).VertexArrayObject != 0)
+                GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
+            else
+                throw new ArgumentException("Cannot render a mesh without a VAO");
+
             if (((MeshImp)mr).VertexBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.VertexAttribLocation);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).VertexBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.VertexAttribLocation, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).VertexBufferObject);
+                
             }
             if (((MeshImp)mr).ColorBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.ColorAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).ColorBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.ColorAttribLocation, 4, VertexAttribPointerType.UnsignedByte, true, 0, IntPtr.Zero);
+                
             }
 
             if (((MeshImp)mr).UVBufferObject != 0)
@@ -1350,96 +1429,106 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 GL.EnableVertexAttribArray(AttributeLocations.UvAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).UVBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.UvAttribLocation, 2, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                
             }
             if (((MeshImp)mr).NormalBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.NormalAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).NormalBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.NormalAttribLocation, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                
             }
             if (((MeshImp)mr).TangentBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.TangentAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).TangentBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.TangentAttribLocation, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                
             }
             if (((MeshImp)mr).BitangentBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.BitangentAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).BitangentBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.BitangentAttribLocation, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                
             }
             if (((MeshImp)mr).BoneIndexBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.BoneIndexAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).BoneIndexBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.BoneIndexAttribLocation, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                
             }
             if (((MeshImp)mr).BoneWeightBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(AttributeLocations.BoneWeightAttribLocation);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).BoneWeightBufferObject);
                 GL.VertexAttribPointer(AttributeLocations.BoneWeightAttribLocation, 4, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
+                
             }
+
+            GL.EnableVertexAttribArray(0);
+
             if (((MeshImp)mr).ElementBufferObject != 0)
             {
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((MeshImp)mr).ElementBufferObject);
-
-                switch (((MeshImp)mr).MeshType)
-                {
-                    case OpenGLPrimitiveType.Triangles:
-                    default:
-                        GL.DrawElements(PrimitiveType.Triangles, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.Points:
-                        // enable gl_PointSize to set the point size
-                        if (!_isPtRenderingEnabled)
-                        {
-                            _isPtRenderingEnabled = true;
-                            GL.Enable(EnableCap.ProgramPointSize);
-                            GL.Enable(EnableCap.PointSprite);
-                            GL.Enable(EnableCap.VertexProgramPointSize);
-                        }
-                        GL.DrawElements(PrimitiveType.Points, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.Lines:
-                        if (!_isLineSmoothEnabled)
-                        {
-                            GL.Enable(EnableCap.LineSmooth);
-                            _isLineSmoothEnabled = true;
-                        }
-                        GL.DrawElements(PrimitiveType.Lines, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.LineLoop:
-                        if (!_isLineSmoothEnabled)
-                        {
-                            GL.Enable(EnableCap.LineSmooth);
-                            _isLineSmoothEnabled = true;
-                        }
-                        GL.DrawElements(PrimitiveType.LineLoop, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.LineStrip:
-                        if (!_isLineSmoothEnabled)
-                        {
-                            GL.Enable(EnableCap.LineSmooth);
-                            _isLineSmoothEnabled = true;
-                        }
-                        GL.DrawElements(PrimitiveType.LineStrip, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.Patches:
-                        GL.DrawElements(PrimitiveType.Patches, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.QuadStrip:
-                        GL.DrawElements(PrimitiveType.QuadStrip, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.TriangleFan:
-                        GL.DrawElements(PrimitiveType.TriangleFan, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                    case OpenGLPrimitiveType.TriangleStrip:
-                        GL.DrawElements(PrimitiveType.TriangleStrip, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
-                        break;
-                }
             }
+
+            switch (((MeshImp)mr).MeshType)
+            {
+                case OpenGLPrimitiveType.Triangles:
+                default:
+                    GL.DrawElements(PrimitiveType.Triangles, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.Points:
+                    // enable gl_PointSize to set the point size
+                    if (!_isPtRenderingEnabled)
+                    {
+                        _isPtRenderingEnabled = true;
+                        GL.Enable(EnableCap.ProgramPointSize);
+                        GL.Enable(EnableCap.PointSprite);
+                        GL.Enable(EnableCap.VertexProgramPointSize);
+                    }
+                    GL.DrawElements(PrimitiveType.Points, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.Lines:
+                    if (!_isLineSmoothEnabled)
+                    {
+                        GL.Enable(EnableCap.LineSmooth);
+                        _isLineSmoothEnabled = true;
+                    }
+                    GL.DrawElements(PrimitiveType.Lines, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.LineLoop:
+                    if (!_isLineSmoothEnabled)
+                    {
+                        GL.Enable(EnableCap.LineSmooth);
+                        _isLineSmoothEnabled = true;
+                    }
+                    GL.DrawElements(PrimitiveType.LineLoop, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.LineStrip:
+                    if (!_isLineSmoothEnabled)
+                    {
+                        GL.Enable(EnableCap.LineSmooth);
+                        _isLineSmoothEnabled = true;
+                    }
+                    GL.DrawElements(PrimitiveType.LineStrip, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.Patches:
+                    GL.DrawElements(PrimitiveType.Patches, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.QuadStrip:
+                    GL.DrawElements(PrimitiveType.QuadStrip, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.TriangleFan:
+                    GL.DrawElements(PrimitiveType.TriangleFan, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+                case OpenGLPrimitiveType.TriangleStrip:
+                    GL.DrawElements(PrimitiveType.TriangleStrip, ((MeshImp)mr).NElements, DrawElementsType.UnsignedShort, IntPtr.Zero);
+                    break;
+            }
+
 
             if (((MeshImp)mr).VertexBufferObject != 0)
                 GL.DisableVertexAttribArray(AttributeLocations.VertexAttribLocation);
@@ -2066,7 +2155,6 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         {
             ChangeFramebufferTexture2D(renderTarget, attachment, 0, isDepthTex);
         }
-
 
         /// <summary>
         /// Attaches a texture to the frame buffer object, associated with the given render target.
