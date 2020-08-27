@@ -52,7 +52,25 @@ namespace Fusee.Examples.Simple.Core
             RC.ClearColor = new float4(1, 1, 1, 1);
 
             // Load the rocket model
-            _rocketScene = AssetStorage.Get<SceneContainer>("FUSEERocket.fus");
+            //_rocketScene = AssetStorage.Get<SceneContainer>("FUSEERocket.fus");
+            _rocketScene = new SceneContainer()
+            {
+                Children = new List<SceneNode>()
+                {
+                    new SceneNode()
+                    {
+                        Components = new List<SceneComponent>()
+                        {
+                            new Transform()
+                            {
+                                Scale = float3.One
+                            },
+                            ShaderCodeBuilder.MakeShaderEffect(new float4(1,0,0,1)),
+                            new Cube()
+                        }
+                    }
+                }
+            };
 
             // Wrap a SceneRenderer around the model.
             _sceneRenderer = new SceneRendererForward(_rocketScene);
@@ -129,7 +147,7 @@ namespace Fusee.Examples.Simple.Core
                 _sih.CheckForInteractiveObjects(RC, Touch.GetPosition(TouchPoints.Touchpoint_0), Width, Height);
             }
 
-            _guiRenderer.Render(RC);
+            //_guiRenderer.Render(RC);
 
             // Swap buffers: Show the contents of the backbuffer (containing the currently rendered frame) on the front buffer.
             Present();

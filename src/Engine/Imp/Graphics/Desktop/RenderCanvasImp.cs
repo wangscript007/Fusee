@@ -9,7 +9,8 @@ using OpenToolkit.Windowing.Common.Input;
 using OpenToolkit.Windowing.Desktop;
 using OpenToolkit.Mathematics;
 using Fusee.Engine.Common;
-
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
+using System.IO;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -506,10 +507,17 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 _gameWindow = new RenderCanvasGameWindow(this, width, height, false);
             }
-            if (appIcon != null)
-                _gameWindow.Icon = new WindowIcon(); //appIcon
+            if (appIcon != null) //ToDo OpenTk4.0 - find a simple and correct way to create the OpenTK.WindowIcon
+                _gameWindow.Icon = new WindowIcon(new OpenToolkit.Windowing.Common.Input.Image(appIcon.Width, appIcon.Height, IconToBytes(appIcon)));
 
             _gameWindow.Size = new Vector2i(width, height);
+        }
+
+        private static byte[] IconToBytes(Icon icon)
+        {
+            using MemoryStream ms = new MemoryStream();
+            icon.Save(ms);
+            return ms.GetBuffer();
         }
 
         /// <summary>
