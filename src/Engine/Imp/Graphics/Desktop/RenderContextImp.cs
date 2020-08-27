@@ -1464,7 +1464,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 case OpenGLPrimitiveType.Triangles:
                 default:
-                    GL.DrawArrays(PrimitiveType.Triangles, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.Triangles, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.Points:
                     // enable gl_PointSize to set the point size
@@ -1475,7 +1475,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                         GL.Enable(EnableCap.PointSprite);
                         GL.Enable(EnableCap.VertexProgramPointSize);
                     }
-                    GL.DrawArrays(PrimitiveType.Triangles, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.Triangles, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.Lines:
                     if (!_isLineSmoothEnabled)
@@ -1483,7 +1483,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                         GL.Enable(EnableCap.LineSmooth);
                         _isLineSmoothEnabled = true;
                     }
-                    GL.DrawArrays(PrimitiveType.Lines, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.Lines, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.LineLoop:
                     if (!_isLineSmoothEnabled)
@@ -1491,7 +1491,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                         GL.Enable(EnableCap.LineSmooth);
                         _isLineSmoothEnabled = true;
                     }
-                    GL.DrawArrays(PrimitiveType.LineLoop, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.LineLoop, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.LineStrip:
                     if (!_isLineSmoothEnabled)
@@ -1499,19 +1499,19 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                         GL.Enable(EnableCap.LineSmooth);
                         _isLineSmoothEnabled = true;
                     }
-                    GL.DrawArrays(PrimitiveType.LineStrip, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.LineStrip, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.Patches:
-                    GL.DrawArrays(PrimitiveType.Patches, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.Patches, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.QuadStrip:
-                    GL.DrawArrays(PrimitiveType.QuadStrip, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.QuadStrip, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.TriangleFan:
-                    GL.DrawArrays(PrimitiveType.TriangleFan, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.TriangleFan, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
                 case OpenGLPrimitiveType.TriangleStrip:
-                    GL.DrawArrays(PrimitiveType.TriangleStrip, 0, ((MeshImp)mr).Vertices);
+                    GL.DrawElements(BeginMode.TriangleStrip, ((MeshImp)mr).TriangleIndices, DrawElementsType.UnsignedShort, AttributeLocations.VertexAttribLocation);
                     break;
             }
 
