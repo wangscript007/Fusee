@@ -57,6 +57,7 @@ namespace Fusee.Examples.UI.Core
         {
             var vsTex = AssetStorage.Get<string>("texture.vert");
             var psTex = AssetStorage.Get<string>("texture.frag");
+            var psText = AssetStorage.Get<string>("text.frag");
             var vsNineSlice = AssetStorage.Get<string>("nineSlice.vert");
             var psNineSlice = AssetStorage.Get<string>("nineSliceTile.frag");
 
@@ -72,7 +73,7 @@ namespace Fusee.Examples.UI.Core
                 "FPS: 0.00",
                 "FPSText",
                 vsTex,
-                psTex,
+                psText,
                 UIElementPosition.GetAnchors(AnchorPos.DownDownRight),
                 new MinMaxRect
                 {
@@ -94,7 +95,7 @@ namespace Fusee.Examples.UI.Core
                 "quickly.",
                 "ButtonText",
                 vsTex,
-                psTex,
+                psText,
                 UIElementPosition.GetAnchors(AnchorPos.StretchAll),
                 new MinMaxRect
                 {

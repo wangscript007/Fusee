@@ -18,7 +18,7 @@
         /// <summary>
         /// Used for Images containing a single grayscale value per-pixel. Each pixel consists of one byte.
         /// </summary>
-        Intensity,
+        R8,
 
         /// <summary>
         /// RGBA integer.

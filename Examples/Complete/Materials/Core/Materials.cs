@@ -34,6 +34,7 @@ namespace Fusee.Examples.Materials.Core
 
             var vsTex = AssetStorage.Get<string>("texture.vert");
             var psTex = AssetStorage.Get<string>("texture.frag");
+            var psText = AssetStorage.Get<string>("text.frag");
 
             var icosphereWithTangents = new Icosphere(5);
             icosphereWithTangents.Tangents = icosphereWithTangents.CalculateTangents();
@@ -60,7 +61,7 @@ namespace Fusee.Examples.Materials.Core
                             "How-To:\n############################\n- Move with WASD\n- Left mouse button rotates spheres\n- Mouse wheel zooms",
                             "howTo",
                             vsTex,
-                            psTex,
+                            psText,
                             UIElementPosition.GetAnchors(AnchorPos.DownDownLeft),
                             UIElementPosition.CalcOffsets(AnchorPos.DownDownLeft, new float2(-11, -5), canvasHeight, canvasWidth, new float2(12, 1)),
                             fontLatoMap,
@@ -85,7 +86,7 @@ namespace Fusee.Examples.Materials.Core
                                         "Complete",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect(),
                                         fontLatoMap,
@@ -95,7 +96,7 @@ namespace Fusee.Examples.Materials.Core
                                         "NOT YET IMPLEMENTED",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect
                                         {
@@ -124,7 +125,7 @@ namespace Fusee.Examples.Materials.Core
                                         "Albedo and Specular",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect(),
                                         fontLatoMap,
@@ -149,7 +150,7 @@ namespace Fusee.Examples.Materials.Core
                                         "Albedo, specular and\nalbedo texture",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect(),
                                         fontLatoMap,
@@ -174,7 +175,7 @@ namespace Fusee.Examples.Materials.Core
                                         "Specular texture",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect(),
                                         fontLatoMap,
@@ -185,7 +186,7 @@ namespace Fusee.Examples.Materials.Core
                                         "NOT YET IMPLEMENTED",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect
                                         {
@@ -214,7 +215,7 @@ namespace Fusee.Examples.Materials.Core
                                                             "Normal map",
                                                             "desc",
                                                             vsTex,
-                                                            psTex,
+                                                            psText,
                                                             MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                                             new MinMaxRect(),
                                                             fontLatoMap,
@@ -239,7 +240,7 @@ namespace Fusee.Examples.Materials.Core
                                         "Albedo and emissive",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect(),
                                         fontLatoMap,
@@ -250,7 +251,7 @@ namespace Fusee.Examples.Materials.Core
                                         "NOT YET IMPLEMENTED",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect
                                         {
@@ -279,7 +280,7 @@ namespace Fusee.Examples.Materials.Core
                                         "Albedo, emissive and\nemissive texture",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect(),
                                         fontLatoMap,
@@ -290,7 +291,7 @@ namespace Fusee.Examples.Materials.Core
                                         "NOT YET IMPLEMENTED",
                                         "desc",
                                         vsTex,
-                                        psTex,
+                                        psText,
                                         MinMaxRect.FromCenterSize(float2.Zero, float2.One),
                                         new MinMaxRect
                                         {

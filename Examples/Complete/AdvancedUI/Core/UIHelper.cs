@@ -35,6 +35,7 @@ namespace Fusee.Examples.AdvancedUI.Core
 
         internal static string VsTex = AssetStorage.Get<string>("texture.vert");
         internal static string PsTex = AssetStorage.Get<string>("texture.frag");
+        internal static string PsText = AssetStorage.Get<string>("text.frag");
         internal static string VsNineSlice = AssetStorage.Get<string>("nineSlice.vert");
         internal static string PsNineSlice = AssetStorage.Get<string>("nineSliceTile.frag");
 
@@ -141,7 +142,7 @@ namespace Fusee.Examples.AdvancedUI.Core
                 text,
                 "annotation text",
                 VsTex,
-                PsTex,
+                PsText,
                 new MinMaxRect
                 {
                     Min = new float2(0, 0),

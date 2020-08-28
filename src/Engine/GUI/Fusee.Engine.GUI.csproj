@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Content Include="Assets\**\*" PackagePath="contentFiles\Assets\" CopyToOutputDirectory="PreserveNewest" />
+    <None Remove="Assets\text.frag" />
     <Content Include="NuGet\Fusee.Engine.GUI.targets" PackagePath="build\Fusee.Engine.GUI.targets" />
   </ItemGroup>
 

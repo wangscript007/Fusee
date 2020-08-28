@@ -180,7 +180,7 @@ namespace Fusee.Base.Imp.Android
             }
 
             ImageData ret = new ImageData(pixelData, bmp.Width, bmp.Rows,
-                new ImagePixelFormat(ColorFormat.Intensity));
+                new ImagePixelFormat(ColorFormat.R8));
 
             bitmapLeft = _face.Glyph.BitmapLeft;
             bitmapTop = _face.Glyph.BitmapTop;

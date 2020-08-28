@@ -194,9 +194,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
                     break;
                 // TODO: Handle Alpha-only / Intensity-only and AlphaIntensity correctly.
-                case ColorFormat.Intensity:
-                    internalFormat = PixelInternalFormat.Alpha;
-                    format = PixelFormat.Alpha;
+                case ColorFormat.R8:
+                    internalFormat = PixelInternalFormat.R8;
+                    format = PixelFormat.Red;
                     pxType = PixelType.UnsignedByte;
 
                     break;

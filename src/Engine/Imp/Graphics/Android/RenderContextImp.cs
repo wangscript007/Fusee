@@ -202,7 +202,7 @@ namespace Fusee.Engine.Imp.Graphics.Android
                     pxType = PixelType.UnsignedByte;
                     break;
                 // TODO: Handle Alpha-only / Intensity-only and AlphaIntensity correctly.
-                case ColorFormat.Intensity:
+                case ColorFormat.R8:
                     internalFormat = PixelInternalFormat.Alpha;
                     format = PixelFormat.Alpha;
                     pxType = PixelType.UnsignedByte;
