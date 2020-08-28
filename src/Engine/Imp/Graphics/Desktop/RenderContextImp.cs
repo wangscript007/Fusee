@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using ErrorCode = OpenToolkit.Graphics.OpenGL.ErrorCode;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -436,7 +437,6 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// </exception>
         public IShaderHandle CreateShaderProgram(string vs, string ps, string gs = null)
         {
-            Diagnostics.Debug("~~ CreateShaderProgram: " + GL.GetError());
             int vertexObject = GL.CreateShader(ShaderType.VertexShader);
             int fragmentObject = GL.CreateShader(ShaderType.FragmentShader);
 
@@ -497,7 +497,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             GL.DetachShader(program, vertexObject);
             GL.DeleteShader(fragmentObject);
             GL.DeleteShader(vertexObject);
-            Diagnostics.Debug("CreateShaderProgram: " + GL.GetError());
+
             return new ShaderHandleImp { Handle = program };
         }
 
@@ -1020,7 +1020,6 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <exception cref="ApplicationException"></exception>
         public void SetVertices(IMeshImp mr, float3[] vertices)
         {
-            Diagnostics.Debug("~~ SetVertices: " + GL.GetError());
             if (vertices == null || vertices.Length == 0)
             {
                 throw new ArgumentException("Vertices must not be null or empty");
@@ -1047,8 +1046,6 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             GL.VertexAttribPointer(AttributeLocations.VertexAttribLocation, 3, VertexAttribPointerType.Float, false, 0, IntPtr.Zero);
             GL.EnableVertexAttribArray(AttributeLocations.VertexAttribLocation);
 
-            Diagnostics.Debug("SetVertices: " + GL.GetError());
-
             GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int vboBytes);
             if (vboBytes != vertsBytes)
                 throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.", vertsBytes, vboBytes));
@@ -1068,11 +1065,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("Tangents must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int tangentBytes = tangents.Length * 4 * sizeof(float);
@@ -1104,11 +1099,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("BiTangents must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int bitangentBytes = bitangents.Length * 3 * sizeof(float);
@@ -1140,11 +1133,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("Normals must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int normsBytes = normals.Length * 3 * sizeof(float);
@@ -1176,11 +1167,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("BoneIndices must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int indicesBytes = boneIndices.Length * 4 * sizeof(float);
@@ -1212,11 +1201,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("BoneWeights must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int weightsBytes = boneWeights.Length * 4 * sizeof(float);
@@ -1248,11 +1235,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("UVs must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int uvsBytes = uvs.Length * 2 * sizeof(float);
@@ -1284,11 +1269,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("colors must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             int colsBytes = colors.Length * sizeof(uint);
@@ -1320,11 +1303,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 throw new ArgumentException("triangleIndices must not be null or empty");
             }
 
-            // 1. Generate VAO if needed
             if (((MeshImp)mr).VertexArrayObject == 0)
                 ((MeshImp)mr).VertexArrayObject = GL.GenVertexArray();
 
-            // 2. Bind VAO
             GL.BindVertexArray(((MeshImp)mr).VertexArrayObject);
 
             ((MeshImp)mr).TriangleIndices = triangleIndices.Length;
@@ -1338,8 +1319,6 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(trisBytes), triangleIndices, BufferUsageHint.StaticDraw);
 
             GL.GetBufferParameter(BufferTarget.ElementArrayBuffer, BufferParameterName.BufferSize, out int vboBytes);
-
-            Diagnostics.Debug("SetTriangles: " + GL.GetError());
 
             if (vboBytes != trisBytes)
                 throw new ApplicationException(String.Format("Problem uploading vertex buffer to VBO (offsets). Tried to upload {0} bytes, uploaded {1}.", trisBytes, vboBytes));
