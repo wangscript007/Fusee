@@ -1,5 +1,9 @@
-﻿using OpenTK.Windowing.Desktop;
-using OpenTK.Mathematics;
+﻿using OpenToolkit.Graphics.OpenGL;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
+using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
+using OpenToolkit.Mathematics;
 using System;
 using System.Reflection;
 

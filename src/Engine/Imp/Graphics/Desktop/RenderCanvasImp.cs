@@ -2,14 +2,14 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using SDPixelFormat = System.Drawing.Imaging.PixelFormat;
-using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Common.Input;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Mathematics;
+using PixelFormat = OpenToolkit.Graphics.OpenGL.PixelFormat;
+using OpenToolkit.Graphics.OpenGL;
+using OpenToolkit.Windowing.Common;
+using OpenToolkit.Windowing.Common.Input;
+using OpenToolkit.Windowing.Desktop;
+using OpenToolkit.Mathematics;
 using Fusee.Engine.Common;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -511,7 +511,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                 _gameWindow = new RenderCanvasGameWindow(this, width, height, false);
             }
             if (appIcon != null)
-                _gameWindow.Icon = new WindowIcon(new OpenTK.Windowing.Common.Input.Image(appIcon.Width, appIcon.Height, SwapColors(appIcon.ToBitmap(), ChangeColors.SwapBlueAndRed)));
+                _gameWindow.Icon = new WindowIcon(new OpenToolkit.Windowing.Common.Input.Image(appIcon.Width, appIcon.Height, SwapColors(appIcon.ToBitmap(), ChangeColors.SwapBlueAndRed)));
 
             _gameWindow.Size = new Vector2i(width, height);
         }
@@ -1034,7 +1034,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             _renderCanvasImp.Dispose();
         }
 
-        protected override void OnResize(OpenTK.Windowing.Common.ResizeEventArgs e)
+        protected override void OnResize(OpenToolkit.Windowing.Common.ResizeEventArgs e)
         {
             if (_renderCanvasImp != null)
             {

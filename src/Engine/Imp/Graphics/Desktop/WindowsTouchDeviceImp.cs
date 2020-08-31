@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Fusee.Engine.Common;
-using OpenTK.Windowing.Desktop;
+using OpenToolkit.Windowing.Desktop;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
