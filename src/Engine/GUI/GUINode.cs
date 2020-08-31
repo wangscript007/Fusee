@@ -1,6 +1,7 @@
 ﻿using Fusee.Engine.Common;
 using Fusee.Engine.Core;
 using Fusee.Engine.Core.Scene;
+using Fusee.Engine.Core.ShaderShards;
 using Fusee.Math.Core;
 using System.Collections.Generic;
 
@@ -276,24 +277,16 @@ namespace Fusee.Engine.GUI
                         },
                         new[]
                         {
-                            new EffectParameterDeclaration
-                            {
-                                Name = "DiffuseTexture",
-                                Value = tex
-                            },
-                            new EffectParameterDeclaration {Name = "DiffuseColor", Value = float4.One},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoTexture, Value = tex},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoColor, Value = float4.One},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoMix, Value = 1f},
                             new EffectParameterDeclaration {Name = "Tile", Value = tiles},
-                            new EffectParameterDeclaration {Name = "DiffuseMix", Value = 1f},
-                            new EffectParameterDeclaration
-                            {
-                                Name = "borders",
-                                Value = borders
-                            },
+                            new EffectParameterDeclaration {Name = "borders", Value = borders},
                             new EffectParameterDeclaration {Name = "borderThickness", Value = borderThickness * borderScaleFactor},
-                            new EffectParameterDeclaration {Name = "FUSEE_ITMV", Value = float4x4.Identity},
-                            new EffectParameterDeclaration {Name = "FUSEE_M", Value = float4x4.Identity},
-                            new EffectParameterDeclaration {Name = "FUSEE_V", Value = float4x4.Identity},
-                            new EffectParameterDeclaration {Name = "FUSEE_P", Value = float4x4.Identity}
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.ITModelView, Value = float4x4.Identity},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.Model, Value = float4x4.Identity},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.View, Value = float4x4.Identity},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.Projection, Value = float4x4.Identity}
                         }),
                 new NineSlicePlane()
             };
@@ -343,15 +336,11 @@ namespace Fusee.Engine.GUI
                         },
                         new[]
                         {
-                            new EffectParameterDeclaration
-                            {
-                                Name = "DiffuseTexture",
-                                Value = tex
-                            },
-                            new EffectParameterDeclaration {Name = "DiffuseColor", Value = float4.One},
-                            new EffectParameterDeclaration {Name = "DiffuseMix", Value = 1f},
-                            new EffectParameterDeclaration {Name = "FUSEE_ITMV", Value = float4x4.Identity},
-                            new EffectParameterDeclaration {Name = "FUSEE_MVP", Value = float4x4.Identity},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoTexture, Value = tex},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoColor, Value = float4.One},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoMix, Value = 1f},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.ITModelView, Value = float4x4.Identity},
+                            new EffectParameterDeclaration {Name = UniformNameDeclarations.ModelViewProjection, Value = float4x4.Identity},
                         }),
                 new Core.Plane()
             };
@@ -432,16 +421,11 @@ namespace Fusee.Engine.GUI
                                 },
                                 new[]
                                 {
-                                    new EffectParameterDeclaration
-                                    {
-                                        Name = "DiffuseTexture",
-                                        Value = new Texture(fontMap.Image)
-                                    },
-                                    new EffectParameterDeclaration
-                                        {Name = "DiffuseColor", Value = color},
-                                    new EffectParameterDeclaration {Name = "DiffuseMix", Value = 0.0f},
-                                    new EffectParameterDeclaration {Name = "FUSEE_ITMV", Value = float4x4.Identity},
-                                    new EffectParameterDeclaration {Name = "FUSEE_MVP", Value = float4x4.Identity},
+                                    new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoTexture, Value = new Texture(fontMap.Image)},
+                                    new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoColor, Value = color},
+                                    new EffectParameterDeclaration {Name = UniformNameDeclarations.AlbedoMix, Value = 1f},
+                                    new EffectParameterDeclaration {Name = UniformNameDeclarations.ITModelView, Value = float4x4.Identity},
+                                    new EffectParameterDeclaration {Name = UniformNameDeclarations.ModelViewProjection, Value = float4x4.Identity},
                                 }),
                         textMesh
                      }

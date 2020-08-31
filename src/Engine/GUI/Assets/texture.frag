@@ -7,9 +7,9 @@ precision highp float;
 in vec2 vUV;
 in vec3 vMVNormal;
 
-uniform sampler2D DiffuseTexture;
-uniform vec4 DiffuseColor;
-uniform float DiffuseMix;
+uniform sampler2D AlbedoTexture;
+uniform vec4 AlbedoColor;
+uniform float AlbedoMix;
 
 out vec4 outColor;
 
@@ -17,12 +17,12 @@ void main()
 {
 	vec3 N = normalize(vMVNormal);
 	vec3 L = vec3(0.0,0.0,-1.0);
-	vec4 color = vec4(texture(DiffuseTexture,vUV) * DiffuseMix);
+	vec4 color = vec4(texture(AlbedoTexture,vUV) * AlbedoMix);
 
-	if(DiffuseMix == 0.0)
-		color = vec4(1.0, 1.0, 1.0, texture(DiffuseTexture, vUV).a);	
+	if(AlbedoMix == 0.0)
+		color = vec4(1.0, 1.0, 1.0, texture(AlbedoTexture, vUV).a);	
 
-	outColor = color * DiffuseColor *  max(dot(N, L), 0.0);
+	outColor = color * AlbedoColor *  max(dot(N, L), 0.0);
 }
 
 
