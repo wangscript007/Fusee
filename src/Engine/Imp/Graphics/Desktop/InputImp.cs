@@ -690,7 +690,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         /// <summary>
         /// Called when keyboard button is pressed down.
-        /// </summary>
+        /// </summary
         /// <param name="key">The <see cref="KeyboardKeyEventArgs"/> instance containing the event data.</param>
         protected void OnGameWinKeyDown(KeyboardKeyEventArgs key)
         {
@@ -750,10 +750,11 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
     public class MouseDeviceImp : IInputDeviceImp
     {
         private GameWindow _gameWindow;
+        private float _mouseWheelOffsetY;
         private ButtonImpDescription _btnLeftDesc, _btnRightDesc, _btnMiddleDesc;
 
         /// <summary>
-        /// Creates a new mouse input device instance using an existing <see cref="OpenTK.GameWindow"/>.
+        /// Creates a new mouse input device instance using an existing <see cref="OpenToolkit.Windowing.Desktop.GameWindow"/>.
         /// </summary>
         /// <param name="gameWindow">The game window providing mouse input.</param>
         public MouseDeviceImp(GameWindow gameWindow)
@@ -767,6 +768,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
             Action<MouseButtonEventArgs> mouseUpDel = OnGameWinMouseUp;
             _gameWindow.MouseUp += mouseUpDel;
+
+            Action<MouseWheelEventArgs> mouseWheelDel = OnGameWinMouseWheel;
+            _gameWindow.MouseWheel += mouseWheelDel;
 
             _btnLeftDesc = new ButtonImpDescription
             {
@@ -964,7 +968,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             switch (iAxisId)
             {
                 case (int)MouseAxes.Wheel:
-                    return 0;//ToDo: OpenTK4.0 - how to get this value? //return OpenTK.Input.Mouse.GetCursorState().WheelPrecise;
+                    return _mouseWheelOffsetY;
                 case (int)MouseAxes.MinX:
                     return 0;
                 case (int)MouseAxes.MaxX:
@@ -1064,6 +1068,16 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
                     Button = btnDesc
                 });
             }
+        }
+
+        //ToDo: OpenTK4.0 - OpenTK.Input.Mouse.GetCursorState().WheelPrecise is not available anymore - MouseWheelEventArgs.Offset seems to be effected by the mouse wheel velocity
+        /// <summary>
+        /// Called when the game window's mouse wheel is moved.
+        /// </summary>
+        /// <param name="mwArgs">The <see cref="MouseWheelEventArgs"/> containing the mouse wheel offsets.</param>
+        protected void OnGameWinMouseWheel(MouseWheelEventArgs mwArgs)
+        {
+            _mouseWheelOffsetY += mwArgs.OffsetY / System.Math.Abs(mwArgs.OffsetY);
         }
     }
 }
