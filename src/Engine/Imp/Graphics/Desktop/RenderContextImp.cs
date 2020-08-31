@@ -39,7 +39,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         public RenderContextImp(IRenderCanvasImp renderCanvas)
         {
             var context = new GLFWBindingsContext();
-           
+
             GL.LoadBindings(context);
             _textureCountPerShader = 0;
             _shaderParam2TexUnit = new Dictionary<int, int>();
