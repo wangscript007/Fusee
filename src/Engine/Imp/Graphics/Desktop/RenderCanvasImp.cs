@@ -11,6 +11,9 @@ using OpenToolkit.Mathematics;
 using Fusee.Engine.Common;
 using OpenToolkit.Windowing.GraphicsLibraryFramework;
 using System.IO;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -507,18 +510,157 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             {
                 _gameWindow = new RenderCanvasGameWindow(this, width, height, false);
             }
-            if (appIcon != null) //ToDo OpenTk4.0 - find a simple and correct way to create the OpenTK.WindowIcon
-                _gameWindow.Icon = new WindowIcon(new OpenToolkit.Windowing.Common.Input.Image(appIcon.Width, appIcon.Height, IconToBytes(appIcon)));
+            if (appIcon != null)
+                _gameWindow.Icon = new WindowIcon(new OpenToolkit.Windowing.Common.Input.Image(appIcon.Width, appIcon.Height, SwapColors(appIcon.ToBitmap(), ChangeColors.SwapBlueAndRed)));
 
             _gameWindow.Size = new Vector2i(width, height);
         }
 
-        private static byte[] IconToBytes(Icon icon)
+        #region Swap Icon colors
+        //ToDo OpenTk4.0 - is there a simpler way to crate the Icon? Do we want to have the swap methods generalized and move them somewhere else?
+        private enum ChangeColors
         {
-            using MemoryStream ms = new MemoryStream();
-            icon.Save(ms);
-            return ms.GetBuffer();
+            ShiftRight,
+            ShiftLeft,
+            SwapBlueAndRed,
+            SwapBlueAndGreen,
+            SwapRedAndGreen,
+            RedOnly,
+            GreenOnly,
+            BlueOnly,
+            AlphaOnly,
+            None
         }
+
+        private static Bitmap ToBitmap(byte[] pxData, int width, int height, SDPixelFormat pxFormat)
+        {
+            Bitmap resultBitmap = new Bitmap(width, height, pxFormat);
+            BitmapData resultData = resultBitmap.LockBits(new System.Drawing.Rectangle(0, 0, resultBitmap.Width, resultBitmap.Height), ImageLockMode.WriteOnly, SDPixelFormat.Format32bppArgb);
+            
+            Marshal.Copy(pxData, 0, resultData.Scan0, pxData.Length);
+            resultBitmap.UnlockBits(resultData);
+
+            return resultBitmap;
+        }
+
+        //Will only work for ARGB pixel formats...
+        private static byte[] SwapColors(Bitmap originalImage, ChangeColors swapType)
+        {
+            BitmapData sourceData = originalImage.LockBits (new System.Drawing.Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadOnly, originalImage.PixelFormat);
+
+            byte[] resultBuffer = new byte[sourceData.Stride * sourceData.Height];
+            Marshal.Copy(sourceData.Scan0, resultBuffer, 0, resultBuffer.Length);
+            originalImage.UnlockBits(sourceData);
+
+            byte resultBlue, resultGreen, resultRed, resultAlpha;
+            
+            for (int k = 0; k < resultBuffer.Length; k += 4)
+            {
+                byte sourceBlue = resultBuffer[k];
+                byte sourceGreen = resultBuffer[k + 1];
+                byte sourceRed = resultBuffer[k + 2];
+                byte sourceAlpha = resultBuffer[k + 3];
+                
+                switch (swapType)
+                {
+                    default:
+                    case ChangeColors.None:
+                        {
+                            resultBlue = sourceBlue;
+                            resultGreen = sourceGreen;
+                            resultRed = sourceRed;
+                            resultAlpha = sourceAlpha;
+                            break;
+                        }
+                    case ChangeColors.RedOnly:
+                        {
+                            resultBlue = 0;
+                            resultGreen = 0;
+                            resultRed = sourceRed;
+                            resultAlpha = sourceAlpha;
+                            break;
+                        }
+                    case ChangeColors.GreenOnly:
+                        {
+                            resultBlue = 0;
+                            resultGreen = sourceGreen;
+                            resultRed = 0;
+                            resultAlpha = sourceAlpha;
+                            break;
+                        }
+                    case ChangeColors.BlueOnly:
+                        {
+                            resultBlue = sourceBlue;
+                            resultGreen = 0;
+                            resultRed = 0;
+                            resultAlpha = sourceAlpha;
+                            break;
+                        }
+                    case ChangeColors.AlphaOnly:
+                        {
+                            resultBlue = 0;
+                            resultGreen = 0;
+                            resultRed = 0;
+                            resultAlpha = sourceAlpha;
+                            break;
+                        }
+                    case ChangeColors.ShiftRight:
+                        {
+                            resultBlue = sourceGreen;
+                            resultRed = sourceBlue;
+                            resultGreen = sourceRed;
+                            resultAlpha = sourceAlpha;
+
+                            break;
+                        }
+                    case ChangeColors.ShiftLeft:
+                        {
+                            resultBlue = sourceRed;
+                            resultRed = sourceGreen;
+                            resultGreen = sourceBlue;
+                            resultAlpha = sourceAlpha;
+
+                            break;
+                        }
+                    case ChangeColors.SwapBlueAndRed:
+                        {
+                            resultBlue = sourceRed;
+                            resultGreen = sourceGreen;
+                            resultRed = sourceBlue;
+                            resultAlpha = sourceAlpha;
+
+                            break;
+                        }
+                    case ChangeColors.SwapBlueAndGreen:
+                        {
+                            resultRed = sourceRed;
+                            resultBlue = sourceGreen;
+                            resultGreen = sourceBlue;
+                            resultAlpha = sourceAlpha;
+
+                            break;
+                        }
+                    case ChangeColors.SwapRedAndGreen:
+                        {
+                            resultRed = sourceGreen;
+                            resultGreen = sourceGreen;
+                            resultBlue = sourceBlue;
+                            resultAlpha = sourceAlpha;
+
+                            break;
+                        }
+                }
+
+                resultBuffer[k] = resultBlue;
+                resultBuffer[k + 1] = resultGreen;
+                resultBuffer[k + 2] = resultRed;
+                resultBuffer[k + 3] = resultAlpha;
+            }
+
+            return resultBuffer;
+        }
+
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderCanvasImp"/> class.
