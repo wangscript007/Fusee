@@ -536,7 +536,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         {
             Bitmap resultBitmap = new Bitmap(width, height, pxFormat);
             BitmapData resultData = resultBitmap.LockBits(new System.Drawing.Rectangle(0, 0, resultBitmap.Width, resultBitmap.Height), ImageLockMode.WriteOnly, SDPixelFormat.Format32bppArgb);
-            
+
             Marshal.Copy(pxData, 0, resultData.Scan0, pxData.Length);
             resultBitmap.UnlockBits(resultData);
 
@@ -546,21 +546,21 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         //Will only work for ARGB pixel formats...
         private static byte[] SwapColors(Bitmap originalImage, ChangeColors swapType)
         {
-            BitmapData sourceData = originalImage.LockBits (new System.Drawing.Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadOnly, originalImage.PixelFormat);
+            BitmapData sourceData = originalImage.LockBits(new System.Drawing.Rectangle(0, 0, originalImage.Width, originalImage.Height), ImageLockMode.ReadOnly, originalImage.PixelFormat);
 
             byte[] resultBuffer = new byte[sourceData.Stride * sourceData.Height];
             Marshal.Copy(sourceData.Scan0, resultBuffer, 0, resultBuffer.Length);
             originalImage.UnlockBits(sourceData);
 
             byte resultBlue, resultGreen, resultRed, resultAlpha;
-            
+
             for (int k = 0; k < resultBuffer.Length; k += 4)
             {
                 byte sourceBlue = resultBuffer[k];
                 byte sourceGreen = resultBuffer[k + 1];
                 byte sourceRed = resultBuffer[k + 2];
                 byte sourceAlpha = resultBuffer[k + 3];
-                
+
                 switch (swapType)
                 {
                     default:
