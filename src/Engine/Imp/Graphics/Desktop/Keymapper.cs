@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using OpenToolkit.Windowing.Common.Input;
+using OpenTK.Windowing.Common.Input;
 using Fusee.Engine.Common;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
-    internal class Keymapper : Dictionary<OpenToolkit.Windowing.Common.Input.Key, ButtonDescription>
+    internal class Keymapper : Dictionary<Key, ButtonDescription>
     {
         #region Constructors
         /// <summary>

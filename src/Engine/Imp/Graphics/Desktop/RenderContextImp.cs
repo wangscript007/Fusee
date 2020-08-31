@@ -3,14 +3,13 @@ using Fusee.Base.Core;
 using Fusee.Engine.Common;
 using Fusee.Engine.Core.ShaderShards;
 using Fusee.Math.Core;
-using OpenToolkit.Graphics.OpenGL;
-using OpenToolkit.Mathematics;
-using OpenToolkit.Windowing.GraphicsLibraryFramework;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using ErrorCode = OpenToolkit.Graphics.OpenGL.ErrorCode;
 
 namespace Fusee.Engine.Imp.Graphics.Desktop
 {
@@ -39,7 +38,9 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         /// <param name="renderCanvas">The render canvas interface.</param>
         public RenderContextImp(IRenderCanvasImp renderCanvas)
         {
-            GL.LoadBindings(new GLFWBindingsContext());
+            var context = new GLFWBindingsContext();
+           
+            GL.LoadBindings(context);
             _textureCountPerShader = 0;
             _shaderParam2TexUnit = new Dictionary<int, int>();
 
@@ -72,15 +73,15 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
 
         #region Image data related Members
 
-        private OpenToolkit.Graphics.OpenGL.TextureCompareMode GetTexComapreMode(Common.TextureCompareMode compareMode)
+        private OpenTK.Graphics.OpenGL.TextureCompareMode GetTexComapreMode(Common.TextureCompareMode compareMode)
         {
             switch (compareMode)
             {
                 case Common.TextureCompareMode.None:
-                    return OpenToolkit.Graphics.OpenGL.TextureCompareMode.None;
+                    return OpenTK.Graphics.OpenGL.TextureCompareMode.None;
 
                 case Common.TextureCompareMode.CompareRefToTexture:
-                    return OpenToolkit.Graphics.OpenGL.TextureCompareMode.CompareRefToTexture;
+                    return OpenTK.Graphics.OpenGL.TextureCompareMode.CompareRefToTexture;
 
                 default:
                     throw new ArgumentException("Invalid compare mode.");
@@ -157,19 +158,19 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             }
         }
 
-        private OpenToolkit.Graphics.OpenGL.TextureWrapMode GetWrapMode(Common.TextureWrapMode wrapMode)
+        private OpenTK.Graphics.OpenGL.TextureWrapMode GetWrapMode(Common.TextureWrapMode wrapMode)
         {
             switch (wrapMode)
             {
                 default:
                 case Common.TextureWrapMode.Repeat:
-                    return OpenToolkit.Graphics.OpenGL.TextureWrapMode.Repeat;
+                    return OpenTK.Graphics.OpenGL.TextureWrapMode.Repeat;
                 case Common.TextureWrapMode.MirroredRepeat:
-                    return OpenToolkit.Graphics.OpenGL.TextureWrapMode.MirroredRepeat;
+                    return OpenTK.Graphics.OpenGL.TextureWrapMode.MirroredRepeat;
                 case Common.TextureWrapMode.ClampToEdge:
-                    return OpenToolkit.Graphics.OpenGL.TextureWrapMode.ClampToEdge;
+                    return OpenTK.Graphics.OpenGL.TextureWrapMode.ClampToEdge;
                 case Common.TextureWrapMode.ClampToBorder:
-                    return OpenToolkit.Graphics.OpenGL.TextureWrapMode.ClampToBorder;
+                    return OpenTK.Graphics.OpenGL.TextureWrapMode.ClampToBorder;
             }
         }
 
