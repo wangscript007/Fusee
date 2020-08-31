@@ -362,6 +362,7 @@ namespace Fusee.Examples.Bone.Core
         {
             var vsTex = AssetStorage.Get<string>("texture.vert");
             var psTex = AssetStorage.Get<string>("texture.frag");
+            var psText = AssetStorage.Get<string>("text.frag");
 
             var canvasWidth = Width / 100f;
             var canvasHeight = Height / 100f;
@@ -396,7 +397,7 @@ namespace Fusee.Examples.Bone.Core
                 "FUSEE Bone Example",
                 "ButtonText",
                 vsTex,
-                psTex,
+                psText,
                 UIElementPosition.GetAnchors(AnchorPos.StretchHorizontal),
                 UIElementPosition.CalcOffsets(AnchorPos.StretchHorizontal, new float2(canvasWidth / 2 - 4, 0), canvasHeight, canvasWidth, new float2(8, 1)),
                 guiLatoBlack,
@@ -408,7 +409,7 @@ namespace Fusee.Examples.Bone.Core
                 "Work in progress!! Will not function as expected.",
                 "wip",
                 vsTex,
-                psTex,
+                psText,
                 UIElementPosition.GetAnchors(AnchorPos.StretchHorizontal),
                 UIElementPosition.CalcOffsets(AnchorPos.StretchHorizontal, new float2(canvasWidth / 2 - 4, canvasHeight / 2 - 0.5f), canvasHeight, canvasWidth, new float2(8, 1)),
                 guiLatoBlack,
