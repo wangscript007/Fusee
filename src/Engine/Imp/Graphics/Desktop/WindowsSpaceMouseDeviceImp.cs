@@ -247,7 +247,7 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
         {
             _gameWindow = gameWindow;
 
-            _handle = new HandleRef(_gameWindow, new IntPtr()/*_gameWindow.WindowInfo.Handle*/); //ToDo: OpenTK4.0 - how to get the WindowHandle?
+            _handle = new HandleRef(_gameWindow, ((RenderCanvasGameWindow)_gameWindow).Handle);
 
             try
             {

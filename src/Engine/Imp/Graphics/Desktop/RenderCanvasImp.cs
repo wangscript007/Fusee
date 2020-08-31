@@ -975,6 +975,19 @@ namespace Fusee.Engine.Imp.Graphics.Desktop
             }
         }
 
+        public IntPtr Handle
+        {
+            get
+            {
+                IntPtr handle;
+                unsafe
+                {
+                    handle = (IntPtr)WindowPtr;
+                }
+                return handle;
+            }
+        }
+
         #endregion
 
         #region Constructors
